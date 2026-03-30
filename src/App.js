@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import SquigglyLine from './SquigglyLine';
 import CorgiWalker from './CorgiWalker';
+import Dither from './Dither';
 
 const serif = 'Lora, Georgia, serif';
 
@@ -41,6 +42,7 @@ function App() {
     if (aboutRef.current) observer.observe(aboutRef.current);
     return () => observer.disconnect();
   }, []);
+
   const [boxOpen, setBoxOpen] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
 
@@ -65,11 +67,11 @@ function App() {
       </section>
 
       {/* About Me */}
-      <section ref={aboutRef} style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', padding: '120px 0 90px 10%', position: 'relative', overflow: 'hidden' }}>
-        <h2 style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', margin: '0 0 60px 0' }}>
+      <section ref={aboutRef} style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', padding: '120px 0 240px 10%', position: 'relative', overflow: 'hidden' }}>
+        <h2 style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', margin: '0 0 60px 0', position: 'relative', zIndex: 5 }}>
           ABOUT ME
         </h2>
-        <p style={{ fontFamily: serif, fontSize: '18px', lineHeight: '2', color: '#1a1a1a', maxWidth: '680px', margin: 0 }}>
+        <p style={{ fontFamily: serif, fontSize: '18px', lineHeight: '2', color: '#1a1a1a', maxWidth: '680px', margin: 0, position: 'relative', zIndex: 5 }}>
           Hi! I'm <strong>Katherine</strong>, a computer science student at{' '}
           <span style={{ fontWeight: '700' }}>Cornell University</span>{' '}
           who enjoys building thoughtful user-focused technology &amp; exploring how software
@@ -127,7 +129,7 @@ function App() {
             className={!boxOpen ? `box-img${shaking ? ' shaking' : ''}` : ''}
             style={{ width: '100%', display: 'block', position: 'relative', zIndex: 4 }}
           />
-          <p style={{ fontFamily: serif, fontSize: '16px', color: '#888', margin: 0, position: 'absolute', top: '65%', left: '360px', zIndex: 5, whiteSpace: 'nowrap' }}>{boxOpen ? 'click to close!' : 'click to open!'}</p>
+          <p style={{ fontFamily: serif, fontSize: '16px', color: '#1a1a1a', margin: 0, position: 'absolute', top: '65%', left: '360px', zIndex: 5, whiteSpace: 'nowrap' }}>{boxOpen ? 'click to close!' : 'click to open!'}</p>
           {/* Center hover/click trigger */}
           <div
             onMouseEnter={handleCenterHover}
@@ -135,7 +137,32 @@ function App() {
             style={{ position: 'absolute', top: '30%', left: '30%', width: '40%', height: '40%', cursor: 'pointer', zIndex: 5 }}
           />
         </div>
+        {/* Grass + Dither strip at bottom */}
+        <div style={{ position: 'absolute', bottom: '-20px', left: 0, width: '100%', zIndex: 1 }}>
+          <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+            <img
+              src="/grass.png"
+              alt="grass"
+              style={{ width: '100%', display: 'block' }}
+            />
+            <div style={{ position: 'absolute', top: '70%', left: 0, width: '110%', height: '30%', zIndex: 2, mixBlendMode: 'overlay', opacity: 0.12, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(to right, black 0%, black 50%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 40%)', WebkitMaskComposite: 'source-in', maskImage: 'linear-gradient(to right, black 0%, black 50%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 40%)', maskComposite: 'intersect' }}>
+              <Dither
+                waveColor={[0.5, 0.5, 0.5]}
+                disableAnimation={false}
+                enableMouseInteraction={false}
+                mouseRadius={0.3}
+                colorNum={8}
+                waveAmplitude={0.5}
+                waveFrequency={1.6}
+                waveSpeed={0.03}
+              />
+            </div>
+          </div>
+        </div>
       </section>
+
+      {/* Experience */}
+      <section style={{ backgroundColor: '#FFF9DC', minHeight: '100vh' }} />
     </div>
   );
 }
