@@ -1,0 +1,46 @@
+/* Floating Z smoke variants */
+@keyframes floatZ-0 { 0% { opacity:0; transform:translate(0,0) scale(0.8); } 15% { opacity:0.85; } 100% { opacity:0; transform:translate(-28px,-90px) scale(1.1); } }
+@keyframes floatZ-1 { 0% { opacity:0; transform:translate(0,0) scale(0.8); } 15% { opacity:0.85; } 100% { opacity:0; transform:translate(-10px,-80px) scale(1.1); } }
+@keyframes floatZ-2 { 0% { opacity:0; transform:translate(0,0) scale(0.9); } 15% { opacity:0.9;  } 100% { opacity:0; transform:translate(5px, -88px) scale(1.2); } }
+@keyframes floatZ-3 { 0% { opacity:0; transform:translate(0,0) scale(0.8); } 15% { opacity:0.8;  } 100% { opacity:0; transform:translate(22px, -78px) scale(1.0); } }
+@keyframes floatZ-4 { 0% { opacity:0; transform:translate(0,0) scale(0.7); } 15% { opacity:0.75; } 100% { opacity:0; transform:translate(-5px, -95px) scale(1.1); } }
+
+/* Corgi walk */
+@keyframes corgi-move {
+  from { left: -650px; }
+  to   { left: calc(100% - 1100px); }
+}
+
+.corgi-walk {
+  animation: corgi-move 5s linear forwards;
+}
+
+.corgi-arrived {
+  left: calc(100% - 1100px);
+  bottom: -30px !important;
+}
+
+@keyframes shake {
+  0%, 85%, 100% { transform: rotate(0deg) translate(0, 0); }
+  88%  { transform: rotate(-4deg) translate(-2px, 1px); }
+  91%  { transform: rotate(4deg)  translate(2px, -1px); }
+  94%  { transform: rotate(-3deg) translate(-1px, 1px); }
+  97%  { transform: rotate(2deg)  translate(1px, -1px); }
+}
+
+@keyframes shake-once {
+  0%   { transform: rotate(0deg) translate(0, 0); }
+  20%  { transform: rotate(-4deg) translate(-2px, 1px); }
+  40%  { transform: rotate(4deg)  translate(2px, -1px); }
+  60%  { transform: rotate(-3deg) translate(-1px, 1px); }
+  80%  { transform: rotate(2deg)  translate(1px, -1px); }
+  100% { transform: rotate(0deg) translate(0, 0); }
+}
+
+.box-img {
+  animation: shake 4s ease-in-out infinite;
+}
+
+.box-img.shaking {
+  animation: shake-once 0.6s ease-in-out 1 !important;
+}
