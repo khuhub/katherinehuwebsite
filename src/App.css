@@ -20,9 +20,92 @@
   bottom: -30px !important;
 }
 
+/* ── Experience section: keep list centered, chars always below list ──────
+   char-young (700px) and char-old (780px) are position:absolute; bottom:0.
+   We add padding-bottom so the list content ends above them at every width.
+   At ≤768px the chars become position:relative (in-flow) so we drop to 40px.
+   ────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .exp-section {
+    padding-bottom: 520px !important;
+  }
+  .exp-list {
+    margin: 40px auto 0 !important;
+  }
+  .char-young {
+    width: 560px !important;
+  }
+  .char-old {
+    width: 620px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .exp-section {
+    padding-bottom: 440px !important;
+  }
+  .char-young {
+    width: 420px !important;
+  }
+  .char-old {
+    width: 460px !important;
+  }
+}
+
+/* ── Responsive About Me ──────────────────────────────────────────────────
+   Strategy: grow the section's padding-bottom so the box (absolute, bottom:30px)
+   stays far below the text. Images fly up ~480 px from the box center, so we
+   need section_height - box_center_y > text_bottom + safe_margin.
+   Box is also scaled smaller so its transform flyouts shrink proportionally.
+   ────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1300px) {
+  .about-section {
+    padding-bottom: 480px !important;
+  }
+  .box-container {
+    transform: scale(0.82);
+    transform-origin: bottom right;
+    right: 80px !important;
+    bottom: 20px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .about-section {
+    padding-bottom: 560px !important;
+  }
+  .box-container {
+    transform: scale(0.68);
+    transform-origin: bottom right;
+    right: 40px !important;
+    bottom: 10px !important;
+  }
+  .about-body {
+    max-width: 68% !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .about-section {
+    padding-bottom: 640px !important;
+  }
+  .box-container {
+    transform: scale(0.56);
+    transform-origin: bottom right;
+    right: 15px !important;
+    bottom: 5px !important;
+  }
+  .about-body {
+    max-width: 58% !important;
+  }
+}
+
 @media (max-width: 768px) {
   .about-section {
     overflow: visible !important;
+    padding-bottom: 420px !important;
   }
 
   .grass-strip {
@@ -154,12 +237,8 @@
   }
 }
 
-@media (max-width: 768px) {
-  .exp-section {
-    overflow: visible !important;
-    padding-bottom: 40px !important;
-  }
-
+/* Polaroids start overlapping at < 1430px (21% gap × width < 300px polaroid width) */
+@media (max-width: 1430px) {
   .projects-section {
     padding-top: 60px !important;
   }
@@ -190,9 +269,16 @@
     left: auto !important;
     top: auto !important;
   }
+}
+
+@media (max-width: 768px) {
+  .exp-section {
+    overflow: visible !important;
+    padding-bottom: 40px !important;
+  }
 
   .exp-list {
-    margin: 0 auto 0 5% !important;
+    margin: 40px auto 0 !important;
     padding: 0 20px !important;
     gap: 24px !important;
     transform: none !important;
