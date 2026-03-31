@@ -55,7 +55,7 @@ function CorgiWalker({ started }) {
 
   return (
     <div
-      className={!started ? '' : arrived ? 'corgi-arrived' : 'corgi-walk'}
+      className={`corgi-container${!started ? '' : arrived ? ' corgi-arrived' : ' corgi-walk'}`}
       style={{
         position: 'absolute',
         bottom: arrived ? '-30px' : '-15px',

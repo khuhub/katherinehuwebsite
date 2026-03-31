@@ -46,14 +46,6 @@ function SquigglyLine() {
     let progress = 0;
     let animId;
 
-    const onScroll = () => {
-      const scrolled = window.scrollY;
-      const heroHeight = window.innerHeight;
-      const opacity = Math.max(0, 1 - scrolled / heroHeight);
-      canvas.style.opacity = opacity;
-    };
-    window.addEventListener('scroll', onScroll);
-
     function draw() {
       const end = Math.min(Math.floor(progress), totalPoints);
 
@@ -81,12 +73,22 @@ function SquigglyLine() {
       }
     }
 
-    draw();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          cancelAnimationFrame(animId);
+          progress = 0;
+          draw();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(canvas);
 
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', onResize);
-      window.removeEventListener('scroll', onScroll);
+      observer.disconnect();
     };
   }, []);
 
@@ -94,11 +96,11 @@ function SquigglyLine() {
     <canvas
       ref={canvasRef}
       style={{
-        position: 'fixed',
+        position: 'absolute',
         top: 0,
         left: 0,
         pointerEvents: 'none',
-        zIndex: 0,
+        zIndex: 2,
       }}
     />
   );
