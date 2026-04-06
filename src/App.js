@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 import SquigglyLine from './SquigglyLine';
 import CorgiWalker from './CorgiWalker';
@@ -344,6 +345,7 @@ function App() {
           made by katherine hu · 2026
         </p>
       </footer>
+      <Analytics />
     </div>
   );
 }
