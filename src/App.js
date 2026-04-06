@@ -117,14 +117,14 @@ function App() {
   return (
     <div>
       {/* Hero */}
-      <section style={{ backgroundColor: '#FFF9DC', height: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden', scrollSnapAlign: 'start', position: 'relative' }}>
+      <section style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden', scrollSnapAlign: 'start', position: 'relative', paddingBottom: '40px', paddingTop: '0', margin: '0' }}>
         <SquigglyLine />
-        <div className="hero-wrapper" style={{ width: '100%', maxWidth: '1380px', zIndex: 3, display: 'flex', flexDirection: 'column' }}>
+        <div className="hero-wrapper" style={{ width: '100%', maxWidth: '1380px', zIndex: 3, display: 'flex', flexDirection: 'column', margin: '0', padding: '0' }}>
           <div style={{ position: 'relative' }}>
             <img
               src="/hero1.png"
               alt="Katherine Hu"
-              style={{ width: '100%', maxHeight: '95vh', objectFit: 'cover', objectPosition: 'bottom', display: 'block', marginTop: '-30px', marginBottom: '30px' }}
+              style={{ width: '100%', height: 'auto', display: 'block', marginTop: '-60px' }}
             />
           <div className="hero-icons">
             {[
