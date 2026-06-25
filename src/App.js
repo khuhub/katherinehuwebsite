@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import './App.css';
+import SquigglyLine from './SquigglyLine';
 import CorgiWalker from './CorgiWalker';
 import Dither from './Dither';
 
@@ -188,6 +189,7 @@ function App() {
     <div>
       {/* Hero */}
       <section style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden', scrollSnapAlign: 'start', position: 'relative', paddingBottom: '40px', paddingTop: '0', margin: '0' }}>
+        <SquigglyLine />
         <div className="hero-wrapper" style={{ width: '100%', maxWidth: '1380px', zIndex: 3, display: 'flex', flexDirection: 'column', margin: '0', padding: '0' }}>
           <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', maxHeight: '92vh', visibility: heroReady ? 'visible' : 'hidden' }}>
 
