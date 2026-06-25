@@ -1,11 +1,57 @@
 import { useState, useEffect, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import './App.css';
-import SquigglyLine from './SquigglyLine';
 import CorgiWalker from './CorgiWalker';
 import Dither from './Dither';
 
 const serif = 'Lora, Georgia, serif';
+
+const HERO_IMAGES = [
+  '/hi.png', '/kat.png', '/me.png', '/Hu.png', '/corn.png', '/who.png',
+  '/git.png', '/linkedin.webp', '/email.png',
+];
+
+const POLAROID_CARD_WIDTH = 300;
+const POLAROID_IMAGE = { width: 272, height: 232 };
+const POLAROID_CARD_MIN_HEIGHT = 380;
+const POLAROID_WIRE_GAP = 85;
+const POLAROID_STAGE_HEIGHT = POLAROID_CARD_MIN_HEIGHT + 180;
+const POLAROID_TITLE_GAP = 72;
+
+const POLAROID_X_POSITIONS = {
+  4: [17, 38, 62, 83],
+  3: [29, 50, 71],
+};
+
+function wireYAtX(xPercent) {
+  const t = xPercent / 100;
+  return (1 - t) * (1 - t) * 10 + 2 * (1 - t) * t * 90 + t * t * 10;
+}
+
+const projectRows = [
+  [
+    { rotate: 12, polaroidOffset: 0, topOffset: 20, img: '/brandr.png', title: 'Brandr', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at YC × Browser Use Hackathon', link: 'https://github.com/khuhub/Brandr?tab=readme-ov-file', bottomPad: 20 },
+    { rotate: -4, polaroidOffset: 0, topOffset: 0,  img: '/momentum.png', title: 'Momentum', desc: 'A Slack AI assistant that turns Slack into a command center — drafting emails, creating Notion docs, and summarizing conversations without leaving the app', link: 'https://github.com/khuhub/Momentum', bottomPad: 20 },
+    { rotate: 4,  polaroidOffset: 0, topOffset: 0,  img: '/greenzone.png', title: 'Greenzone', desc: 'Data visualization tool helping Mongolian herders combat overgrazing and climate change through rangeland carrying capacity warnings', link: 'https://github.com/cornellh4i/greenzone', bottomPad: 20 },
+    { rotate: -8, polaroidOffset: 0, topOffset: 20, img: '/lockedin.png', title: 'LockedIn', desc: 'Tinder for networking — swipe right to connect with people who actually want to meet you. Award-winning app built at Cornell AppDev Hack Challenge', link: 'https://github.com/akh1lk/LockedIn', bottomPad: 20 },
+  ],
+  [
+    { rotate: 12, polaroidOffset: 0, topOffset: 0, img: '/escalate.png', title: 'Escalate', desc: 'An adaptive AI loop that runs engineering tasks through increasingly capable models, evaluates each attempt, and carries learned feedback forward to make every iteration smarter and more reliable.', link: 'https://github.com/khuhub/cursor-escalate', bottomPad: 20 },
+    { rotate: 4,  polaroidOffset: 0, topOffset: 0,  img: '/patchtst.png', title: 'PatchTST', desc: 'A deep learning reimplementation of PatchTST, a transformer architecture that uses patching and channel independence for long-term time-series forecasting. The project reproduced the original paper\'s results across multiple datasets within a 1–3% margin while exploring cross-channel and multiscale variants.', link: 'https://github.com/mmichellezhou/patchtst', bottomPad: 20 },
+    { rotate: -8, polaroidOffset: 0, topOffset: 0,  img: '/traceback.png', title: 'Traceback', desc: 'An award-winning project at the YC RSI/RL Hackathon, this adversarial evaluation loop forks critical agent states, uncovers hidden reward hacks, and turns each exploit into a regression test before shipping a verified fix.', link: 'https://github.com/ashtonchew/traceback', bottomPad: 20 },
+  ],
+];
+
+function preloadImages(sources) {
+  return Promise.all(
+    sources.map(src => new Promise(resolve => {
+      const img = new Image();
+      img.onload = resolve;
+      img.onerror = resolve;
+      img.src = src;
+    }))
+  );
+}
 
 const boxItems = [
   { src: '/food.png',   width: '480px', openTransform: 'translateX(-460px) translateY(-280px)', delay: 0,
@@ -31,9 +77,31 @@ const boxItems = [
 ];
 
 function App() {
+  const [heroStep, setHeroStep] = useState(0);
+  const [heroReady, setHeroReady] = useState(false);
+
+  useEffect(() => {
+    preloadImages(HERO_IMAGES).then(() => setHeroReady(true));
+  }, []);
+
+  useEffect(() => {
+    if (!heroReady) return;
+    const timers = [
+      setTimeout(() => setHeroStep(1), 200),   // hi appears
+      setTimeout(() => setHeroStep(2), 580),   // kat pops
+      setTimeout(() => setHeroStep(3), 960),   // me slides up
+      setTimeout(() => setHeroStep(4), 1300),  // Hu from right
+      setTimeout(() => setHeroStep(5), 1650),  // corn appears
+      setTimeout(() => setHeroStep(6), 1980),  // who pops up
+      setTimeout(() => setHeroStep(7), 2280),  // icons
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [heroReady]);
+
   const [shaking, setShaking] = useState(false);
   const [corgiStarted, setCorgiStarted] = useState(false);
   const aboutRef = useRef(null);
+  const grassRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -76,8 +144,9 @@ function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!aboutRef.current) return;
-      const rect = aboutRef.current.getBoundingClientRect();
+      const el = grassRef.current || aboutRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
       const fade = Math.max(0, Math.min(1, (-rect.bottom + 100) / 700));
       setGrassFade(fade);
     };
@@ -119,25 +188,79 @@ function App() {
     <div>
       {/* Hero */}
       <section style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden', scrollSnapAlign: 'start', position: 'relative', paddingBottom: '40px', paddingTop: '0', margin: '0' }}>
-        <SquigglyLine />
         <div className="hero-wrapper" style={{ width: '100%', maxWidth: '1380px', zIndex: 3, display: 'flex', flexDirection: 'column', margin: '0', padding: '0' }}>
-          <div style={{ position: 'relative' }}>
-            <img
-              src="/hero1.png"
-              alt="Katherine Hu"
-              style={{ width: '100%', height: 'auto', display: 'block', marginTop: '-60px' }}
-            />
-          <div className="hero-icons">
-            {[
-              { href: 'https://github.com/khuhub', src: '/git.png' },
-              { href: 'https://www.linkedin.com/in/katherine-hu317', src: '/linkedin.webp' },
-              { href: 'mailto:katherine.y.hu@gmail.com', src: '/email.png', height: '38px' },
-            ].map(({ href, src, height }, i) => (
-              <a key={i} href={href} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: height || '34px', borderRadius: '8px', textDecoration: 'none', transition: 'opacity 0.2s', overflow: 'hidden' }} onMouseEnter={e => e.currentTarget.style.opacity='0.75'} onMouseLeave={e => e.currentTarget.style.opacity='1'}>
-                <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </a>
-            ))}
-          </div>
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', maxHeight: '92vh', visibility: heroReady ? 'visible' : 'hidden' }}>
+
+            {/* Hi, I'm — top-left, fade in */}
+            <img src="/hi.png" alt="" fetchPriority="high" decoding="sync" style={{
+              position: 'absolute', top: '8%', left: '3%', width: '10%',
+              mixBlendMode: 'multiply',
+              opacity: heroStep >= 1 ? 1 : 0,
+              transition: 'opacity 0.5s ease',
+            }} />
+
+            {/* KATHERINE — slides in from top */}
+            <img src="/kat.png" alt="" fetchPriority="high" decoding="sync" style={{
+              position: 'absolute', top: '-20%', left: '50%', width: '88%',
+              mixBlendMode: 'multiply',
+              opacity: heroStep >= 2 ? 1 : 0,
+              transform: heroStep >= 2 ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-80px)',
+              transition: 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',
+            }} />
+
+            {/* Person — slides up from bottom, centered */}
+            <div style={{
+              position: 'absolute', bottom: '-30%', left: '50%', width: '80%', zIndex: 2,
+              opacity: heroStep >= 3 ? 1 : 0,
+              transform: heroStep >= 3 ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(70px)',
+              transition: 'opacity 0.5s ease, transform 0.55s cubic-bezier(0.34,1.56,0.64,1)',
+            }}>
+              <img src="/me.png" alt="Katherine Hu" className="hero-me" fetchPriority="high" decoding="sync" style={{ width: '100%', display: 'block' }} />
+            </div>
+
+            {/* HU — slides in from right with pop */}
+            <img src="/Hu.png" alt="" fetchPriority="high" decoding="sync" style={{
+              position: 'absolute', top: '44%', right: '18%', width: '34%', zIndex: 3,
+              opacity: heroStep >= 4 ? 1 : 0,
+              transform: heroStep >= 4 ? 'translateX(0)' : 'translateX(120px)',
+              transition: 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',
+            }} />
+
+            {/* cs @ cornell — fades in lower area */}
+            <img src="/corn.png" alt="" fetchPriority="high" decoding="sync" style={{
+              position: 'absolute', bottom: '33%', left: '8%', width: '18%',
+              mixBlendMode: 'multiply',
+              opacity: heroStep >= 5 ? 1 : 0,
+              transform: heroStep >= 5 ? 'rotate(-1deg)' : 'rotate(-1deg) translateY(12px)',
+              transition: 'opacity 0.5s ease, transform 0.5s ease',
+            }} />
+
+            {/* who??? — pops up */}
+            <img src="/who.png" alt="" className="hero-who" fetchPriority="high" decoding="sync" style={{
+              position: 'absolute', top: '85%', right: '4%', width: '12%',
+              mixBlendMode: 'multiply',
+              opacity: heroStep >= 6 ? 1 : 0,
+              transform: heroStep >= 6 ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.9)',
+              transition: 'opacity 0.4s ease, transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
+            }} />
+
+            {/* Icons */}
+            <div className="hero-icons" style={{
+              opacity: heroStep >= 7 ? 1 : 0,
+              transform: heroStep >= 7 ? 'translateY(0)' : 'translateY(12px)',
+              transition: 'opacity 0.4s ease, transform 0.4s ease',
+            }}>
+              {[
+                { href: 'https://github.com/khuhub', src: '/git.png' },
+                { href: 'https://www.linkedin.com/in/katherine-hu317', src: '/linkedin.webp' },
+                { href: 'mailto:katherine.y.hu@gmail.com', src: '/email.png', height: '38px' },
+              ].map(({ href, src, height }, i) => (
+                <a key={i} href={href} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: height || '34px', borderRadius: '8px', textDecoration: 'none', transition: 'opacity 0.2s', overflow: 'hidden' }} onMouseEnter={e => e.currentTarget.style.opacity='0.75'} onMouseLeave={e => e.currentTarget.style.opacity='1'}>
+                  <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </a>
+              ))}
+            </div>
+
           </div>
         </div>
       </section>
@@ -169,14 +292,18 @@ function App() {
                 bottom: '30%',
                 left: '50%',
                 width: item.width,
-                transform: boxOpen ? item.openTransform : 'translateX(-50%) translateY(10px)',
+                transform: boxOpen
+                  ? (item.src === '/lucky.png'
+                      ? `translateX(${window.innerWidth <= 900 ? -45 : window.innerWidth <= 1100 ? -20 : window.innerWidth <= 1300 ? -60 : 60}px) translateY(-320px)`
+                      : item.openTransform)
+                  : 'translateX(-50%) translateY(10px)',
                 opacity: boxOpen ? 1 : 0,
                 transition: `transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) ${item.delay}s, opacity 0.25s ease ${item.delay}s`,
                 pointerEvents: boxOpen ? 'auto' : 'none',
                 zIndex: 3,
               }}
             >
-              <img src={item.src} alt="" style={{ width: '100%', display: 'block', transform: hoveredItem === item.src ? 'scale(1.07)' : 'scale(1)', transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)' }} />
+              <img src={item.src} alt="" className="w-full h-auto block" style={{ transform: hoveredItem === item.src ? 'scale(1.07)' : 'scale(1)', transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)' }} />
               {/* Speech bubble */}
               {item.tooltip && hoveredItem === item.src && (
                 <div className={`box-tooltip${item.src.includes('lucky') ? ' bubble-lucky' : ''}`} style={{
@@ -202,8 +329,8 @@ function App() {
           <img
             src={boxOpen ? '/openbox.png' : '/box.png'}
             alt="box"
-            className={!boxOpen ? `box-img${shaking ? ' shaking' : ''}` : ''}
-            style={{ width: '100%', display: 'block', position: 'relative', zIndex: 4 }}
+            className={`w-full h-auto block${!boxOpen ? ` box-img${shaking ? ' shaking' : ''}` : ''}`}
+            style={{ position: 'relative', zIndex: 4 }}
           />
           <p style={{ fontFamily: serif, fontSize: '16px', color: '#1a1a1a', margin: 0, position: 'absolute', top: '65%', left: '360px', zIndex: 5, whiteSpace: 'nowrap' }}>{boxOpen ? 'click to close!' : 'click to open!'}</p>
           {/* Center hover/click trigger */}
@@ -214,12 +341,12 @@ function App() {
           />
         </div>
         {/* Grass + Dither strip at bottom */}
-        <div className="grass-strip" style={{ position: 'absolute', bottom: '-20px', left: 0, width: '100%', zIndex: 1 }}>
+        <div ref={grassRef} className="grass-strip" style={{ position: 'absolute', bottom: '-20px', left: 0, width: '100%', zIndex: 1 }}>
           <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
             <img
               src="/grass.png"
               alt="grass"
-              style={{ width: '100%', display: 'block' }}
+              className="w-full h-auto block"
             />
             <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '55%', background: 'linear-gradient(to bottom, transparent 0%, #FFF9DC 80%)', pointerEvents: 'none', zIndex: 5, opacity: grassFade }} />
             <div style={{ position: 'absolute', top: '70%', left: 0, width: '110%', height: '30%', zIndex: 2, mixBlendMode: 'overlay', opacity: 0.12, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(to right, black 0%, black 50%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 40%)', WebkitMaskComposite: 'source-in', maskImage: 'linear-gradient(to right, black 0%, black 50%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 40%)', maskComposite: 'intersect' }}>
@@ -243,19 +370,20 @@ function App() {
         <h2 className="about-heading" style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', textAlign: 'center', margin: '0 0 80px 0' }}>
           EXPERIENCE
         </h2>
-        <div className="exp-list" style={{ maxWidth: '820px', margin: '0 auto 0 30%', padding: '0 40px', marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div className="exp-content" style={{ margin: '0 auto 0 calc(50% - 360px)', maxWidth: '820px', padding: '0 40px' }}>
+        <div className="exp-list" style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '40px' }}>
           {[
-            { img: '/meta.png',    company: 'Meta',                         role: 'Incoming Software Engineer Intern',                                        size: 360, link: 'https://www.meta.com' },
+            { img: '/meta.png',    company: 'Meta',                         role: 'Software Engineer Intern: Ads AI Training Infra',                            size: 360, link: 'https://www.meta.com' },
             { img: '/myovara.png', company: 'Myovara',                      role: 'Lead Mobile Engineer & Team Lead',                                          size: 280, link: 'https://tech.cornell.edu/built/myovara-labs/' },
             { img: '/hack.png',    company: 'Hack4Impact Cornell',                  role: 'Technical Lead & Software Developer',                                       size: 280, link: 'https://www.cornellh4i.org/' },
             { img: '/wicc.png',    company: 'Women in Computing at Cornell', role: 'Technical Committee Member',                                               size: 280, imgOffset: 25, link: 'https://wicc.cornell.edu/#/' },
             { img: '/cornell.png', company: 'Teaching Assistant',           role: 'CS 2112: Honors Object-Oriented Design & Data Structures',       size: 720, link: 'https://www.cs.cornell.edu/' },
-          ].map(({ img, company, role, size, imgOffset = 0, link, containerAlign = 'center', containerWidth = 260, imgPosition = 'center' }, i) => (
+          ].map(({ img, company, role, imgOffset = 0, link, containerAlign = 'center', containerWidth = 260, imgPosition = 'center' }, i) => (
             <div key={company} ref={expRef(i)} onMouseEnter={() => setHoveredExp(company)} onMouseLeave={() => setHoveredExp(null)} className="exp-item" style={{ display: 'flex', alignItems: 'center', gap: '0px', overflow: 'hidden', height: '100px', opacity: visibleExps[i] ? 1 : 0, transform: visibleExps[i] ? 'translateY(0)' : 'translateY(20px)', transition: `opacity 0.5s ease ${i * 0.12}s, transform 0.5s ease ${i * 0.12}s` }}>
               <div className="exp-logo-col"
                 style={{ width: `${containerWidth}px`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: containerAlign }}
               >
-                <img src={img} alt={company} style={{ width: `${size}px`, height: `${size}px`, objectFit: 'contain', objectPosition: imgPosition, marginLeft: `${imgOffset}px`, transform: hoveredExp === company ? 'scale(1.08)' : 'scale(1)', transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)' }} />
+                <img src={img} alt={company} className="w-full h-full object-contain block" style={{ objectPosition: imgPosition, marginLeft: `${imgOffset}px`, transform: hoveredExp === company ? 'scale(1.08)' : 'scale(1)', transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)' }} />
               </div>
               <div className="exp-text-col" style={{ marginLeft: '-60px' }}>
                 {link ? (
@@ -271,71 +399,81 @@ function App() {
             </div>
           ))}
         </div>
+        </div>
         <div className="chars-wrapper">
           <div ref={textRef('young')} className="char-young" style={{ position: 'absolute', bottom: 0, left: '-2%', width: '700px', opacity: allExpsSeen ? 1 : 0, transition: 'opacity 0.8s ease 0.3s' }}>
-            <img src="/young.png" alt="young" className="person-img-jump" style={{ width: '100%', display: 'block' }} />
-            <img src="/youngtext.png" alt="" style={{ position: 'absolute', top: '-16%', left: '8%', width: '55%', opacity: textVisible.young ? 1 : 0, transition: 'opacity 2.5s ease' }} />
+            <div style={{ position: 'relative' }}>
+              <img src="/youngtext.png" alt="" style={{ position: 'absolute', bottom: '72%', left: '22%', width: '45%', opacity: textVisible.young ? 1 : 0, transition: 'opacity 2.5s ease' }} />
+              <img src="/young.png" alt="young" className="person-img-jump w-full h-auto block" />
+            </div>
           </div>
           <div ref={textRef('old')} className="char-old" style={{ position: 'absolute', bottom: '-40px', right: '-6%', width: '780px', opacity: allExpsSeen ? 1 : 0, transition: 'opacity 0.8s ease 0.5s' }}>
-            <img src="/old.png" alt="old" className="person-img" style={{ width: '100%', display: 'block' }} />
-            <img src="/oldtext.png" alt="" style={{ position: 'absolute', top: '-12%', right: '8%', width: '55%', opacity: textVisible.old ? 1 : 0, transition: 'opacity 2.5s ease' }} />
+            <div style={{ position: 'relative' }}>
+              <img src="/oldtext.png" alt="" style={{ position: 'absolute', bottom: '67%', right: '22%', width: '45%', opacity: textVisible.old ? 1 : 0, transition: 'opacity 2.5s ease' }} />
+              <img src="/old.png" alt="old" className="person-img w-full h-auto block" />
+            </div>
           </div>
         </div>
       </section>
       {/* Projects */}
-      <section className="projects-section" style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', scrollSnapAlign: 'start', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '140px', gap: '60px', overflow: 'hidden' }}>
+      <section className="projects-section" style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', scrollSnapAlign: 'start', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '108px', paddingBottom: '160px', gap: 0, overflow: 'visible' }}>
 
         <h2 className="about-heading" style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', margin: 0 }}>PROJECTS</h2>
 
-        {/* Curved string with 4 blank polaroids */}
-        <div className="polaroid-stage" style={{ position: 'relative', width: '100%', height: '240px' }}>
-          <svg className="polaroid-string" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100px' }} viewBox="0 0 1000 100" preserveAspectRatio="none">
-            <path d="M 0 10 Q 500 90 1000 10" stroke="#444" strokeWidth="1.5" fill="none" />
-          </svg>
-          {[
-            { rotate: 12, polaroidOffset: 0, topOffset: 20, img: '/brandr.png', title: 'Brandr', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at YC × Browser Use Hackathon', link: 'https://github.com/khuhub/Brandr?tab=readme-ov-file', bottomPad: 20 },
-            { rotate: -4, polaroidOffset: 0, topOffset: 0,  img: '/momentum.png', title: 'Momentum', desc: 'A Slack AI assistant that turns Slack into a command center — drafting emails, creating Notion docs, and summarizing conversations without leaving the app', link: 'https://github.com/khuhub/Momentum', bottomPad: 20 },
-            { rotate: 4,  polaroidOffset: 0, topOffset: 0,  img: '/greenzone.png', title: 'Greenzone', desc: 'Data visualization tool helping Mongolian herders combat overgrazing and climate change through rangeland carrying capacity warnings', link: 'https://github.com/cornellh4i/greenzone', bottomPad: 20 },
-            { rotate: -8, polaroidOffset: 0, topOffset: 20, img: '/lockedin.png', title: 'LockedIn', desc: 'Tinder for networking — swipe right to connect with people who actually want to meet you. Award-winning app built at Cornell AppDev Hack Challenge', link: 'https://github.com/akh1lk/LockedIn', bottomPad: 20 },
-          ].map(({ rotate, polaroidOffset, topOffset = 0, img, title, desc, link, bottomPad = 110 }, i) => {
-            const total = 4;
-            const t = i / (total - 1);
-            const xPositions = [17, 38, 62, 83];
-            const x = xPositions[i];
-            const curveY = (1 - t) * (1 - t) * 10 + 2 * (1 - t) * t * 90 + t * t * 10;
-            return (
-              <div key={i} className="polaroid-item" style={{
-                position: 'absolute',
-                left: `calc(${x}% - 150px)`,
-                top: `${curveY - 5 + topOffset}px`,
-                transform: `rotate(${(polaroidTilts[i] ?? 0) + rotate}deg)`,
-                transformOrigin: 'top center',
-                transition: 'transform 0.4s ease-out',
-              }}
-                onMouseMove={e => {
-                  const prev = lastMouseX.current[i];
-                  if (prev !== undefined) {
-                    const delta = e.clientX - prev;
-                    const tilt = Math.max(-15, Math.min(15, -delta * 0.5));
-                    setPolaroidTilts(t => ({ ...t, [i]: tilt }));
-                  }
-                  lastMouseX.current[i] = e.clientX;
+        {projectRows.map((projects, rowIndex) => (
+          <div
+            key={rowIndex}
+            className="polaroid-stage"
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: `${POLAROID_STAGE_HEIGHT}px`,
+              marginTop: rowIndex > 0 ? `${POLAROID_WIRE_GAP}px` : `${POLAROID_TITLE_GAP}px`,
+            }}
+          >
+            <svg className="polaroid-string" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100px' }} viewBox="0 0 1000 100" preserveAspectRatio="none">
+              <path d="M 0 10 Q 500 90 1000 10" stroke="#444" strokeWidth="1.5" fill="none" />
+            </svg>
+            {projects.map(({ rotate, polaroidOffset, topOffset = 0, img, title, desc, link, bottomPad = 110 }, i) => {
+              const tiltKey = `${rowIndex}-${i}`;
+              const total = projects.length;
+              const xPositions = POLAROID_X_POSITIONS[total] ?? POLAROID_X_POSITIONS[4];
+              const x = xPositions[i];
+              const curveY = wireYAtX(x);
+              return (
+                <div key={tiltKey} className="polaroid-item" style={{
+                  position: 'absolute',
+                  left: `calc(${x}% - 150px)`,
+                  top: `${curveY - 5}px`,
+                  transform: `rotate(${(polaroidTilts[tiltKey] ?? 0) + rotate}deg)`,
+                  transformOrigin: 'top center',
+                  transition: 'transform 0.4s ease-out',
                 }}
-                onMouseLeave={() => {
-                  setPolaroidTilts(t => ({ ...t, [i]: 0 }));
-                  lastMouseX.current[i] = undefined;
-                }}
-              >
-                <div className="polaroid-pin" style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#333', margin: '0 auto 0' }} />
-                <div style={{ width: '300px', backgroundColor: 'white', padding: `14px 14px ${bottomPad}px`, boxShadow: '2px 4px 12px rgba(0,0,0,0.15)', marginTop: `${polaroidOffset}px`, overflow: 'hidden' }}>
-                  {img ? <img src={img} alt="" style={{ width: '272px', height: '232px', objectFit: 'cover', display: 'block' }} /> : <div style={{ width: '272px', height: '232px', backgroundColor: '#f0ece0' }} />}
-                  {title && (link ? <a href={link} target="_blank" rel="noreferrer" style={{ fontFamily: serif, fontSize: '16px', fontWeight: '700', color: '#1a1a1a', margin: '10px 0 2px', display: 'block', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.textDecoration='underline'} onMouseLeave={e => e.currentTarget.style.textDecoration='none'}>{title}</a> : <p style={{ fontFamily: serif, fontSize: '16px', fontWeight: '700', color: '#1a1a1a', margin: '10px 0 2px' }}>{title}</p>)}
-                  {desc && <p style={{ fontFamily: serif, fontSize: '13px', color: '#555', margin: 0, lineHeight: 1.5 }}>{desc}</p>}
+                  onMouseMove={e => {
+                    const prev = lastMouseX.current[tiltKey];
+                    if (prev !== undefined) {
+                      const delta = e.clientX - prev;
+                      const tilt = Math.max(-15, Math.min(15, -delta * 0.5));
+                      setPolaroidTilts(t => ({ ...t, [tiltKey]: tilt }));
+                    }
+                    lastMouseX.current[tiltKey] = e.clientX;
+                  }}
+                  onMouseLeave={() => {
+                    setPolaroidTilts(t => ({ ...t, [tiltKey]: 0 }));
+                    lastMouseX.current[tiltKey] = undefined;
+                  }}
+                >
+                  <div className="polaroid-pin" style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#333', margin: '0 auto 0' }} />
+                  <div className="polaroid-card" style={{ width: `${POLAROID_CARD_WIDTH}px`, minHeight: `${POLAROID_CARD_MIN_HEIGHT}px`, backgroundColor: 'white', padding: `14px 14px ${bottomPad}px`, boxShadow: '2px 4px 12px rgba(0,0,0,0.15)', marginTop: `${polaroidOffset}px`, overflow: 'hidden', boxSizing: 'border-box' }}>
+                    {img ? <img src={img} alt={title || ''} style={{ width: `${POLAROID_IMAGE.width}px`, height: `${POLAROID_IMAGE.height}px`, objectFit: 'cover', display: 'block' }} /> : <div style={{ width: `${POLAROID_IMAGE.width}px`, height: `${POLAROID_IMAGE.height}px`, backgroundColor: '#f0ece0' }} />}
+                    {title ? (link ? <a href={link} target="_blank" rel="noreferrer" style={{ fontFamily: serif, fontSize: '16px', fontWeight: '700', color: '#1a1a1a', margin: '10px 0 2px', display: 'block', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.textDecoration='underline'} onMouseLeave={e => e.currentTarget.style.textDecoration='none'}>{title}</a> : <p style={{ fontFamily: serif, fontSize: '16px', fontWeight: '700', color: '#1a1a1a', margin: '10px 0 2px' }}>{title}</p>) : <div style={{ height: '22px', margin: '10px 0 2px' }} aria-hidden="true" />}
+                    {desc ? <p style={{ fontFamily: serif, fontSize: '13px', color: '#555', margin: 0, lineHeight: 1.5 }}>{desc}</p> : <div style={{ minHeight: '78px' }} aria-hidden="true" />}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        ))}
 
       </section>
 

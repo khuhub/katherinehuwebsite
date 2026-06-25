@@ -26,12 +26,18 @@
    At ≤768px the chars become position:relative (in-flow) so we drop to 40px.
    ────────────────────────────────────────────────────────────────────── */
 
+@media (max-width: 1430px) {
+  .exp-section {
+    padding-bottom: 600px !important;
+  }
+}
+
 @media (max-width: 1100px) {
   .exp-section {
-    padding-bottom: 520px !important;
+    padding-bottom: 560px !important;
   }
-  .exp-list {
-    margin: 40px auto 0 !important;
+  .exp-content {
+    margin: 0 auto !important;
   }
   .char-young {
     width: 560px !important;
@@ -43,7 +49,7 @@
 
 @media (max-width: 900px) {
   .exp-section {
-    padding-bottom: 440px !important;
+    padding-bottom: 480px !important;
   }
   .char-young {
     width: 420px !important;
@@ -62,7 +68,7 @@
 
 @media (max-width: 1300px) {
   .about-section {
-    padding-bottom: 480px !important;
+    padding-bottom: 720px !important;
   }
   .box-container {
     transform: scale(0.82);
@@ -79,7 +85,7 @@
   .box-container {
     transform: scale(0.68);
     transform-origin: bottom right;
-    right: 40px !important;
+    right: 120px !important;
     bottom: 10px !important;
   }
   .about-body {
@@ -94,7 +100,7 @@
   .box-container {
     transform: scale(0.56);
     transform-origin: bottom right;
-    right: 15px !important;
+    right: 95px !important;
     bottom: 5px !important;
   }
   .about-body {
@@ -156,7 +162,7 @@
   .box-container {
     transform: scale(0.52);
     transform-origin: bottom right;
-    right: 50px !important;
+    right: 105px !important;
     bottom: -10px !important;
     overflow: visible !important;
   }
@@ -183,6 +189,14 @@
 
 .person-img:hover {
   animation: shake-subtle 0.6s ease-in-out 1;
+}
+
+.hero-me:hover {
+  animation: shake-once 0.6s ease-in-out 1;
+}
+
+.hero-who {
+  animation: shake 2s ease-in-out infinite;
 }
 
 @keyframes jump {
@@ -221,11 +235,11 @@
   animation: shake 4s ease-in-out infinite;
 }
 
-/* Hero icons: desktop = absolute over image, mobile = below image on right */
+/* Hero icons: desktop = absolute over image, mobile = below image */
 .hero-icons {
   position: absolute;
-  bottom: 68px;
-  left: 320px;
+  bottom: -8%;
+  left: 23.2%;
   display: flex;
   gap: 14px;
   z-index: 10;
@@ -241,6 +255,8 @@
 @media (max-width: 1430px) {
   .projects-section {
     padding-top: 60px !important;
+    padding-bottom: 120px !important;
+    overflow: visible !important;
   }
 
   .polaroid-string,
@@ -268,6 +284,19 @@
     transform: none !important;
     left: auto !important;
     top: auto !important;
+    width: min(380px, calc(100vw - 48px)) !important;
+  }
+
+  .polaroid-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .polaroid-card img {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 272 / 232;
+    object-fit: cover;
   }
 }
 
@@ -277,9 +306,12 @@
     padding-bottom: 40px !important;
   }
 
-  .exp-list {
-    margin: 40px auto 0 !important;
+  .exp-content {
+    margin: 0 auto !important;
     padding: 0 20px !important;
+  }
+
+  .exp-list {
     gap: 24px !important;
     transform: none !important;
   }
@@ -351,7 +383,7 @@
   .hero-icons {
     position: static;
     justify-content: center;
-    padding: 190px 0 0 0;
+    padding: 12px 0 0 0;
     margin-right: 0;
   }
 
@@ -366,6 +398,33 @@
   }
 }
 
+/* ── Polaroid cards: fluid on small phones ─────────────────────────────── */
+@media (max-width: 480px) {
+  .polaroid-card {
+    width: calc(100vw - 48px) !important;
+  }
+  .about-section {
+    padding-bottom: 360px !important;
+  }
+  .box-container {
+    transform: scale(0.42) !important;
+    right: -10px !important;
+    bottom: -20px !important;
+  }
+}
+
 .box-img.shaking {
   animation: shake-once 0.6s ease-in-out 1 !important;
+}
+
+@keyframes hero-pop {
+  0%   { opacity: 0; transform: scale(0.90); }
+  55%  { opacity: 1; transform: scale(1.04); }
+  75%  { transform: scale(0.97); }
+  90%  { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
+.hero-pop {
+  animation: hero-pop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }

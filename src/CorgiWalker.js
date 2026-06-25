@@ -68,7 +68,7 @@ function CorgiWalker({ started }) {
       }}
       onClick={handleClick}
     >
-      <img src={src} alt="corgi" style={{ width: '100%', display: 'block' }} />
+      <img src={src} alt="corgi" className="w-full h-auto block" />
       {zees.map(z => (
         <span
           key={z.id}
