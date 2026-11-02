@@ -1,0 +1,31 @@
+public/engine/face.js
+  s_8e076e4a9a5a45::t_95153afa057110 57,254-255,257-258
+  s_8e076e4a9a5a45::t_bb5954af49403c 206,249,273,315
+  s_8e076e4a9a5a45::t_a22a7339503ce4 245,250,256,259,317
+  s_8e076e4a9a5a45::t_3f8f05be0c4482 246-247
+  s_8e076e4a9a5a45::t_d3d62abb3caef1 207,243-244,252-253
+  s_8e076e4a9a5a45::t_41acdbbf962cbf 248
+  s_8e076e4a9a5a45::t_ff1451469d7779 260-261
+  s_8e076e4a9a5a45::t_fba57f86683e8a 251
+hero-film/face.html
+  s_8e076e4a9a5a45::t_bb5954af49403c 45
+  s_8e076e4a9a5a45::t_a22a7339503ce4 46
+public/index.html
+  s_8e076e4a9a5a45::t_d3d62abb3caef1 28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cccf770f4cff10ab37d29b0d213590bbba5248ee",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
