@@ -1,0 +1,69 @@
+public/index.html
+  s_8e076e4a9a5a45::t_41324a583910a3 22-27
+docs/redesign-brainstorm.md
+  s_8e076e4a9a5a45::t_b21b5c0c00e398 32-44
+  s_8e076e4a9a5a45::t_52ae4526c0b321 1-31,60-64
+  s_8e076e4a9a5a45::t_8675c450a7cecd 45-59
+public/engine/core.js
+  s_8e076e4a9a5a45::t_7e1cf2eab4b3c7 1-590
+hero-film/trace.py
+  s_8e076e4a9a5a45::t_e412b3cf0b259e 31-34,41-48,58-59,71-72
+  s_8e076e4a9a5a45::t_e347fca809f72f 1-11,13,16-17,20-23,36-40,49-57,60-61,63-64,66-70,74
+  s_8e076e4a9a5a45::t_b3787e713c90fe 12,14-15,18-19,26,35,62,65,73
+  s_8e076e4a9a5a45::t_5ae44d479927f5 24-25,27-29
+  s_8e076e4a9a5a45::t_d2a6b35351993c 30
+hero-film/chibi-data.js
+  s_8e076e4a9a5a45::t_d2a6b35351993c 1
+public/engine/materials.js
+  s_8e076e4a9a5a45::t_7e1cf2eab4b3c7 1-32
+.gitignore
+  s_8e076e4a9a5a45::t_c2874f6906cba8 25
+  s_8e076e4a9a5a45::t_169fafe98940ea 24
+src/App.js
+  s_8e076e4a9a5a45::t_41324a583910a3 7,191
+hero-film/face.html
+  s_8e076e4a9a5a45::t_a83c3cb9aa339c 28,35-39,50,52-55
+  s_8e076e4a9a5a45::t_620d24fb26acb8 1-2,4-8,11-12,19,21,25
+  s_8e076e4a9a5a45::t_f19fd60d10154a 34
+  s_8e076e4a9a5a45::t_1d6c36c6df6f3f 49
+  s_8e076e4a9a5a45::t_9df654c59ff00e 3,9-10,13-18,24,27,29-33,40-48
+  s_8e076e4a9a5a45::t_57d679335362c4 51
+  s_8e076e4a9a5a45::t_f8a70cc31a7551 20,22-23,26
+public/engine/cels.js
+  s_8e076e4a9a5a45::t_7e1cf2eab4b3c7 1-83
+public/engine/face.js
+  s_8e076e4a9a5a45::t_0efcefaba87b06 204
+  s_8e076e4a9a5a45::t_caf868e485926a 205
+  s_8e076e4a9a5a45::t_61be48035ecec3 206-209,213-214,216-217,221,226,229
+  s_8e076e4a9a5a45::t_7cbf1b93a8eb7f 1-198,244-252,254-285,287-305
+  s_8e076e4a9a5a45::t_37031ec007a956 223-224
+  s_8e076e4a9a5a45::t_d243356632e8f8 232-234,236,238-240
+  s_8e076e4a9a5a45::t_5a8d7f1e9b92ac 235,241
+  s_8e076e4a9a5a45::t_4a786118f27b07 210-212,215,218-220,237
+  s_8e076e4a9a5a45::t_58072f01dd2cc7 222
+  s_8e076e4a9a5a45::t_ca52bc2b771ea9 231
+  s_8e076e4a9a5a45::t_a08a6e412df586 199-203,228,230
+  s_8e076e4a9a5a45::t_f19fd60d10154a 225,227,242-243,253,286
+public/engine/studio.js
+  s_8e076e4a9a5a45::t_7e1cf2eab4b3c7 1-110
+public/engine/chibi-data.js
+  s_8e076e4a9a5a45::t_cd6f14874e22b1 1
+src/HeroIntro.js
+  s_8e076e4a9a5a45::t_701f1679fc4a62 1-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fd475305f1599ec20d8703fe1f241aa5636d559e",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
