@@ -42,8 +42,8 @@ function sitePlaceholder(c) {
   const w = Math.min(420, W * .4);
   brush(c, [[CX - w, CY + 170], [CX - w * .7, CY + 140], [CX - w * .35, CY + 190], [CX, CY + 150], [CX + w * .35, CY + 195], [CX + w * .7, CY + 145], [CX + w, CY + 175]], { w: 4, color: '#201f1b', seed: 9, amp: 1.5 });
 }
-function sceneIdle(c, tau) { paper(c, BG, null, 31); drawFace(c, tau, drawingAt(Math.floor(tau * 24))); }
-function sceneBlink(c, tau) { const k = easeIO(clamp(tau / .9, 0, 1)); paper(c, BG, null, 31); drawFace(c, NFRAMES / 24 + tau, blinkId(k), { zoom: 1 + k * 1.3 }); F.lids(c, 1 - easeIn(k)); }
+function sceneIdle(c, tau) { paper(c, BG, null, 31); drawFace(c, tau, drawingAt(Math.floor(tau * 24))); F.frame(c); }
+function sceneBlink(c, tau) { const k = easeIO(clamp(tau / .9, 0, 1)); paper(c, BG, null, 31); drawFace(c, NFRAMES / 24 + tau, blinkId(k), { zoom: 1 + k * 1.3 }); F.frame(c); F.lids(c, 1 - easeIn(k)); }
 function sceneOpen(c, tau) { const hold = .3, k = easeOut(clamp((tau - hold) / 1.1, 0, 1)); sitePlaceholder(c); F.lids(c, k); }
 function sceneSite(c) { sitePlaceholder(c); }
 defineFilm({ palette: { ...PALETTES.pencilMinimal, paper: BG }, format: { ar: '16:9', width: 1920 }, fps: 24, timeline: [

@@ -54,7 +54,7 @@ function build() {
   // Framing. Landscape: the head fills the height, chin at the bottom edge. Portrait: the
   // whole head fits the width, centred vertically, pink above and below.
   const PORTRAIT = W < H;
-  const SC = PORTRAIT ? (W * 1.06) / 473 : 3.3, OX = 368, OY = PORTRAIT ? 346 - (H / 2) / SC : 104;
+  const SC = PORTRAIT ? (W * .98) / 473 : 3.05, OX = 368, OY = PORTRAIT ? 346 - (H / 2) / SC : 68;
   const K = SC / 3.3;                                          // sizes below were tuned at SC = 3.3
   const T = p => [CX + (p[0] - OX) * SC, (p[1] - OY) * SC];
   const TT = pts => pts.map(T);
@@ -203,7 +203,8 @@ function build() {
   const hairBox = bbox(HAIR_PTS);
   const SCRIB = PORTRAIT ? { x: W * .27, y: hairBox[1] + H * .005, r: W * .27 } : { x: hairBox[0] + W * .02, y: H * .27, r: H * .30 };
   const SCRIB_FROM = PORTRAIT ? [hairBox[0] + W * .30, hairBox[1] + H * .03] : [hairBox[0] + W * .11, hairBox[1] + H * .30];   // where the thought leaves the hair
-  const SCRIB_INK = '#fffaf4', SCRIB_T = 9, SCRIB_DELAY = .6;   // the line keeps growing for 9 s, then holds
+  const MAT = Math.round(Math.min(W, H) * .052);                 // the comic panel's white mat
+  const SCRIB_INK = '#fffaf4', SCRIB_T = 9, SCRIB_DELAY = .6, MONO = '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace';   // the line keeps growing for 9 s, then holds
   // One long wandering pen line, authored once (seeded, so it never changes shape). It
   // starts loose near the bubbles and tangles up more and more as it goes: the turning gets
   // tighter and the reach shrinks toward the middle, so the longer it is, the more knotted.
@@ -239,6 +240,25 @@ function build() {
       live.push([tangle[i][0] + (Math.sin(ph1) * .6 + Math.sin(ph2 + 1.3) * .4) * a, tangle[i][1] + (Math.cos(ph1 * .9 + 2) * .6 + Math.sin(ph2 * 1.3) * .4) * a * .85]);
     }
     brush(c, live, { w: 3.6 * K, color: SCRIB_INK, al: .95, seed: 710, amp: 1.2, taper: 0 });
+    // the caption: a status line under the scribble, in monospace, with a counter that climbs
+    // with the tangle and hangs at 99% like every real build; the dots tick
+    const dots = '.'.repeat(1 + Math.floor(t * 2) % 3), label = `compiling thoughts${dots}`;
+    // to the right of the ball, past the bubbles, like a label on the thought: on the hair in
+    // landscape (white on dark), in the pink above the hair in portrait
+    const fs = Math.round(28 * K * (PORTRAIT ? 1.25 : 1)), cx = CX, cy = MAT + fs * 2.4;   // centred, a little below the top of the panel
+    c.save(); c.font = `${fs}px ${MONO}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = SCRIB_INK; c.globalAlpha = .95 * clamp(t / .4, 0, 1);
+    c.fillText(label, cx, cy); c.restore();
+  }
+  // A small hand-drawn scroll cue, bottom centre: a mouse outline with a little wheel that
+  // drops and fades, drawn on over half a second once `k` (0..1) starts.
+  // A comic-book panel: a thick white mat round the screen and a bold, slightly
+  // hand-drawn black line where the panel edge is.
+  function frame(c) {
+    resetT(c); c.save(); c.fillStyle = '#fffaf4';
+    c.fillRect(0, 0, W, MAT); c.fillRect(0, H - MAT, W, MAT); c.fillRect(0, 0, MAT, H); c.fillRect(W - MAT, 0, MAT, H);
+    c.restore();
+    const rect = resampleLoop([[MAT, MAT], [W - MAT, MAT], [W - MAT, H - MAT], [MAT, H - MAT]], 12);   // dense points, so the corners stay corners
+    brush(c, rect, { w: 7 * K, color: '#1a1212', al: .95, seed: 830, amp: .8, taper: 0, close: true, smooth: false });
   }
 
   // Two full-screen eyelids, k = 0 shut, 1 fully open. Edges are arcs like the drawn lids.
@@ -250,7 +270,7 @@ function build() {
   }
   const eyeCentre = () => [CX, EYES.reduce((a, e) => a + (e.box[1] + e.box[3]) / 2, 0) / EYES.length];
 
-  return { BG, K, EYES, face, hair, swayBand, sparkles, scribble, lids, eyeCentre, DRAWINGS, SHEET, NFRAMES, drawingAt, blinkId, dims: () => ({ W, H, S, CX, CY, OUT_W, OUT_H }) };
+  return { BG, K, EYES, face, hair, swayBand, sparkles, scribble, frame, lids, eyeCentre, DRAWINGS, SHEET, NFRAMES, drawingAt, blinkId, dims: () => ({ W, H, S, CX, CY, OUT_W, OUT_H }) };
 }
 
 // ---- website renderer ------------------------------------------------------
@@ -292,9 +312,9 @@ function makeRenderer(canvas) {
     // warm one more drawing into the cache; returns true when there is nothing left to warm
     warm() { const ids = ['open', 'half', 'closed', 'halfUp', 'openL', 'bl0.8', 'bl0.6', 'bl0.4', 'bl0.2']; for (const id of ids) if (!cache.has('face/' + id)) { faceLayer(id); return false; } hairLayer(); return true; },
     // idle: the exposure sheet loops; t in seconds
-    idle(t) { paper(c, F.BG, null, 31); drawScene(c, F.drawingAt(Math.floor(t * 24) % F.NFRAMES), t); },
+    idle(t) { paper(c, F.BG, null, 31); drawScene(c, F.drawingAt(Math.floor(t * 24) % F.NFRAMES), t); F.frame(c); },
     // blink out: k 0..1, her lids close as the camera pushes in, the screen's lids close with them
-    blink(t, k) { paper(c, F.BG, null, 31); drawScene(c, F.blinkId(k), t, { zoom: 1 + k * 1.3 }); F.lids(c, 1 - easeIn(k)); },
+    blink(t, k) { paper(c, F.BG, null, 31); drawScene(c, F.blinkId(k), t, { zoom: 1 + k * 1.3 }); F.frame(c); F.lids(c, 1 - easeIn(k)); },
     // open: k 0..1, only the lids are drawn; the page shows through the rest
     open(k) { resetT(c); c.clearRect(0, 0, W, H); F.lids(c, k); },
     clear() { resetT(c); c.clearRect(0, 0, W, H); },
