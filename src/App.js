@@ -4,6 +4,7 @@ import './App.css';
 import SquigglyLine from './SquigglyLine';
 import CorgiWalker from './CorgiWalker';
 import Dither from './Dither';
+import HeroIntro from './HeroIntro';
 
 const serif = 'Lora, Georgia, serif';
 
@@ -187,6 +188,7 @@ function App() {
 
   return (
     <div>
+      <HeroIntro />
       {/* Hero */}
       <section style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden', scrollSnapAlign: 'start', position: 'relative', paddingBottom: '40px', paddingTop: '0', margin: '0' }}>
         <SquigglyLine />

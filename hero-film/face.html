@@ -1,0 +1,55 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Katherine · hero face</title>
+<style>body{margin:0;background:#242321;display:grid;place-items:center;min-height:100vh}canvas{max-width:100vw;max-height:100vh;object-fit:contain}</style>
+<canvas id="c"></canvas>
+<script src="../public/engine/core.js"></script>
+<script src="../public/engine/studio.js"></script>
+<script src="../public/engine/cels.js"></script>
+<script src="../public/engine/chibi-data.js"></script>
+<script src="../public/engine/face.js"></script>
+<script>
+'use strict';
+// The film version of the hero: the same drawing as the website (public/engine/face.js),
+// played as idle → blink out → lids open onto a placeholder card. Render with
+//   node .claude/skills/hand-drawn-canvas-animation/scripts/render.mjs hero-film/face.html [--ar 9:16 --width 1080]
+if (!/[?&]ar=/.test(location.search)) setFormat({ ar: '16:9', width: 1920 });
+const F = HeroFace.build();
+const { BG, DRAWINGS, NFRAMES, drawingAt, blinkId } = F;
+
+const HAIR_PHASES = 24, HAIR_CYCLE = 4;             // one sway every 4 s, redrawn 6 times a second
+const cache = new Map();
+function cached(key, draw) {
+  key += '/' + S;
+  if (!cache.has(key)) { const L = layer(); const g = L.getContext('2d'); g.setTransform(S, 0, 0, S, 0, 0); draw(g); cache.set(key, L); }
+  return cache.get(key);
+}
+function drawFace(c, tau, id, { zoom = 1, at } = {}) {
+  const ph = Math.floor((tau % HAIR_CYCLE) / HAIR_CYCLE * HAIR_PHASES) / HAIR_PHASES;
+  c.save(); resetT(c);
+  if (zoom !== 1) { const p = at || F.eyeCentre(); c.translate(p[0], p[1]); c.scale(zoom, zoom); c.translate(-p[0], -p[1]); }
+  c.drawImage(cached('face/' + id, g => F.face(g, DRAWINGS[id])), 0, 0, W, H);
+  F.sparkles(c, tau, DRAWINGS[id]);
+  c.drawImage(cached('hair/' + ph, g => F.hair(g, ph)), 0, 0, W, H);
+  F.scribble(c, tau);
+  c.restore();
+}
+// A stand-in for the site under the eyelids: paper, the name in hand lettering, a squiggle.
+function sitePlaceholder(c) {
+  paper(c, '#f4efe4', null, 5);
+  handText(c, "hi, i'm katherine", CX, CY - 20, { size: Math.min(150, W * .075), ink: '#201f1b', ink2: '#e8505b', align: 'center' });
+  c.save(); c.font = `${Math.min(44, W * .024)}px ${HAND_FONT}`; c.fillStyle = '#6b6860'; c.textAlign = 'center'; c.fillText('cs @ cornell · she builds things', CX, CY + 90); c.restore();
+  const w = Math.min(420, W * .4);
+  brush(c, [[CX - w, CY + 170], [CX - w * .7, CY + 140], [CX - w * .35, CY + 190], [CX, CY + 150], [CX + w * .35, CY + 195], [CX + w * .7, CY + 145], [CX + w, CY + 175]], { w: 4, color: '#201f1b', seed: 9, amp: 1.5 });
+}
+function sceneIdle(c, tau) { paper(c, BG, null, 31); drawFace(c, tau, drawingAt(Math.floor(tau * 24))); }
+function sceneBlink(c, tau) { const k = easeIO(clamp(tau / .9, 0, 1)); paper(c, BG, null, 31); drawFace(c, NFRAMES / 24 + tau, blinkId(k), { zoom: 1 + k * 1.3 }); F.lids(c, 1 - easeIn(k)); }
+function sceneOpen(c, tau) { const hold = .3, k = easeOut(clamp((tau - hold) / 1.1, 0, 1)); sitePlaceholder(c); F.lids(c, k); }
+function sceneSite(c) { sitePlaceholder(c); }
+defineFilm({ palette: { ...PALETTES.pencilMinimal, paper: BG }, format: { ar: '16:9', width: 1920 }, fps: 24, timeline: [
+  { name: 'idle', dur: NFRAMES / 24, fn: sceneIdle },
+  { name: 'blink', dur: 1.0, fn: sceneBlink },
+  { name: 'open', dur: 1.6, fn: sceneOpen },
+  { name: 'site', dur: 1.2, fn: sceneSite },
+] });
+</script>
