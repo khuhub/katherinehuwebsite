@@ -1,0 +1,127 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Katherine · hero → light</title>
+<style>body{margin:0;background:#242321;display:grid;place-items:center;min-height:100vh}canvas{max-width:100vw;max-height:100vh;object-fit:contain}</style>
+<canvas id="c"></canvas>
+<script src="../public/engine/core.js"></script>
+<script src="../public/engine/studio.js"></script>
+<script src="../public/engine/cels.js"></script>
+<script src="../public/engine/chibi-data.js"></script>
+<script src="../public/engine/face.js"></script>
+<script src="../public/engine/body.js"></script>
+<script>
+'use strict';
+// The opening of the site, as a film: the traced face idles and blinks shut; in the dark only her eyes wander;
+// she finds a hanging lamp's pull-string and tugs it (light on · off · on); the light opens to a white screen.
+// Render: node .claude/skills/hand-drawn-canvas-animation/scripts/render.mjs hero-film/hero-light.html --out hero-film/out/light
+setFormat({ ar: '16:9', width: 1920 });
+
+const CREAM = '#f4efe4', MAT = 44;
+const B = HeroBody.build({ paper: CREAM });
+const blink = (t, p = 3.4) => { const u = t % p; if (u < p - .5) return 1; const v = (u - (p - .5)) / .5; return v < .3 ? 1 - v / .3 : v < .5 ? 0 : (v - .5) / .5; };
+// she reaches up for the pull-string of a hanging lamp; 'pullDown' is the tug
+B.POSES.pull = { ...B.POSES.stand, head: [0, B.CHIN, 0], armL: [[-54, B.CHIN + 24], [-100, B.CHIN + 66], [-74, B.CHIN + 98]], armR: [[54, B.CHIN + 24], [112, B.CHIN - 60], [86, B.CHIN - 180]] };
+B.POSES.pullDown = { ...B.POSES.pull, armR: [[54, B.CHIN + 24], [116, B.CHIN - 40], [90, B.CHIN - 152]] };
+for (const id of ['pull', 'pullDown']) B.POSES[id + 'Body'] = { ...B.POSES[id], armR: [[54, 3000], [54, 3060], [54, 3120]] };   // its own arm pushed off the canvas
+const FACE = window.HeroFace.build({ scale: 190 / 473, cx: 0, cy: 0 }), FSS = (190 / 473) / 3.3;   // the hero's eye shapes, in head units
+const DK = { scale: 2.6, x: W * .46 }; DK.y = H * .67 - DK.scale * B.CHIN;          // her feet below the frame: head, raised arm and the lamp fill it
+const headPt = ([x, y]) => [DK.x + DK.scale * (x * FSS), DK.y + DK.scale * (B.CHIN - 3 + y * FSS)];
+const bodyPt = ([x, y]) => [DK.x + DK.scale * x, DK.y + DK.scale * y];
+const handPt = id => bodyPt(B.POSES[id].armR[2]);
+const LAMP = [bodyPt(B.POSES.pull.armR[2])[0] + 6, MAT + 70];                      // where the shade hangs, straight above her hand
+const bbox = pts => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); } return [x0, y0, x1, y1]; };
+const P2 = (pts, corner = 1.2) => { const p = new Path2D(); const s = smoothPts(pts, true, 4, corner); s.forEach(([x, y], i) => i ? p.lineTo(x, y) : p.moveTo(x, y)); p.closePath(); return p; };
+const silhouetteCache = new Map();
+function silhouette(id, open, gx, gy) {               // her, drawn normally then thresholded to pure black / white; the raised arm solid black
+  const key = [id, Math.round(open * 10), Math.round(gx), Math.round(gy)].join();
+  if (silhouetteCache.has(key)) return silhouetteCache.get(key);
+  const o = document.createElement('canvas'); o.width = W; o.height = H; const g = o.getContext('2d');
+  B.draw(g, id + 'Body', { x: DK.x, y: DK.y, scale: DK.scale, open, gx, gy });     // the body with the arm tucked away; the arm is drawn below
+  const im = g.getImageData(0, 0, W, H), d = im.data;
+  for (let i = 0; i < d.length; i += 4) { const a = d[i + 3]; if (a < 90) { d[i + 3] = 0; continue; } const l = (d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11) / 255; const v = l < .68 ? 0 : 255; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+  g.putImageData(im, 0, 0);
+  const arm = B.POSES[id].armR.map(bodyPt), [hx, hy] = handPt(id);                 // the raised arm: solid black with a white rim, so it reads over the hair
+  g.lineCap = 'round'; g.lineJoin = 'round'; const sp = spline(arm, 8);
+  for (const [col, w] of [['#000', 15 * DK.scale + 8], ['#fff', 15 * DK.scale]]) { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); sp.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke(); g.fillStyle = col; g.beginPath(); g.arc(hx, hy, w * .62, 0, TAU); g.fill(); }   // a white arm with a pen edge
+  silhouetteCache.set(key, o); return o;
+}
+function eyesOnly(c, open, gx, gy, cheek = true, dx = 0, dy = 0) {   // in the dark: just the eyes, floating wherever she has turned to
+  c.save(); c.translate(dx, dy);
+  for (const e of FACE.EYES) {
+    const pts = e.pts.map(headPt), q = P2(pts, 1.2), [x0, y0, x1, y1] = bbox(pts), h = y1 - y0;
+    c.save(); c.clip(q); c.fillStyle = '#fff'; c.fillRect(x0 - 5, y0 - 5, x1 - x0 + 10, h + 10);
+    const pc = headPt([(e.box[0] + e.box[2]) / 2 + gx * 3, Math.max(e.box[1] + e.pr * .98, (e.box[1] + e.box[3]) / 2 - (e.box[3] - e.box[1]) * .04) + gy * 3]);
+    c.fillStyle = '#000'; c.beginPath(); c.arc(pc[0], pc[1], e.pr * FSS * DK.scale, 0, TAU); c.fill();   // same pupil as in the light
+    c.fillRect(x0 - 5, y0 - 5, x1 - x0 + 10, (1 - open) * h * 1.04 + 5); c.restore();
+  }
+  c.restore(); return;                                      // (no lit cheek edge: just the eyes in the dark)
+  const fb = bbox(FACE.FACE_PTS.map(headPt)), cx = (fb[0] + fb[2]) / 2, cy = (fb[1] + fb[3]) / 2 + 30, r = (fb[3] - fb[1]) * .5;
+  const sx = cx + 70;                                       // the lit cheek edge sits out past the eye, not on the face
+  c.save(); c.beginPath(); c.ellipse(sx, cy, (fb[2] - fb[0]) * .5, r, 0, -.5, 1.0); c.clip();
+  c.fillStyle = '#fff'; c.beginPath(); c.ellipse(sx, cy, (fb[2] - fb[0]) * .5, r, 0, 0, TAU); c.fill();
+  c.fillStyle = '#000'; c.beginPath(); c.ellipse(sx - 12, cy - 2, (fb[2] - fb[0]) * .5, r * 1.02, 0, 0, TAU); c.fill(); c.restore();
+}
+function string(c, id, lit) {                     // the pull-string, from the shade down to her hand
+  const [hx, hy] = handPt(id); brush(c, [[LAMP[0], LAMP[1] + 30], [LAMP[0] + 2, (LAMP[1] + hy) / 2], [hx, hy - 6]], { w: 3.5, color: lit ? '#000' : '#fff', al: 1, seed: 8, amp: .4, taper: 0 });
+  c.fillStyle = lit ? '#000' : '#fff'; c.beginPath(); c.arc(hx, hy - 2, 7, 0, TAU); c.fill();   // the little pull at the end
+}
+function lampShade(c) {                               // the lamp: a cord from the top, a bell shade, black with a white edge
+  const [x, y] = LAMP, pts = [[x - 110, y + 30], [x - 82, y - 22], [x - 34, y - 56], [x + 34, y - 56], [x + 82, y - 22], [x + 110, y + 30]];
+  brush(c, [[x, -10], [x, y - 56]], { w: 5, color: '#000', al: 1, seed: 3, amp: .3, taper: 0 });
+  c.fillStyle = '#000'; c.beginPath(); pts.forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py)); c.closePath(); c.fill();
+  brush(c, pts, { w: 5, color: '#fff', al: 1, seed: 4, amp: .6, taper: 0, close: true });
+}
+function wedge(c, spread) {                       // the lamp's cone of light: apex at the shade, opening downward, chalky edges
+  const ap = [LAMP[0], LAMP[1] + 24 - spread * 900], L = 3200;
+  const aL = Math.PI / 2 + .62 + spread * 1.0, aR = Math.PI / 2 - .62 - spread * 1.0;    // edge angles; grow with spread
+  const e1 = [ap[0] + Math.cos(aL) * L, ap[1] + Math.sin(aL) * L], e2 = [ap[0] + Math.cos(aR) * L, ap[1] + Math.sin(aR) * L];
+  const poly = [ap, e1, [e1[0], 6000], [e2[0], 6000], e2];
+  const q = new Path2D(); q.moveTo(...poly[0]); for (const p of poly.slice(1)) q.lineTo(...p); q.closePath();
+  c.fillStyle = '#fff'; c.fill(q);
+  for (const [a, sd] of [[aL, 11], [aR, 12]]) { const pts = []; for (let i = 0; i <= 30; i++) pts.push([ap[0] + Math.cos(a) * L * i / 30, ap[1] + Math.sin(a) * L * i / 30]); brush(c, pts, { w: 9, color: '#fff', al: .9, seed: sd, amp: 5, taper: 0 }); brush(c, pts, { w: 5, color: '#000', al: .5, seed: sd + 5, amp: 7, taper: 0 }); }
+  return q;
+}
+const PULLS = [2.6, 4.2, 5.3], HERO_AT = 5.4;
+// where the eyes look in the dark: quick darts between held looks (up at the string, left, right, down ...)
+// pupils (gx, gy) and where the whole pair of eyes has moved to (dx, dy): confused darts, then at ~2.0 s she spots the string and settles on it
+const GAZE = [[0, 0, 2, 0, 0], [.35, 0, 2, 0, 0], [.5, -9, 1, -220, -50], [.9, -9, 1, -220, -50], [1.05, 9, -4, 230, 70], [1.45, 9, -4, 230, 70], [1.6, -3, 6, -60, 130], [1.95, -3, 6, -60, 130], [2.1, 2, -7, 0, 0], [2.55, 2, -7, 0, 0], [9, 2, -7, 0, 0]];   // after the first pull she just looks up at the string
+function gaze(t) { let i = 0; while (i < GAZE.length - 1 && t >= GAZE[i + 1][0]) i++; const a = GAZE[i], b = GAZE[Math.min(i + 1, GAZE.length - 1)]; const k = easeIO(clamp((t - b[0] + .3) / .3, 0, 1)); return [1, 2, 3, 4].map(j => lerp(a[j], b[j], k)); }      // when she tugs the string: on · off · on (and the light keeps opening)
+function panelDark(c, t) {
+  // after the blink: black, only her eyes and the string · she pulls: the lamp's cone of light comes down over her ·
+  // pulls again: dark · a third pull, and the light keeps opening until it is the hero room.  t >= DARK_LEN is the hero panel.
+  c.save(); c.fillStyle = '#000'; c.fillRect(0, 0, W, H);                      // the dark screen has no comic border
+  const done = () => c.restore();
+  const tug = PULLS.some(p => t > p && t < p + .28), id = tug ? 'pullDown' : 'pull';
+  const lit = (t > PULLS[0] + .15 && t < PULLS[1] + .15) || t > PULLS[2] + .15, spread = t > HERO_AT + .3 ? easeIn(clamp((t - HERO_AT - .3) / 1.3, 0, 1)) : 0, sink = easeIn(clamp((t - HERO_AT - .2) / 1.0, 0, 1));
+  const open = t < .3 ? clamp((t - .12) / .18, 0, 1) : blink(t + 1.0, 2.9), [gx, gy, ex, ey] = lit ? [1, -3, 0, 0] : gaze(t);   // in the dark her eyes dart about; in the light she looks up at the lamp
+  if (!lit) { eyesOnly(c, open, gx, gy, false, ex, ey); string(c, id, false); }
+  else {
+    const q = wedge(c, spread);
+    c.save(); c.clip(q); c.translate(0, sink * 1100);                                      // after the last pull she drops out of the bottom of the frame
+    c.drawImage(silhouette(id, open, gx, gy), 0, 0); c.restore();
+    if (spread < 1) { c.save(); c.globalAlpha = 1 - spread; string(c, id, true); lampShade(c); c.restore(); }   // the string hangs from the lamp whether or not she is holding it
+  }
+  done();
+}
+const DARK_LEN = HERO_AT + .3 + 1.3 + .5;
+// ---- the intro: the traced face idles, blinks, and the lids open straight onto panel 1 (same drawing as face.html)
+const F = HeroFace.build(), HAIR_PHASES = 24, HAIR_CYCLE = 4, faceCache = new Map();
+function cachedLayer(key, draw) { key += '/' + S; if (!faceCache.has(key)) { const L = layer(); const g = L.getContext('2d'); g.setTransform(S, 0, 0, S, 0, 0); draw(g); faceCache.set(key, L); } return faceCache.get(key); }
+function drawFace(c, tau, id, { zoom = 1 } = {}) {
+  const ph = Math.floor((tau % HAIR_CYCLE) / HAIR_CYCLE * HAIR_PHASES) / HAIR_PHASES;
+  c.save(); resetT(c);
+  if (zoom !== 1) { const p = F.eyeCentre(); c.translate(p[0], p[1]); c.scale(zoom, zoom); c.translate(-p[0], -p[1]); }
+  c.drawImage(cachedLayer('face/' + id, g => F.face(g, F.DRAWINGS[id])), 0, 0, W, H);
+  F.sparkles(c, tau, F.DRAWINGS[id]);
+  c.drawImage(cachedLayer('hair/' + ph, g => F.hair(g, ph)), 0, 0, W, H);
+  F.scribble(c, tau);
+  c.restore();
+}
+function sceneIdle(c, tau) { paper(c, F.BG, null, 31); drawFace(c, tau, F.drawingAt(Math.floor(tau * 24))); F.frame(c); }
+function sceneBlink(c, tau) { const k = easeIO(clamp(tau / .9, 0, 1)); paper(c, F.BG, null, 31); drawFace(c, F.NFRAMES / 24 + tau, F.blinkId(k), { zoom: 1 + k * 1.3 }); F.frame(c); F.lids(c, 1 - easeIn(k)); if (tau > .9) { c.save(); resetT(c); c.fillStyle = '#000'; c.fillRect(0, 0, W, H); c.restore(); } }
+defineFilm({ palette: { ...PALETTES.pencilMinimal, paper: CREAM }, format: { ar: '16:9', width: 1920 }, fps: 24, timeline: [
+  { name: 'idle', dur: F.NFRAMES / 24, fn: sceneIdle },
+  { name: 'blink', dur: 1.3, fn: sceneBlink },
+  { name: 'light', dur: DARK_LEN, fn: panelDark },
+] });
+</script>

@@ -50,13 +50,17 @@ function drawingAt(frame) { let f = frame; for (const [id, n] of SHEET) { if (f 
 const blinkId = k => { const o = Math.round((1 - k) * 5) / 5; return o >= 1 ? 'open' : o <= 0 ? 'closed' : 'bl' + o; };
 
 // ---- build the drawing for the engine's current format ------------------
-function build() {
+// build({ scale, cx, cy }): a small, free-standing head (chin centre at cx,cy, `scale` frame units per image pixel)
+// instead of the frame-filling hero framing. Used by body.js for chibi-her.
+function build(opt = {}) {
   // Framing. Landscape: the head fills the height, chin at the bottom edge. Portrait: the
   // whole head fits the width, centred vertically, pink above and below.
   const PORTRAIT = W < H;
-  const SC = PORTRAIT ? (W * .98) / 473 : 3.05, OX = 368, OY = PORTRAIT ? 346 - (H / 2) / SC : 68;
-  const K = SC / 3.3;                                          // sizes below were tuned at SC = 3.3
-  const T = p => [CX + (p[0] - OX) * SC, (p[1] - OY) * SC];
+  const SMALL = opt.scale !== undefined;
+  // small heads are built at the full working scale (smoothing is tuned there) and scaled down when drawn
+  const SC = SMALL ? 3.3 : PORTRAIT ? (W * .98) / 473 : 3.05, OX = 368, OY = SMALL ? 439 : PORTRAIT ? 346 - (H / 2) / SC : 68;
+  const K = SC / 3.3, SS = SMALL ? opt.scale / 3.3 : 1;
+  const T = SMALL ? (p => [(p[0] - OX) * SC, (p[1] - OY) * SC]) : (p => [CX + (p[0] - OX) * SC, (p[1] - OY) * SC]);
   const TT = pts => pts.map(T);
 
   // traced shapes, in frame units
@@ -77,6 +81,7 @@ function build() {
   // ---- hair ----
   // sway(p, phase, k): lower points move more; the crown and the hairline stay put.
   function sway(p, phase, k) {
+    if (SMALL) return p;
     const t = clamp((p[1] - H * .39) / (H * .83), 0, 1), d = t * t;
     const a = (Math.sin(TAU * phase + k * .9) * 22 * d + Math.sin(TAU * phase * 2 + k * 1.7) * 6 * d) * K;
     return [p[0] + a, p[1] + Math.sin(TAU * phase + k * .6) * 4 * d * K];
@@ -104,14 +109,14 @@ function build() {
     }
     return s;
   })();
-  function hair(c, phase = 0) {
+  function hairInner(c, phase = 0) {
     const sw = (pts, k) => pts.map(p => sway(p, phase, k));
     const outline = sw(HAIR_PTS, 0);
     const hairPath = P2(outline, 1.0);
     gouache(c, hairPath, HAIR_BASE, 1);
     c.save(); c.clip(hairPath);
     for (const s of HAIR_STROKES) brush(c, sw(s.pts, s.seed % 11), { w: s.w, color: s.color, al: s.al, seed: s.seed, amp: 2, taper: .6 });
-    grain(c, hairPath, [-100, -200, W + 200, H + 400], 9000, '#6a5552', .10, 17, 2.2 * K);
+    { const hb = bbox(HAIR_PTS); grain(c, hairPath, [hb[0] - 20, hb[1] - 20, hb[2] - hb[0] + 40, hb[3] - hb[1] + 40], Math.round(9000 * K * K), '#6a5552', .10, 17, 2.2 * K); }
     c.restore();
     brush(c, outline, { w: 4 * K, color: '#15100f', al: .9, seed: 950, amp: .15, taper: 0, close: true });
   }
@@ -149,9 +154,11 @@ function build() {
       if (open > .04) { const low = pts.filter(p => p[1] > ly + 4).sort((a, b) => Math.atan2(a[1] - cym0, a[0] - cx) - Math.atan2(b[1] - cym0, b[0] - cx)); if (low.length > 2) brush(c, low, { w: 4 * K, color: INK, al: .9, seed: 20 + side, amp: .5, taper: .4 }); }
     }
     const q = smoothPts(pts, true, 6, 1.6), cxm = (x0 + x1) / 2, cym = (y0 + y1) / 2;
-    const lash = (p, len, w, al) => { let nx = p[0] - cxm, ny = p[1] - cym; const L = Math.hypot(nx, ny) || 1; nx /= L; ny /= L; const lean = side * .55; brush(c, [[p[0] - nx * 2, p[1] - ny * 2], [p[0] + nx * len * .55 + ny * lean * len * .3, p[1] + ny * len * .55 - nx * lean * len * .3], [p[0] + nx * len + ny * lean * len * .5, p[1] + ny * len - nx * lean * len * .5]], { w, color: INK, al, seed: 40 + Math.round(p[0]), amp: .3, taper: 1.3 }); };
-    const upperOuter = q.filter(p => p[1] < cym + h * .05 && (p[0] - cxm) * side < -h * .05 && p[1] < y0 + h * .6 && open > .5);
+    const lash = (p, len, w, al) => { let nx = p[0] - cxm, ny = p[1] - cym; const L = Math.hypot(nx, ny) || 1; nx /= L; ny /= L; const lean = -side * .55; brush(c, [[p[0] - nx * 2, p[1] - ny * 2], [p[0] + nx * len * .55 + ny * lean * len * .3, p[1] + ny * len * .55 - nx * lean * len * .3], [p[0] + nx * len + ny * lean * len * .5, p[1] + ny * len - nx * lean * len * .5]], { w, color: INK, al, seed: 40 + Math.round(p[0]), amp: .3, taper: 1.3 }); };
+    const upperOuter = q.filter(p => p[1] < cym + h * .05 && (p[0] - cxm) * side > h * .05 && p[1] < y0 + h * .6 && open > .5);
     for (let i = 0; i < 4; i++) { const p = upperOuter[Math.floor((i + .5) / 4 * upperOuter.length)]; if (p) lash(p, (36 + i * 5) * K, 12 * K, .95); }
+    const upperInner = q.filter(p => p[1] < cym - h * .1 && (p[0] - cxm) * side < -h * .25 && open > .5);
+    { const p = upperInner[Math.floor(upperInner.length * .5)]; if (p) lash(p, 34 * K, 11 * K, .95); }   // one lash at the inner corner
     const lower = q.filter(p => p[1] > cym + h * .25);
     for (let i = 0; i < 6; i++) { const p = lower[Math.floor((i + .5) / 6 * lower.length)]; if (p) lash(p, 16 * K, 2.6 * K, .8); }
   }
@@ -175,11 +182,11 @@ function build() {
   }
 
   // ---- the face ----
-  function face(c, { open = 1, gx = 0, gy = 0 } = {}) {
+  function faceInner(c, { open = 1, gx = 0, gy = 0 } = {}) {
     const skin = P2(FACE_PTS, 1.2);
     gouache(c, skin, SKIN, 1);
     c.save(); c.clip(skin);
-    grain(c, skin, [0, 0, W, H], 3000, '#d99a80', .16, 9, 1.8);
+    { const fb = bbox(FACE_PTS); grain(c, skin, [fb[0], fb[1], fb[2] - fb[0], fb[3] - fb[1]], Math.round(3000 * K * K), '#d99a80', .16, 9, 1.8 * K); }
     for (const [bx, by] of BLUSHES) {
       const rg = c.createRadialGradient(bx, by, 0, bx, by, 190 * K); rg.addColorStop(0, 'rgba(232,110,105,.5)'); rg.addColorStop(.5, 'rgba(232,110,105,.22)'); rg.addColorStop(1, 'rgba(232,110,105,0)');
       c.save(); c.fillStyle = rg; c.translate(bx, by); c.scale(1.3, .85); c.translate(-bx, -by); c.fillRect(bx - 300, by - 300, 600, 600); c.restore();
@@ -261,6 +268,9 @@ function build() {
     brush(c, rect, { w: 7 * K, color: '#1a1212', al: .95, seed: 830, amp: .8, taper: 0, close: true, smooth: false });
   }
 
+  const face = (c, o) => { c.save(); if (SMALL) { c.translate(opt.cx || 0, opt.cy || 0); c.scale(SS, SS); } faceInner(c, o); c.restore(); };
+  const hair = (c, ph) => { c.save(); if (SMALL) { c.translate(opt.cx || 0, opt.cy || 0); c.scale(SS, SS); } hairInner(c, ph); c.restore(); };
+
   // Two full-screen eyelids, k = 0 shut, 1 fully open. Edges are arcs like the drawn lids.
   function lids(c, k) {
     resetT(c); c.fillStyle = PUPIL;
@@ -270,7 +280,7 @@ function build() {
   }
   const eyeCentre = () => [CX, EYES.reduce((a, e) => a + (e.box[1] + e.box[3]) / 2, 0) / EYES.length];
 
-  return { BG, K, EYES, face, hair, swayBand, sparkles, scribble, frame, lids, eyeCentre, DRAWINGS, SHEET, NFRAMES, drawingAt, blinkId, dims: () => ({ W, H, S, CX, CY, OUT_W, OUT_H }) };
+  return { BG, K, EYES, HAIR_PTS, FACE_PTS, MOUTH, face, hair, swayBand, sparkles, scribble, frame, lids, eyeCentre, DRAWINGS, SHEET, NFRAMES, drawingAt, blinkId, dims: () => ({ W, H, S, CX, CY, OUT_W, OUT_H }) };
 }
 
 // ---- website renderer ------------------------------------------------------
