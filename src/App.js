@@ -5,13 +5,10 @@ import SquigglyLine from './SquigglyLine';
 import CorgiWalker from './CorgiWalker';
 import Dither from './Dither';
 import HeroIntro from './HeroIntro';
+import Hero from './Hero';
 
 const serif = 'Lora, Georgia, serif';
 
-const HERO_IMAGES = [
-  '/hi.png', '/kat.png', '/me.png', '/Hu.png', '/corn.png', '/who.png',
-  '/git.png', '/linkedin.webp', '/email.png',
-];
 
 const POLAROID_CARD_WIDTH = 300;
 const POLAROID_IMAGE = { width: 272, height: 232 };
@@ -44,16 +41,6 @@ const projectRows = [
   ],
 ];
 
-function preloadImages(sources) {
-  return Promise.all(
-    sources.map(src => new Promise(resolve => {
-      const img = new Image();
-      img.onload = resolve;
-      img.onerror = resolve;
-      img.src = src;
-    }))
-  );
-}
 
 const boxItems = [
   { src: '/food.png',   width: '480px', openTransform: 'translateX(-460px) translateY(-280px)', delay: 0,
@@ -79,26 +66,6 @@ const boxItems = [
 ];
 
 function App() {
-  const [heroStep, setHeroStep] = useState(0);
-  const [heroReady, setHeroReady] = useState(false);
-
-  useEffect(() => {
-    preloadImages(HERO_IMAGES).then(() => setHeroReady(true));
-  }, []);
-
-  useEffect(() => {
-    if (!heroReady) return;
-    const timers = [
-      setTimeout(() => setHeroStep(1), 200),   // hi appears
-      setTimeout(() => setHeroStep(2), 580),   // kat pops
-      setTimeout(() => setHeroStep(3), 960),   // me slides up
-      setTimeout(() => setHeroStep(4), 1300),  // Hu from right
-      setTimeout(() => setHeroStep(5), 1650),  // corn appears
-      setTimeout(() => setHeroStep(6), 1980),  // who pops up
-      setTimeout(() => setHeroStep(7), 2280),  // icons
-    ];
-    return () => timers.forEach(clearTimeout);
-  }, [heroReady]);
 
   const [shaking, setShaking] = useState(false);
   const [corgiStarted, setCorgiStarted] = useState(false);
@@ -189,88 +156,10 @@ function App() {
   return (
     <div>
       <HeroIntro />
-      {/* Hero */}
-      <section style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflow: 'hidden', scrollSnapAlign: 'start', position: 'relative', paddingBottom: '40px', paddingTop: '0', margin: '0' }}>
-        <SquigglyLine />
-        <div className="hero-wrapper" style={{ width: '100%', maxWidth: '1380px', zIndex: 3, display: 'flex', flexDirection: 'column', margin: '0', padding: '0' }}>
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', maxHeight: '92vh', visibility: heroReady ? 'visible' : 'hidden' }}>
-
-            {/* Hi, I'm — top-left, fade in */}
-            <img src="/hi.png" alt="" fetchPriority="high" decoding="sync" style={{
-              position: 'absolute', top: '8%', left: '3%', width: '10%',
-              mixBlendMode: 'multiply',
-              opacity: heroStep >= 1 ? 1 : 0,
-              transition: 'opacity 0.5s ease',
-            }} />
-
-            {/* KATHERINE — slides in from top */}
-            <img src="/kat.png" alt="" fetchPriority="high" decoding="sync" style={{
-              position: 'absolute', top: '-20%', left: '50%', width: '88%',
-              mixBlendMode: 'multiply',
-              opacity: heroStep >= 2 ? 1 : 0,
-              transform: heroStep >= 2 ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(-80px)',
-              transition: 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',
-            }} />
-
-            {/* Person — slides up from bottom, centered */}
-            <div style={{
-              position: 'absolute', bottom: '-30%', left: '50%', width: '80%', zIndex: 2,
-              opacity: heroStep >= 3 ? 1 : 0,
-              transform: heroStep >= 3 ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(70px)',
-              transition: 'opacity 0.5s ease, transform 0.55s cubic-bezier(0.34,1.56,0.64,1)',
-            }}>
-              <img src="/me.png" alt="Katherine Hu" className="hero-me" fetchPriority="high" decoding="sync" style={{ width: '100%', display: 'block' }} />
-            </div>
-
-            {/* HU — slides in from right with pop */}
-            <img src="/Hu.png" alt="" fetchPriority="high" decoding="sync" style={{
-              position: 'absolute', top: '44%', right: '18%', width: '34%', zIndex: 3,
-              opacity: heroStep >= 4 ? 1 : 0,
-              transform: heroStep >= 4 ? 'translateX(0)' : 'translateX(120px)',
-              transition: 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)',
-            }} />
-
-            {/* cs @ cornell — fades in lower area */}
-            <img src="/corn.png" alt="" fetchPriority="high" decoding="sync" style={{
-              position: 'absolute', bottom: '33%', left: '8%', width: '18%',
-              mixBlendMode: 'multiply',
-              opacity: heroStep >= 5 ? 1 : 0,
-              transform: heroStep >= 5 ? 'rotate(-1deg)' : 'rotate(-1deg) translateY(12px)',
-              transition: 'opacity 0.5s ease, transform 0.5s ease',
-            }} />
-
-            {/* who??? — pops up */}
-            <img src="/who.png" alt="" className="hero-who" fetchPriority="high" decoding="sync" style={{
-              position: 'absolute', top: '85%', right: '4%', width: '12%',
-              mixBlendMode: 'multiply',
-              opacity: heroStep >= 6 ? 1 : 0,
-              transform: heroStep >= 6 ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.9)',
-              transition: 'opacity 0.4s ease, transform 0.45s cubic-bezier(0.34,1.56,0.64,1)',
-            }} />
-
-            {/* Icons */}
-            <div className="hero-icons" style={{
-              opacity: heroStep >= 7 ? 1 : 0,
-              transform: heroStep >= 7 ? 'translateY(0)' : 'translateY(12px)',
-              transition: 'opacity 0.4s ease, transform 0.4s ease',
-            }}>
-              {[
-                { href: 'https://github.com/khuhub', src: '/git.png' },
-                { href: 'https://www.linkedin.com/in/katherine-hu317', src: '/linkedin.webp' },
-                { href: 'mailto:katherine.y.hu@gmail.com', src: '/email.png', height: '38px' },
-              ].map(({ href, src, height }, i) => (
-                <a key={i} href={href} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: height || '34px', borderRadius: '8px', textDecoration: 'none', transition: 'opacity 0.2s', overflow: 'hidden' }} onMouseEnter={e => e.currentTarget.style.opacity='0.75'} onMouseLeave={e => e.currentTarget.style.opacity='1'}>
-                  <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </a>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* About Me */}
-      <section ref={aboutRef} className="about-section" style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', padding: '120px 0 240px 10%', position: 'relative', overflow: 'hidden', scrollSnapAlign: 'start' }}>
+      <section ref={aboutRef} className="about-section" style={{ minHeight: '100vh', padding: '120px 0 240px 10%', position: 'relative', overflow: 'hidden', scrollSnapAlign: 'start' }}>
         <h2 className="about-heading" style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', margin: '0 0 60px 0', position: 'relative', zIndex: 5, opacity: aboutVisible ? 1 : 0, transform: aboutVisible ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.6s ease, transform 0.6s ease' }}>
           ABOUT ME
         </h2>
@@ -370,7 +259,7 @@ function App() {
       </section>
 
       {/* Experience */}
-      <section className="exp-section" style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', padding: '100px 0 120px 0', position: 'relative', overflow: 'hidden', scrollSnapAlign: 'start' }}>
+      <section className="exp-section" style={{ minHeight: '100vh', padding: '100px 0 120px 0', position: 'relative', overflow: 'hidden', scrollSnapAlign: 'start' }}>
         <h2 className="about-heading" style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', textAlign: 'center', margin: '0 0 80px 0' }}>
           EXPERIENCE
         </h2>
@@ -420,7 +309,7 @@ function App() {
         </div>
       </section>
       {/* Projects */}
-      <section className="projects-section" style={{ backgroundColor: '#FFF9DC', minHeight: '100vh', scrollSnapAlign: 'start', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '108px', paddingBottom: '160px', gap: 0, overflow: 'visible' }}>
+      <section className="projects-section" style={{ minHeight: '100vh', scrollSnapAlign: 'start', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '108px', paddingBottom: '160px', gap: 0, overflow: 'visible' }}>
 
         <h2 className="about-heading" style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', margin: 0 }}>PROJECTS</h2>
 
@@ -482,7 +371,7 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer style={{ backgroundColor: '#FFF9DC', padding: '24px 0', textAlign: 'center', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+      <footer style={{ padding: '24px 0', textAlign: 'center', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
         <p style={{ fontFamily: serif, fontSize: '13px', color: '#888', margin: 0, letterSpacing: '1px' }}>
           made by katherine hu · 2026
         </p>

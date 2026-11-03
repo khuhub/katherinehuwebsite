@@ -1,0 +1,113 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Katherine · hero text</title>
+<style>body{margin:0;background:#242321;display:grid;place-items:center;min-height:100vh}canvas{max-width:100vw;max-height:100vh;object-fit:contain}</style>
+<canvas id="c"></canvas>
+<script src="../public/engine/core.js"></script>
+<script src="../public/engine/studio.js"></script>
+<script src="../public/engine/cels.js"></script>
+<script src="../public/engine/chibi-data.js"></script>
+<script src="../public/engine/face.js"></script>
+<script src="../public/engine/body.js"></script>
+<script src="../public/engine/lamp.js"></script>
+<script src="text-photos.js"></script>
+<script>
+'use strict';
+// What the light opens onto: "hi, i'm katherine hu" set in big bitmap type on paper — plain pixel mono for
+// "hi, i'm" and "hu", a chunky pixelated italic serif for "katherine" — with a row of dots across the top
+// and a little red star. Text is drawn small on an offscreen canvas and blown up with no smoothing, so the
+// pixels are real pixels; it resolves in as a pixel dissolve, word by word.
+// Render: node .claude/skills/hand-drawn-canvas-animation/scripts/render.mjs hero-film/hero-text.html --out hero-film/out/text
+{ const qs = new URLSearchParams(location.search); setFormat({ ar: qs.get('ar') || '16:9', width: +qs.get('w') || 1920 }); }   // --ar 9:16 --width 1080 for the phone
+const PAPER = '#ffffff', INK = '#2a1b1b', RED = '#d8402a';
+const CELL = 9;                                                       // one bitmap pixel = 9 screen pixels
+const MONO = 'bold %px "JetBrains Mono", Menlo, "Courier New", monospace', SERIF = 'italic %px Georgia, "Times New Roman", serif';   // % = the pixel size
+// one bitmap layer: text drawn at 1/CELL scale, then read back as a grid of on/off cells
+const bitmapCache = new Map();
+function bitmap(text, font, px) {
+  const key = text + '|' + font + '|' + px;
+  if (bitmapCache.has(key)) return bitmapCache.get(key);
+  const o = document.createElement('canvas'), g = o.getContext('2d');
+  g.font = font.replace('%', px); const w = Math.ceil(g.measureText(text).width) + 3, h = Math.ceil(px * 1.3);
+  o.width = w; o.height = h; g.font = font.replace('%', px); g.fillStyle = '#000'; g.textBaseline = 'alphabetic'; g.fillText(text, 1, px);
+  const d = g.getImageData(0, 0, w, h).data, cells = [];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 110) cells.push([x, y]);
+  const out = { cells, w, h, base: px }; bitmapCache.set(key, out); return out;
+}
+// draw a bitmap word at (x, baselineY) in screen px; k 0..1 = how much of it has resolved (pixel dissolve, seeded)
+function word(c, text, font, px, x, y, color, k = 1, seed = 1) {
+  const b = bitmap(text, font, px); c.fillStyle = color;
+  for (let i = 0; i < b.cells.length; i++) { const [cx, cy] = b.cells[i]; if (hash(seed * 7919 + cx * 131 + cy * 17) > k) continue; c.fillRect(x + cx * CELL, y + (cy - b.base) * CELL, CELL, CELL); }
+  return b.w * CELL;
+}
+function star(c, x, y, r, k) {                                        // the little red mark, an eight-pointed scribble star
+  c.save(); c.translate(x, y); c.rotate(k * .6);
+  for (let i = 0; i < 8; i++) { const a = i / 8 * TAU; brush(c, [[0, 0], [Math.cos(a) * r, Math.sin(a) * r]], { w: 7, color: RED, al: .95, seed: 40 + i, amp: .6, taper: .8 }); }
+  c.restore();
+}
+const SMALL = 'bold %px "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace';     // the "compiling thoughts.." type
+function img(c, name, x, y, h, al = 1) { const ph = PHOTOS[name]; if (!ph || !ph.img.width) return 0; const w = h * ph.w / ph.h; c.save(); c.globalAlpha = al; c.drawImage(ph.img, x, y, w, h); c.restore(); return w; }
+// mono text typed on like a typewriter: one character at a time, with a blinking cursor while it types
+function typed(c, text, x, y, size, color, progress) {
+  c.save(); c.font = SMALL.replace('%', size); c.fillStyle = color; c.textBaseline = 'alphabetic';
+  const n = text.length, shown = Math.min(n, Math.floor(progress * (n + 1))), out = text.slice(0, shown);
+  c.fillText(out, x, y);
+  if (progress < 1) { const w = c.measureText(out).width; c.fillRect(x + w + size * .08, y - size * .72, size * .5, size * .8); }   // the cursor block, while it types
+  c.restore();
+}
+function scene(c, tau) {
+  paper(c, PAPER, null, 31);
+  const k = (at, dur = .7) => easeOut(clamp((tau - at) / dur, 0, 1)), P = W < H, M = Math.round(Math.min(W, H) * .052);   // M: the comic mat
+  if (!P) {
+    // landscape: the site's layout — the name across the top, real-you big in front, HU over her hair
+    typed(c, "hi, i'm", 100, 118, 40, INK, clamp((tau - 1.2) / .7, 0, 1));
+    const kw = 1720, kh = kw * PHOTOS.kat.h / PHOTOS.kat.w, u = k(.3, .7);
+    c.save(); c.beginPath(); c.rect(80, 130, (kw + 40) * u, kh + 40); c.clip(); img(c, 'kat', 100, 150, kh); c.restore();
+    const ph = 1000, pw = ph * PHOTOS.me.w / PHOTOS.me.h, pv = k(.7, .7);
+    if (pv > 0) img(c, 'me', CX - pw / 2, 250 + (1 - pv) * 40, ph, pv);
+    const hh = 230, v = k(1.0, .6);
+    if (v > 0) img(c, 'hu', 1070, 520 + (1 - v) * 30, hh, v);
+    if (tau > 1.9) typed(c, 'cs @ cornell', 250, 470, 28, '#6b5a52', clamp((tau - 1.9) / 1.0, 0, 1));
+    const sv = k(2.4, .5); if (sv > 0) { let x = 340; for (const n of ['git', 'linkedin', 'email']) { x += img(c, n, x, 930 + (1 - sv) * 20, 46, sv) + 32; } }
+  } else {
+    // portrait (phone): everything stacks — hi, the name across the width, you big and centred, HU on your shoulder, socials at the foot
+    const s = W / 1080, L = M + 40 * s;
+    typed(c, "hi, i'm", L, M + 150 * s, 44 * s, INK, clamp((tau - 1.2) / .7, 0, 1));
+    const kw = W - 2 * L, kh = kw * PHOTOS.kat.h / PHOTOS.kat.w, u = k(.3, .7), ky = M + 200 * s;
+    c.save(); c.beginPath(); c.rect(L - 20, ky - 20, (kw + 40) * u, kh + 40); c.clip(); img(c, 'kat', L, ky, kh); c.restore();
+    if (tau > 1.9) typed(c, 'cs @ cornell', L + 40 * s, ky + kh + 90 * s, 30 * s, '#6b5a52', clamp((tau - 1.9) / 1.0, 0, 1));
+    const ph = H * .62, pw = ph * PHOTOS.me.w / PHOTOS.me.h, pv = k(.7, .7);
+    if (pv > 0) img(c, 'me', CX - pw / 2 - 40 * s, ky + kh + 120 * s + (1 - pv) * 40, ph, pv);
+    const hh = 200 * s, v = k(1.0, .6);
+    if (v > 0) img(c, 'hu', CX + 80 * s, ky + kh + 330 * s + (1 - v) * 30, hh, v);
+    const sv = k(2.4, .5); if (sv > 0) { let x = L + 20 * s; for (const n of ['git', 'linkedin', 'email']) { x += img(c, n, x, H - M - 120 * s + (1 - sv) * 20, 48 * s, sv) + 30 * s; } }
+  }
+  F.frame(c);                                                               // the comic panel's white mat and ink edge, same as the intro
+}
+// ---- the whole opening, from the start: the face idles and blinks shut, the lamp beat (public/engine/lamp.js, the
+// same code the site runs), the white, then the name
+const F = HeroFace.build(), HAIR_PHASES = 24, HAIR_CYCLE = 4, faceCache = new Map();
+function cachedLayer(key, draw) { key += '/' + S; if (!faceCache.has(key)) { const L = layer(); const g = L.getContext('2d'); g.setTransform(S, 0, 0, S, 0, 0); draw(g); faceCache.set(key, L); } return faceCache.get(key); }
+function drawFace(c, tau, id, { zoom = 1 } = {}) {
+  const ph = Math.floor((tau % HAIR_CYCLE) / HAIR_CYCLE * HAIR_PHASES) / HAIR_PHASES;
+  c.save(); resetT(c);
+  if (zoom !== 1) { const p = F.eyeCentre(); c.translate(p[0], p[1]); c.scale(zoom, zoom); c.translate(-p[0], -p[1]); }
+  c.drawImage(cachedLayer('face/' + id, g => F.face(g, F.DRAWINGS[id])), 0, 0, W, H);
+  F.sparkles(c, tau, F.DRAWINGS[id]);
+  c.drawImage(cachedLayer('hair/' + ph, g => F.hair(g, ph)), 0, 0, W, H);
+  F.scribble(c, tau);
+  c.restore();
+}
+function sceneIdle(c, tau) { paper(c, F.BG, null, 31); drawFace(c, tau, F.drawingAt(Math.floor(tau * 24))); F.frame(c); }
+function sceneBlink(c, tau) { const k = easeIO(clamp(tau / .9, 0, 1)); paper(c, F.BG, null, 31); drawFace(c, F.NFRAMES / 24 + tau, F.blinkId(k), { zoom: 1 + k * 1.3 }); F.frame(c); F.lids(c, 1 - easeIn(k)); if (tau > .9) { c.save(); resetT(c); c.fillStyle = '#000'; c.fillRect(0, 0, W, H); c.restore(); } }
+const LAMP = HeroLamp.make();
+// the name appears inside the cone as it opens: the text scene runs from the moment the light starts to widen
+function sceneLamp(c, tau) { LAMP.draw(c, tau, g => { resetT(g); scene(g, tau - HeroLamp.OPENING); }); }
+function sceneText(c, tau) { scene(c, tau + HeroLamp.DUR - HeroLamp.OPENING); }
+defineFilm({ palette: { ...PALETTES.pencilMinimal, paper: PAPER }, format: { ar: '16:9', width: 1920 }, fps: 24, timeline: [
+  { name: 'idle', dur: F.NFRAMES / 24, fn: sceneIdle },
+  { name: 'blink', dur: 1.3, fn: sceneBlink },
+  { name: 'lamp', dur: HeroLamp.DUR, fn: sceneLamp },
+  { name: 'text', dur: 3.6, fn: sceneText },
+] });
+</script>

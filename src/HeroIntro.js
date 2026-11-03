@@ -7,10 +7,11 @@ import { useEffect, useRef, useState } from 'react';
 // (window.HeroFace), shared with the film in hero-film/face.html.
 //
 // After the blink the screen stays dark: only her eyes, wandering; she pulls a hanging lamp on, off, on,
-// and the cone of light opens to white, which fades out onto the page (public/engine/lamp.js, window.HeroLamp).
+// and the cone of light opens onto the page itself (public/engine/lamp.js, window.HeroLamp): inside the cone
+// the overlay is cleared, and the hero underneath runs its own entrance from the 'hero:open' event.
 //
-// Phases: idle → blink (0.9 s) → dark (the lamp beat, ~7.5 s) → reveal (0.6 s fade) → done (unmounted).
-const BLINK_DUR = 0.9, REVEAL_DUR = 0.6, AUTO_AFTER = 7;
+// Phases: idle → blink (0.9 s) → dark (the lamp beat, ~7.5 s, ending fully open) → done (unmounted).
+const BLINK_DUR = 0.9, AUTO_AFTER = 7;
 
 export default function HeroIntro() {
   const canvasRef = useRef(null);
@@ -31,13 +32,16 @@ export default function HeroIntro() {
     const prev = { html: html.style.overflow, body: body.style.overflow };
     html.style.overflow = 'hidden'; body.style.overflow = 'hidden';
 
-    let phase = 'idle', t0 = performance.now(), start = t0, raf = 0, warmed = false, alive = true;
+    let phase = 'idle', t0 = performance.now(), start = t0, raf = 0, warmed = false, alive = true, opened = false;
     const now = () => (performance.now() - t0) / 1000;
 
-    const trigger = () => { if (phase === 'idle') { phase = 'blink'; start = performance.now(); } };
+    // a scroll / tap / key ends the idle; during the dark beat a tap pulls the string at once (jumps to the next tug)
+    let lampSkip = 0;
+    const trigger = () => { if (phase === 'idle') { phase = 'blink'; start = performance.now(); } else if (phase === 'dark') { lampSkip += L.skipTo((performance.now() - start) / 1000 + lampSkip); } };
     const onKey = e => { if (!e.metaKey && !e.ctrlKey && !e.altKey) trigger(); };
     const opts = { passive: true };
-    window.addEventListener('wheel', trigger, opts);
+    const onWheel = () => { if (phase === 'idle') trigger(); };
+    window.addEventListener('wheel', onWheel, opts);
     window.addEventListener('touchstart', trigger, opts);
     window.addEventListener('pointerdown', trigger, opts);
     window.addEventListener('keydown', onKey);
@@ -59,12 +63,10 @@ export default function HeroIntro() {
         R.blink(t, k * k * (3 - 2 * k));
         if (k >= 1) { phase = 'dark'; start = performance.now(); }
       } else if (phase === 'dark') {
-        const s = (performance.now() - start) / 1000;
-        if (L.draw(canvas.getContext('2d'), s)) { phase = 'reveal'; start = performance.now(); }
-      } else if (phase === 'reveal') {
-        const s = (performance.now() - start) / 1000;
-        canvas.style.opacity = String(Math.max(0, 1 - s / REVEAL_DUR));
-        if (s >= REVEAL_DUR) { alive = false; setDone(true); return; }
+        const s = (performance.now() - start) / 1000 + lampSkip, ctx = canvas.getContext('2d');
+        if (!opened && s >= window.HeroLamp.OPENING) { opened = true; window.dispatchEvent(new Event('hero:open')); }   // the hero starts its own timeline now
+        // inside the cone the overlay is cleared, so the page itself is what the light reveals
+        if (L.draw(ctx, s, g => { g.clearRect(0, 0, canvas.width, canvas.height); })) { alive = false; setDone(true); return; }
       }
       raf = requestAnimationFrame(frame);
     };
@@ -72,7 +74,7 @@ export default function HeroIntro() {
 
     return () => {
       alive = false; cancelAnimationFrame(raf); clearTimeout(auto); clearTimeout(resizeTimer);
-      window.removeEventListener('wheel', trigger); window.removeEventListener('touchstart', trigger);
+      window.removeEventListener('wheel', onWheel); window.removeEventListener('touchstart', trigger);
       window.removeEventListener('pointerdown', trigger); window.removeEventListener('keydown', onKey);
       window.removeEventListener('resize', onResize);
       html.style.overflow = prev.html; body.style.overflow = prev.body;

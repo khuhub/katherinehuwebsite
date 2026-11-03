@@ -5,10 +5,12 @@
 // window.HeroLamp = { make() } → { draw(c, t), warm(), DUR }, sized to the current format (W, H).
 'use strict';
 window.HeroLamp = (() => {
-  const PULLS = [2.6, 4.2, 5.3], OPEN_AT = 5.4, DUR = OPEN_AT + .3 + 1.3 + .5;   // tugs: on · off · on; then the light opens
+  const PULLS = [2.6, 4.2, 5.3], OPEN_AT = 5.4, OPENING = OPEN_AT + .3, DUR = OPENING + 1.3 + .5;   // tugs: on · off · on; then the light opens
   // pupils (gx, gy) and where the whole pair of eyes has moved to (dx, dy; in 1080-high units): slow confused looks,
   // then at ~2.1 s she spots the string and settles on it; after the first pull she just looks up at it
   const GAZE = [[0, 0, 2, 0, 0], [.35, 0, 2, 0, 0], [.5, -9, 1, -220, -50], [.9, -9, 1, -220, -50], [1.05, 9, -4, 230, 70], [1.45, 9, -4, 230, 70], [1.6, -3, 6, -60, 130], [1.95, -3, 6, -60, 130], [2.1, 2, -7, 0, 0], [2.55, 2, -7, 0, 0], [9, 2, -7, 0, 0]];
+  // a tap during the beat: how far to jump the clock so the next tug (or the opening) happens right now
+  const skipTo = t => { for (const p of [...PULLS, OPENING]) if (p > t + .02) return p - t; return 0; };
   const blink = (t, p = 2.9) => { const u = t % p; if (u < p - .5) return 1; const v = (u - (p - .5)) / .5; return v < .3 ? 1 - v / .3 : v < .5 ? 0 : (v - .5) / .5; };
   const bbox = pts => { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const [x, y] of pts) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); } return [x0, y0, x1, y1]; };
   const P2 = (pts, corner = 1.2) => { const p = new Path2D(); const s = smoothPts(pts, true, 4, corner); s.forEach(([x, y], i) => i ? p.lineTo(x, y) : p.moveTo(x, y)); p.closePath(); return p; };
@@ -42,7 +44,7 @@ window.HeroLamp = (() => {
       cache.set(key, o); return o;
     }
     function eyesOnly(c, open, gx, gy, dx = 0, dy = 0) {               // in the dark: just the eyes, floating wherever she has turned to
-      c.save(); c.translate(dx * K, dy * K);
+      c.save(); c.translate(dx * Math.min(K, W / 1400), dy * K);              // on a narrow screen the wander is reined in
       for (const e of FACE.EYES) {
         const pts = e.pts.map(headPt), q = P2(pts, 1.2), [x0, y0, x1, y1] = bbox(pts), h = y1 - y0;
         c.save(); c.clip(q); c.fillStyle = '#fff'; c.fillRect(x0 - 5, y0 - 5, x1 - x0 + 10, h + 10);
@@ -72,8 +74,9 @@ window.HeroLamp = (() => {
       for (const [a, sd] of [[aL, 11], [aR, 12]]) { const pts = []; for (let i = 0; i <= 30; i++) pts.push([ap[0] + Math.cos(a) * L * i / 30, ap[1] + Math.sin(a) * L * i / 30]); brush(c, pts, { w: 9 * K, color: '#fff', al: .9, seed: sd, amp: 5 * K, taper: 0 }); brush(c, pts, { w: 5 * K, color: '#000', al: .5, seed: sd + 5, amp: 7 * K, taper: 0 }); }
       return q;
     }
-    // draw(c, t): t = seconds since the dark began. Returns true once the screen is fully white.
-    function draw(c, t) {
+    // draw(c, t, under): t = seconds since the dark began. Returns true once the screen is fully white.
+    // under(c), if given, is drawn inside the cone while it opens (spread > 0): what the light reveals.
+    function draw(c, t, under) {
       resetT(c); c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
       const tug = PULLS.some(p => t > p && t < p + .28), id = tug ? 'pullDown' : 'pull';
       const lit = (t > PULLS[0] + .15 && t < PULLS[1] + .15) || t > PULLS[2] + .15;
@@ -81,14 +84,16 @@ window.HeroLamp = (() => {
       const open = t < .3 ? clamp((t - .12) / .18, 0, 1) : blink(t + 1.0), [gx, gy, ex, ey] = lit ? [1, -3, 0, 0] : gaze(t);
       if (!lit) { eyesOnly(c, open, gx, gy, ex, ey); string(c, id, false); return false; }
       const q = wedge(c, spread);
-      c.save(); c.clip(q); c.translate(0, sink * 1100 * K);             // after the last pull she drops out of the bottom of the frame
+      c.save(); c.clip(q); if (under && spread > 0) under(c, spread);
+      c.translate(0, sink * 1100 * K);                                 // after the last pull she drops out of the bottom of the frame
       c.drawImage(silhouette(id, open, gx, gy), 0, 0, W, H); c.restore();
-      if (spread < 1) { c.save(); c.globalAlpha = 1 - spread; string(c, id, true); lampShade(c); c.restore(); }   // the string hangs from the lamp whether or not she is holding it
+      const lampAl = 1 - clamp((t - OPENING) / .4, 0, 1);               // the lamp and its string go quickly once the light opens
+      if (lampAl > 0) { c.save(); c.globalAlpha = lampAl; string(c, id, true); lampShade(c); c.restore(); }   // the string hangs from the lamp whether or not she is holding it
       return spread >= 1;
     }
     // warm one more thresholded drawing into the cache; true when there is nothing left to warm
     function warm() { for (const id of ['pull', 'pullDown']) for (const open of [1, .75, .5, .25, 0]) { const key = [id, Math.round(open * 4), 1, -3].join(); if (!cache.has(key)) { silhouette(id, open, 1, -3); return false; } } return true; }
-    return { draw, warm, DUR };
+    return { draw, warm, skipTo, DUR, OPENING };
   }
-  return { make, DUR };
+  return { make, skipTo, DUR, OPENING };
 })();
