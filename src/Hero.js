@@ -23,7 +23,7 @@ function useTypewriter(text, started, delay, dur) {
   return n;
 }
 
-// the comic panel's frame: a white mat and a clean, even ink edge
+// the comic panel's frame, drawn with the engine's brush so the edge wobbles like the intro's
 function Frame() {
   const ref = useRef(null);
   useEffect(() => {
@@ -35,7 +35,10 @@ function Frame() {
       c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
       const M = Math.round(Math.min(w, h) * .052), K = Math.min(w, h) / 1080;
       c.fillStyle = '#fffaf4'; c.fillRect(0, 0, w, M); c.fillRect(0, h - M, w, M); c.fillRect(0, 0, M, h); c.fillRect(w - M, 0, M, h);
-      c.strokeStyle = '#1a1212'; c.lineWidth = Math.max(3, 6 * K); c.strokeRect(M, M, w - 2 * M, h - 2 * M);   // an even ink edge
+      if (!window.brush) { c.strokeStyle = '#1a1212'; c.lineWidth = 7 * K; c.strokeRect(M, M, w - 2 * M, h - 2 * M); return; }
+      const pts = [], corners = [[M, M], [w - M, M], [w - M, h - M], [M, h - M]];
+      for (let i = 0; i < 4; i++) { const a = corners[i], b = corners[(i + 1) % 4], n = 12; for (let j = 0; j < n; j++) pts.push([a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n]); }
+      window.brush(c, pts, { w: 7 * K, color: '#1a1212', al: .95, seed: 830, amp: .8, taper: 0, close: true, smooth: false });   // the engine's wobbly ink edge, like the intro's
     };
     draw();
     let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(draw, 120); };
