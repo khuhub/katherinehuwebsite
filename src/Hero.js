@@ -23,7 +23,7 @@ function useTypewriter(text, started, delay, dur) {
   return n;
 }
 
-// the comic panel's frame, drawn with the engine's brush so the edge wobbles like the intro's
+// the comic panel's frame: a white mat and a clean, even ink edge
 function Frame() {
   const ref = useRef(null);
   useEffect(() => {
@@ -35,10 +35,7 @@ function Frame() {
       c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
       const M = Math.round(Math.min(w, h) * .052), K = Math.min(w, h) / 1080;
       c.fillStyle = '#fffaf4'; c.fillRect(0, 0, w, M); c.fillRect(0, h - M, w, M); c.fillRect(0, 0, M, h); c.fillRect(w - M, 0, M, h);
-      if (!window.brush) { c.strokeStyle = '#1a1212'; c.lineWidth = 7 * K; c.strokeRect(M, M, w - 2 * M, h - 2 * M); return; }
-      const pts = [], corners = [[M, M], [w - M, M], [w - M, h - M], [M, h - M]];
-      for (let i = 0; i < 4; i++) { const a = corners[i], b = corners[(i + 1) % 4], n = 12; for (let j = 0; j < n; j++) pts.push([a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n]); }
-      window.brush(c, pts, { w: 7 * K, color: '#1a1212', al: .95, seed: 830, amp: .8, taper: 0, close: true, smooth: false });
+      c.strokeStyle = '#1a1212'; c.lineWidth = Math.max(3, 6 * K); c.strokeRect(M, M, w - 2 * M, h - 2 * M);   // an even ink edge
     };
     draw();
     let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(draw, 120); };
@@ -65,7 +62,7 @@ export default function Hero() {
       <div className="hero-box">
         <div className="hero-hi mono">{"hi, i'm".slice(0, hiN)}{started && hiN < 7 && <span className="hero-cursor" />}</div>
         <div className="hero-kat"><img src="/kat-pink.png" alt="Katherine" fetchPriority="high" decoding="async" /></div>
-        <img className="hero-me" src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
+        <img className="hero-photo" src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
         <img className="hero-hu" src="/hu-pink.png" alt="Hu" decoding="async" />
         <div className="hero-cs mono">{'cs @ cornell'.slice(0, csN)}{started && csN > 0 && csN < 12 && <span className="hero-cursor" />}</div>
         <div className="hero-social">

@@ -191,10 +191,6 @@
   animation: shake-subtle 0.6s ease-in-out 1;
 }
 
-.hero-me:hover {
-  animation: shake-once 0.6s ease-in-out 1;
-}
-
 .hero-who {
   animation: shake 2s ease-in-out infinite;
 }
