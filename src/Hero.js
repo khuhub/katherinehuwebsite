@@ -36,8 +36,9 @@ function Frame() {
       const M = Math.round(Math.min(w, h) * .052), K = Math.min(w, h) / 1080;
       c.fillStyle = '#fffaf4'; c.fillRect(0, 0, w, M); c.fillRect(0, h - M, w, M); c.fillRect(0, 0, M, h); c.fillRect(w - M, 0, M, h);
       if (!window.brush) { c.strokeStyle = '#1a1212'; c.lineWidth = 7 * K; c.strokeRect(M, M, w - 2 * M, h - 2 * M); return; }
-      const pts = [], corners = [[M, M], [w - M, M], [w - M, h - M], [M, h - M]];
-      for (let i = 0; i < 4; i++) { const a = corners[i], b = corners[(i + 1) % 4], n = 12; for (let j = 0; j < n; j++) pts.push([a[0] + (b[0] - a[0]) * j / n, a[1] + (b[1] - a[1]) * j / n]); }
+      // the same dense path the intro uses (a point every 12px), so the wobble is smooth and the corners close cleanly
+      const pts = [], corners = [[M, M], [w - M, M], [w - M, h - M], [M, h - M]]; let carry = 0;
+      for (let i = 0; i < 4; i++) { const a = corners[i], b = corners[(i + 1) % 4], L = Math.hypot(b[0] - a[0], b[1] - a[1]); let d = carry; while (d < L) { const t = d / L; pts.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); d += 12; } carry = d - L; }
       window.brush(c, pts, { w: 7 * K, color: '#1a1212', al: .95, seed: 830, amp: .8, taper: 0, close: true, smooth: false });   // the engine's wobbly ink edge, like the intro's
     };
     draw();
