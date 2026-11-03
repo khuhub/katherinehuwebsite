@@ -6,8 +6,11 @@ import { useEffect, useRef, useState } from 'react';
 // open onto the page underneath. The drawing lives in public/engine/face.js
 // (window.HeroFace), shared with the film in hero-film/face.html.
 //
-// Phases: idle → blink (0.9 s) → open (0.3 s hold + 1.1 s) → done (unmounted).
-const BLINK_DUR = 0.9, OPEN_HOLD = 0.3, OPEN_DUR = 1.1, AUTO_AFTER = 7;
+// After the blink the screen stays dark: only her eyes, wandering; she pulls a hanging lamp on, off, on,
+// and the cone of light opens to white, which fades out onto the page (public/engine/lamp.js, window.HeroLamp).
+//
+// Phases: idle → blink (0.9 s) → dark (the lamp beat, ~7.5 s) → reveal (0.6 s fade) → done (unmounted).
+const BLINK_DUR = 0.9, REVEAL_DUR = 0.6, AUTO_AFTER = 7;
 
 export default function HeroIntro() {
   const canvasRef = useRef(null);
@@ -21,6 +24,7 @@ export default function HeroIntro() {
     const canvas = canvasRef.current;
     const R = window.HeroFace.makeRenderer(canvas);
     R.resize();
+    let L = window.HeroLamp.make(), lampWarm = false;              // the lamp beat, sized to the viewport
 
     // lock the page behind the intro
     const html = document.documentElement, body = document.body;
@@ -40,7 +44,7 @@ export default function HeroIntro() {
     const auto = setTimeout(trigger, AUTO_AFTER * 1000);
 
     let resizeTimer = 0;
-    const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { R.resize(); warmed = false; }, 150); };
+    const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { R.resize(); L = window.HeroLamp.make(); warmed = false; lampWarm = false; }, 150); };
     window.addEventListener('resize', onResize);
 
     const frame = () => {
@@ -49,14 +53,18 @@ export default function HeroIntro() {
       if (phase === 'idle') {
         R.idle(t);
         if (!warmed) warmed = R.warm();            // one more cached drawing per frame, so the blink never stutters
+        else if (!lampWarm) lampWarm = L.warm();   // then the lamp beat's black-and-white drawings
       } else if (phase === 'blink') {
         const k = Math.min(1, (performance.now() - start) / 1000 / BLINK_DUR);
         R.blink(t, k * k * (3 - 2 * k));
-        if (k >= 1) { phase = 'open'; start = performance.now(); }
-      } else if (phase === 'open') {
-        const s = (performance.now() - start) / 1000, k = Math.max(0, Math.min(1, (s - OPEN_HOLD) / OPEN_DUR));
-        R.open(1 - Math.pow(1 - k, 3));
-        if (s >= OPEN_HOLD + OPEN_DUR) { alive = false; setDone(true); return; }
+        if (k >= 1) { phase = 'dark'; start = performance.now(); }
+      } else if (phase === 'dark') {
+        const s = (performance.now() - start) / 1000;
+        if (L.draw(canvas.getContext('2d'), s)) { phase = 'reveal'; start = performance.now(); }
+      } else if (phase === 'reveal') {
+        const s = (performance.now() - start) / 1000;
+        canvas.style.opacity = String(Math.max(0, 1 - s / REVEAL_DUR));
+        if (s >= REVEAL_DUR) { alive = false; setDone(true); return; }
       }
       raf = requestAnimationFrame(frame);
     };
