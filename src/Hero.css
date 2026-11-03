@@ -8,13 +8,14 @@
 
 /* positions, as % of the 1920 x 1080 film frame */
 .hero-hi { position: absolute; left: 5.2%; top: 7.4%; font-size: 3.7cqh; z-index: 4; }
-.hero-kat { position: absolute; left: 5.2%; top: 13.9%; width: 89.6%; z-index: 2; clip-path: inset(-2% 100% -2% -2%); transition: clip-path .7s cubic-bezier(.2,.7,.2,1) .3s; }
+.hero-kat { position: absolute; left: 8.5%; top: 15.5%; width: 83%; z-index: 2; clip-path: inset(-2% 100% -2% -2%); transition: clip-path .7s cubic-bezier(.2,.7,.2,1) .3s; }
 .hero-kat img { width: 100%; display: block; }
-.hero-photo { position: absolute; left: 50%; top: 23.1%; height: 92.6%; transform: translateX(-50%); opacity: 0; z-index: 3; transition: opacity .6s ease .7s; }
-.hero-hu { position: absolute; left: 55.7%; top: 48.1%; height: 21.3%; transform: translateY(14%); opacity: 0; z-index: 4; transition: opacity .6s ease 1s, transform .6s cubic-bezier(.2,.7,.2,1) 1s; }
-.hero-cs { position: absolute; left: 13%; top: 39.5%; font-size: 2.6cqh; font-weight: 500; color: #6b5a52; z-index: 4; }
+.hero-photo { position: absolute; left: 50%; top: 26%; height: 84%; transform: translateX(-50%); opacity: 0; z-index: 3; transition: opacity .6s ease .7s; }
+.hero-hu { position: absolute; left: 55%; top: 48.5%; height: 19%; transform: translateY(14%); opacity: 0; z-index: 4; transition: opacity .6s ease 1s, transform .6s cubic-bezier(.2,.7,.2,1) 1s; }
+.hero-cs { position: absolute; left: 14%; top: 40.5%; font-size: 2.6cqh; font-weight: 500; color: #6b5a52; z-index: 4; }
 .hero-social { position: absolute; left: 17.7%; top: 86%; display: flex; gap: 1.7cqw; opacity: 0; transform: translateY(1.8cqh); z-index: 5; transition: opacity .5s ease 2.4s, transform .5s ease 2.4s; }
-.hero-social a { display: block; height: 4.3cqh; }
+.hero-social a { display: block; height: 4.3cqh; transition: transform .18s cubic-bezier(.34,1.56,.64,1); }
+.hero-social a:hover { transform: scale(1.22); }
 .hero-social img { height: 100%; width: auto; display: block; }
 
 .hero.is-on .hero-kat { clip-path: inset(-2% -2% -2% -2%); }
@@ -26,10 +27,10 @@
 @media (orientation: portrait) {
   .hero-box { width: 100vw; height: 100vh; height: 100dvh; }
   .hero-hi { left: 8.9vw; top: 11vw; font-size: 4.1vw; }
-  .hero-kat { left: 8.9vw; top: 23.7vw; width: 82.2vw; }
-  .hero-cs { left: 12.6vw; top: 42vw; font-size: 2.8vw; }
-  .hero-photo { left: 50%; top: 47.5vw; height: 62vh; height: 62dvh; transform: translateX(-54%); }
-  .hero-hu { left: 57.4vw; top: 66.8vw; height: 18.5vw; }
+  .hero-kat { left: 11vw; top: 24vw; width: 78vw; }
+  .hero-cs { left: 14vw; top: 41.5vw; font-size: 2.8vw; }
+  .hero-photo { left: 50%; top: 48vw; height: 56vh; height: 56dvh; transform: translateX(-54%); }
+  .hero-hu { left: 57vw; top: 65vw; height: 16.5vw; }
   .hero-social { left: 10.7vw; top: auto; bottom: 11.9vw; gap: 2.8vw; }
   .hero-social a { height: 4.4vw; }
 }
