@@ -92,27 +92,6 @@ function body() {
   return BODY;
 }
 const WALK_T = 3.6, RUN = 22.2, PAUSE = .45, IDLE = 4000;
-// the corgi: the 7-frame sprite (public/corgi-run.png, faces left), running on the line just behind the pen,
-// and trotting back and forth whenever the pen rests
-let CORGI = null;
-function corgiImg() { if (!CORGI) { CORGI = new Image(); CORGI.src = '/corgi-run.png'; } return CORGI; }
-function drawCorgi(c, W, D, now) {
-  const img = corgiImg(); if (!img.complete || !img.naturalWidth) return;
-  const size = 150 * Math.min(1, W.PB / 1080), frame = D.moving ? Math.floor(now / 70) % 7 : 0, [, gy] = W.at(D.x);
-  c.save(); c.translate(D.x, gy + size * .03); c.scale(D.face, 1);
-  c.drawImage(img, frame * 270, 0, 270, 270, -size / 2, -size * .71, size, size);
-  c.restore();
-}
-// where the corgi goes this frame: just behind the pen, stopping when it stops; once she has walked in it sits beside her
-function stepCorgi(D, W, head, dt, chibiAt, now) {
-  const size = 150 * Math.min(1, W.PB / 1080), minX = W.M + W.w * .05;
-  const settled = chibiAt && now - chibiAt > WALK_T * 1000;
-  D.target = settled ? W.camMax + W.w * .72 - size * .85 : clamp(head - W.w * .1, minX, W.headEnd);
-  const dx = D.target - D.x;
-  if (Math.abs(dx) < 3) { D.moving = false; return; }
-  const step = Math.min(Math.abs(dx), (W.w * .45) * dt);
-  D.moving = true; D.x += Math.sign(dx) * step; if (Math.abs(dx) > 12) D.face = dx > 0 ? -1 : 1;
-}
 // the film's timing for the head: one pace between the stops, a short rest at each, eased in and out of every rest
 function headPlan(W) {
   const keys = [W.M]; for (let i = 0; i < N; i++) keys.push(W.stopX(i)); keys.push(W.headEnd);
@@ -125,7 +104,7 @@ const easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 function headAtTime(plan, t) { for (const sg of plan.segs) { if (t < sg.t0) return sg.x0; if (t < sg.t1) return lerp(sg.x0, sg.x1, easeIO((t - sg.t0) / (sg.t1 - sg.t0))); } return plan.segs[plan.segs.length - 1].x1; }
 function timeAtHead(plan, x) { let lo = 0, hi = plan.end; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (headAtTime(plan, m) < x) lo = m; else hi = m; } return hi; }
 // one frame: the line to the furthest point reached, the garden grown to there, the dots, her, the arrow
-function drawFrame(c, W, cam, grown, now, chibiAt, arrowAt, D) {
+function drawFrame(c, W, cam, grown, now, chibiAt, arrowAt) {
   const { w, h, M, pts, plants, stopX, U } = W;
   c.clearRect(0, 0, w, h);
   c.save(); c.beginPath(); c.rect(M, M, w - 2 * M, h - 2 * M); c.clip(); c.translate(-cam, 0);
@@ -134,7 +113,6 @@ function drawFrame(c, W, cam, grown, now, chibiAt, arrowAt, D) {
   if (window.brush) window.brush(c, pts.slice(i0, n), { w: 5.2 * U, color: LINE, al: .95, seed: 9, amp: .7, taper: 0 });
   else { c.strokeStyle = LINE; c.lineWidth = 5 * U; c.beginPath(); pts.slice(i0, n).forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.stroke(); }
   EXPS.forEach((_, i) => { const sx = stopX(i); if (grown >= sx) { const [px, py] = W.at(sx); c.fillStyle = INK; c.beginPath(); c.arc(px, py, 7 * U, 0, TAU); c.fill(); } });
-  if (D) drawCorgi(c, W, D, now);
   const B = body();
   if (chibiAt && B) {                                                     // she walks in from the right along the line and waves
     const tc = (now - chibiAt) / 1000, sc = Math.min(1, W.PB / 1080) * .55, xEnd = W.camMax + w * .72, xStart = W.camMax + w + 80, u = clamp(tc / WALK_T, 0, 1), wx = lerp(xStart, xEnd, easeOut(u));
@@ -155,7 +133,7 @@ function drawFrame(c, W, cam, grown, now, chibiAt, arrowAt, D) {
 export default function Experience() {
   const secRef = useRef(null), boxRef = useRef(null), canvasRef = useRef(null), worldRef = useRef(null);
   const [world, setWorld] = useState(null);
-  const S = useRef({ prog: 0, head: 0, grown: 0, cam: 0, chibiAt: 0, arrowAt: 0, endHold: 0, near: false, dirty: true, userAt: -1e9, autoT: 0, ended: false, dog: null }).current;
+  const S = useRef({ prog: 0, head: 0, grown: 0, cam: 0, chibiAt: 0, arrowAt: 0, endHold: 0, near: false, dirty: true, userAt: -1e9, autoT: 0, ended: false }).current;
   const [arrowOn, setArrowOn] = useState(false);
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
 
@@ -209,8 +187,6 @@ export default function Experience() {
     const obs = new IntersectionObserver(([e]) => { S.near = e.isIntersecting; S.dirty = true; }, { threshold: 0 });
     obs.observe(sec);
     const plan = headPlan(world), span = world.headEnd - world.M;
-    if (!S.dog) S.dog = { x: world.M + world.w * .05, target: 0, face: -1, moving: false };
-    S.dog.x = clamp(S.dog.x, world.M + world.w * .05, world.pts[world.pts.length - 1][0]);
     const active = () => Math.abs(sec.getBoundingClientRect().top) < 3;
     let raf = 0, last = 0;
     const tick = now => {
@@ -225,16 +201,15 @@ export default function Experience() {
       const target = world.M + S.prog * span, d = target - S.head;
       if (Math.abs(d) > .3) { S.head += d * .14; S.dirty = true; } else if (S.head !== target) { S.head = target; S.dirty = true; }
       S.grown = Math.max(S.grown, S.head);
-      stepCorgi(S.dog, world, S.head, dt, S.chibiAt, now); if (S.dog.moving) S.dirty = true;
       const showArrow = S.head >= world.stopX(N - 1) - 1;                            // the arrow points back along the line, once the end is near
       if (showArrow && !S.arrowAt) { S.arrowAt = now; setArrowOn(true); } else if (!showArrow && S.arrowAt) { S.arrowAt = 0; setArrowOn(false); }
       if (!S.chibiAt && S.grown >= world.headEnd - 1) S.chibiAt = now;
-      const animating = S.arrowAt || S.dog.moving || (S.chibiAt && now - S.chibiAt < 60000);
+      const animating = S.arrowAt || (S.chibiAt && now - S.chibiAt < 60000);
       if (!S.dirty && !animating) return;
       S.dirty = false;
       S.cam = clamp(S.head - world.w * .5, 0, world.camMax);
       c.setTransform(dpr, 0, 0, dpr, 0, 0);
-      drawFrame(c, world, S.cam, S.grown, now, S.chibiAt, S.arrowAt, S.dog);
+      drawFrame(c, world, S.cam, S.grown, now, S.chibiAt, S.arrowAt);
       if (worldRef.current) worldRef.current.style.transform = `translateX(${-S.cam}px)`;
     };
     raf = requestAnimationFrame(tick);
