@@ -91,7 +91,18 @@ function body() {
   BODY.POSES.wave2 = Object.assign({}, st, { head: [0, CH, -.03], armR: [[54, CH + 24], [96, CH - 30], [118, CH - 110]] });
   return BODY;
 }
-const WALK_T = 3.6;
+const WALK_T = 3.6, RUN = 22.2, PAUSE = .45, IDLE = 4000;
+// the film's timing for the head: one pace between the stops, a short rest at each, eased in and out of every rest
+function headPlan(W) {
+  const keys = [W.M]; for (let i = 0; i < N; i++) keys.push(W.stopX(i)); keys.push(W.headEnd);
+  const lens = keys.slice(1).map((k, i) => k - keys[i]), weights = lens.map(l => l + W.w * .12), sumW = weights.reduce((a, b) => a + b, 0), travel = RUN - N * PAUSE;
+  const segs = []; let t = 0;
+  lens.forEach((l, i) => { const dur = travel * weights[i] / sumW; segs.push({ t0: t, t1: t + dur, x0: keys[i], x1: keys[i + 1] }); t += dur; if (i < N) t += PAUSE; });
+  return { segs, end: t };
+}
+const easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function headAtTime(plan, t) { for (const sg of plan.segs) { if (t < sg.t0) return sg.x0; if (t < sg.t1) return lerp(sg.x0, sg.x1, easeIO((t - sg.t0) / (sg.t1 - sg.t0))); } return plan.segs[plan.segs.length - 1].x1; }
+function timeAtHead(plan, x) { let lo = 0, hi = plan.end; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (headAtTime(plan, m) < x) lo = m; else hi = m; } return hi; }
 // one frame: the line to the furthest point reached, the garden grown to there, the dots, her, the arrow
 function drawFrame(c, W, cam, grown, now, chibiAt, arrowAt) {
   const { w, h, M, pts, plants, stopX, U } = W;
@@ -122,7 +133,8 @@ function drawFrame(c, W, cam, grown, now, chibiAt, arrowAt) {
 export default function Experience() {
   const secRef = useRef(null), boxRef = useRef(null), canvasRef = useRef(null), worldRef = useRef(null);
   const [world, setWorld] = useState(null);
-  const S = useRef({ prog: 0, head: 0, grown: 0, cam: 0, chibiAt: 0, arrowAt: 0, endHold: 0, near: false, dirty: true }).current;
+  const S = useRef({ prog: 0, head: 0, grown: 0, cam: 0, chibiAt: 0, arrowAt: 0, endHold: 0, near: false, dirty: true, userAt: -1e9, autoT: 0, ended: false }).current;
+  const [arrowOn, setArrowOn] = useState(false);
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
 
   // the world is authored for the panel's size
@@ -141,7 +153,7 @@ export default function Experience() {
     const sec = secRef.current; if (!sec || !world) return;
     const total = world.headEnd - world.M;
     const active = () => { const r = sec.getBoundingClientRect(); return Math.abs(r.top) < 3; };
-    const move = dpx => { S.prog = clamp(S.prog + dpx / total, 0, 1); S.dirty = true; };
+    const move = dpx => { S.prog = clamp(S.prog + dpx / total, 0, 1); S.userAt = performance.now(); S.dirty = true; };
     const onWheel = e => {
       if (!active()) return;
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
@@ -171,17 +183,26 @@ export default function Experience() {
     const sec = secRef.current, canvas = canvasRef.current; if (!sec || !canvas || !world) return;
     const c = canvas.getContext('2d'), dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(world.w * dpr); canvas.height = Math.round(world.h * dpr); canvas.style.width = world.w + 'px'; canvas.style.height = world.h + 'px';
-    S.head = world.M + S.prog * (world.headEnd - world.M); S.grown = Math.max(S.grown, S.head); S.dirty = true;
+    S.head = world.M + S.prog * (world.headEnd - world.M); S.grown = Math.max(S.grown, S.head); S.dirty = true; S.autoT = -1;
     const obs = new IntersectionObserver(([e]) => { S.near = e.isIntersecting; S.dirty = true; }, { threshold: 0 });
     obs.observe(sec);
-    let raf = 0;
+    const plan = headPlan(world), span = world.headEnd - world.M;
+    const active = () => Math.abs(sec.getBoundingClientRect().top) < 3;
+    let raf = 0, last = 0;
     const tick = now => {
       raf = requestAnimationFrame(tick);
+      const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
       if (!S.near) return;
-      const target = world.M + S.prog * (world.headEnd - world.M), d = target - S.head;
+      if (!S.ended && S.prog < 1 && now - S.userAt > IDLE && active()) {           // auto-play, from wherever the line is now
+        if (S.autoT < 0) S.autoT = timeAtHead(plan, S.head);
+        S.autoT += dt; S.prog = clamp((headAtTime(plan, S.autoT) - world.M) / span, 0, 1); S.dirty = true;
+      } else S.autoT = -1;
+      if (S.prog >= 1) S.ended = true;
+      const target = world.M + S.prog * span, d = target - S.head;
       if (Math.abs(d) > .3) { S.head += d * .14; S.dirty = true; } else if (S.head !== target) { S.head = target; S.dirty = true; }
       S.grown = Math.max(S.grown, S.head);
-      if (!S.arrowAt && S.grown >= world.stopX(N - 1) - 1) S.arrowAt = now;
+      const showArrow = S.head >= world.stopX(N - 1) - 1;                            // the arrow points back along the line, once the end is near
+      if (showArrow && !S.arrowAt) { S.arrowAt = now; setArrowOn(true); } else if (!showArrow && S.arrowAt) { S.arrowAt = 0; setArrowOn(false); }
       if (!S.chibiAt && S.grown >= world.headEnd - 1) S.chibiAt = now;
       const animating = S.arrowAt || (S.chibiAt && now - S.chibiAt < 60000);
       if (!S.dirty && !animating) return;
@@ -211,6 +232,7 @@ export default function Experience() {
           })}
         </div>
         <span className="exp-label mono">experience</span><span className="exp-num mono">03</span>
+        {arrowOn && <button className="exp-back" aria-label="back to the start" onClick={() => { S.prog = 0; S.ended = true; S.userAt = performance.now(); S.dirty = true; }} />}
         <Frame />
       </div>
     </section>
