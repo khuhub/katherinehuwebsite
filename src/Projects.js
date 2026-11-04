@@ -59,6 +59,9 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
     if (!on) { c.clearRect(0, 0, canvas.width, canvas.height); return; }
     if (pinned.current) return;                                   // she only comes in once
     const B = window.HeroBody && window.HeroBody.build({ paper: '#fffaf4' }); if (!B) { onPinned(); return; }
+    if (!B.POSES.wave1) { const st = B.POSES.stand, CH = st.head[1];                          // a wave: the right arm up, the hand swinging
+      B.POSES.wave1 = Object.assign({}, st, { head: [0, CH, -.03], armR: [[54, CH + 24], [92, CH - 30], [70, CH - 120]] });
+      B.POSES.wave2 = Object.assign({}, st, { head: [0, CH, -.03], armR: [[54, CH + 24], [96, CH - 30], [118, CH - 110]] }); }
     const layer = document.createElement('canvas');
     const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2, easeOut = t => 1 - Math.pow(1 - t, 3);
     const tick = now => {
@@ -66,12 +69,15 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
       const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
       if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
       const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = cardAt[0] * w, stop = tx - 150 * s - 70 * s;
-      const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6;
-      let cx, pose = 'stand';
+      const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6, T_WAVE = 6.3, T_WAVE_END = 8.1, HOP_EVERY = 5.5, HOP_DUR = .55;
+      let cx, pose = 'stand', hop = 0;
       if (t < T_IN) cx = -200 * s; else if (t < T_ARRIVE) { const u = easeIO(clamp((t - T_IN) / (T_ARRIVE - T_IN), 0, 1)); cx = lerp(-200 * s, stop, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
       else if (t < T_PIN) { cx = stop; pose = 'reach'; }
       else if (t < T_BACK) { cx = stop; }
-      else { const u = easeIO(clamp((t - T_BACK) / (T_HOME - T_BACK), 0, 1)); cx = lerp(stop, w * .065, u); pose = u < 1 ? B.WALK[Math.floor(t * 8) % 6] : 'stand'; }
+      else if (t < T_HOME) { const u = easeIO(clamp((t - T_BACK) / (T_HOME - T_BACK), 0, 1)); cx = lerp(stop, w * .065, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
+      else { cx = w * .065;                                                                        // home: one wave, then a little hop every so often
+        if (t >= T_WAVE && t < T_WAVE_END) pose = Math.floor((t - T_WAVE) * 4) % 2 ? 'wave2' : 'wave1';
+        else if (t >= T_WAVE_END) { const u = ((t - T_WAVE_END) % HOP_EVERY) / HOP_DUR; if (u < 1) hop = Math.sin(u * Math.PI) * 38 * s; } }
       // the card she carries: at her hands until she reaches up, then it glides to its spot and grows to full size
       const card = cardRef.current;
       if (card) {
@@ -83,10 +89,9 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
       // her shadow and herself, from a small layer around her
       const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc;
       if (layer.width !== Math.round(lw * dpr) || layer.height !== Math.round(lh * dpr)) { layer.width = Math.round(lw * dpr); layer.height = Math.round(lh * dpr); }
-      const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, -ox * dpr, -oy * dpr); g.clearRect(ox, oy, lw, lh); if (t >= T_IN) B.draw(g, pose, { x: cx, y: floor, scale: sc });
+      const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, -ox * dpr, -oy * dpr); g.clearRect(ox, oy, lw, lh); if (t >= T_IN) B.draw(g, pose, { x: cx, y: floor - hop, scale: sc });
       c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height); c.setTransform(dpr, 0, 0, dpr, 0, 0);
       c.save(); c.filter = 'brightness(0) blur(5px)'; c.globalAlpha = .3; c.drawImage(layer, ox + 10 * s, oy + 12 * s, lw, lh); c.restore(); c.drawImage(layer, ox, oy, lw, lh);
-      if (t > T_HOME + .5) { cancelAnimationFrame(raf); }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
