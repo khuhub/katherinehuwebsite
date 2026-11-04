@@ -27,6 +27,8 @@ const CLOUDS_P = [
   [.15, .08, .3, .04, true], [.85, .13, .34, -.03, false],
   [.12, .9, .55, .02, false], [.42, .96, .4, -.04, true], [.78, .9, .6, .03, false], [.95, .8, .22, .06, true], [.3, .82, .18, -.02, true],
 ];
+// the stamped heading: [letter, height relative to the x-height, descender, x nudge, y nudge, tilt], as a hand stamps
+const STAMP = [['e', 1, 0, .02, -.05, .03], ['x', .9, 0, -.03, .06, -.05], ['p', 1.42, .42, .03, .02, .04], ['e', 1, 0, -.02, -.07, -.02], ['r', 1, 0, .04, .04, .05], ['i', 1.5, 0, -.03, -.03, -.04], ['e', 1, 0, .01, .06, .02], ['n', 1, 0, -.04, -.02, -.05], ['c', 1, 0, .02, .05, .03], ['e', 1, 0, -.02, -.04, -.03]];
 const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
 // the stripes photo, fitted to the panel's height and tiled across with every other tile mirrored, so it stays
@@ -65,6 +67,8 @@ const Icon = ({ kind }) => {                                          // the tra
 export default function Experience() {
   const secRef = useRef(null), boxRef = useRef(null), rowRef = useRef(null), audioRef = useRef(null);
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
+  const [xh, setXh] = useState(0);                                    // the stamp's x-height in px, from the box
+  useEffect(() => { const box = boxRef.current; if (!box) return; const m = () => { const r = box.getBoundingClientRect(); setXh(portrait ? r.width * .043 : r.height * .0407); }; m(); let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(m, 150); }; window.addEventListener('resize', onResize); return () => { window.removeEventListener('resize', onResize); clearTimeout(t); }; }, [portrait]);
   const [held, setHeld] = useState(null);                            // the popped card's index
   const [playing, setPlaying] = useState(null);                      // the card whose song is playing
   const [prog, setProg] = useState({});                              // key → { t, d }
@@ -145,7 +149,10 @@ export default function Experience() {
           <button className="exp-arrow is-left" aria-label="previous" onPointerDown={e => e.stopPropagation()} onClick={() => { S.idx -= 1; setHeld(null); pause(); }}>‹</button>
           <button className="exp-arrow is-right" aria-label="next" onPointerDown={e => e.stopPropagation()} onClick={() => { S.idx += 1; setHeld(null); pause(); }}>›</button>
         </>}
-        <span className="exp-label mono">experience</span><span className="exp-num mono">03</span>
+        <div className="exp-word" aria-label="experience">
+          {STAMP.map(([ch, h, desc, dx, dy, rot], i) => <img key={i} src={`/stamp-${ch}.png`} alt="" draggable="false" style={{ height: xh * h + 'px', marginBottom: -desc * xh + 'px', transform: `translate(${dx * xh}px, ${dy * xh}px) rotate(${rot}rad)` }} />)}
+        </div>
+        <span className="exp-num mono">03</span>
         <span className="exp-credit mono" tabIndex="0" aria-label="music by Kevin MacLeod (incompetech.com), CC BY 4.0">♪<span className="exp-credit-text">music by Kevin MacLeod (incompetech.com) · CC BY 4.0</span></span>
         <audio ref={audioRef} preload="none" />
         <Frame />

@@ -1,0 +1,55 @@
+/* Panel 4, projects: a corkboard with the project screenshots in polaroid frames, held by tape or pins. Landscape:
+   a 16:9 box fitted to the viewport; sizes in cqh so it matches the film. Portrait: the box is the whole viewport. */
+.pj { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #fffaf4; position: relative; overflow: hidden; scroll-snap-align: start; }
+.pj-box { position: relative; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); container-type: size; overflow: hidden; background: #c99c67; touch-action: pan-y; }
+.pj .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; }
+.pj .serif { font-family: Lora, Georgia, 'Times New Roman', serif; }
+.pj-cork { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; }
+.pj-walker { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; }
+.pj-num { position: absolute; top: 5.2cqh; right: 5cqw; font-size: 2.4cqh; color: #f6ead6; z-index: 7; }
+
+/* the word, cut-out letters across the top: each a little off the line and a little turned */
+.pj-word { position: absolute; left: 50%; top: 16cqh; transform: translate(-50%, -50%); display: flex; align-items: center; gap: .7cqh; z-index: 2; pointer-events: none; }
+.pj-word img { width: auto; display: block; filter: drop-shadow(0 .3cqh .6cqh rgba(40,20,5,.4)); }
+
+/* a card: centred on its anchor, tilted; drops in from a little above; hover lifts; click flips */
+.pj-card { position: absolute; width: 27.8cqh; aspect-ratio: 304 / 364; transform: translate(-50%, -50%) rotate(var(--tilt)); z-index: 3; cursor: grab; user-select: none; touch-action: none;
+  opacity: 0; transition: transform .5s cubic-bezier(.2,.7,.2,1), opacity .4s ease; transition-delay: var(--delay); }
+.pj-card.is-in { opacity: 1; }
+.pj:not(.is-on) .pj-card { transform: translate(-50%, -50%) translateY(-8cqh) rotate(calc(var(--tilt) * 2)); }
+.pj-card.is-hover { transform: translate(-50%, -50%) translateY(-1cqh) rotate(calc(var(--tilt) * .5)) scale(1.04); z-index: 5; transition-delay: 0s; transition-duration: .25s; }
+.pj-card.is-flip { z-index: 5; transition-delay: 0s; }
+.pj-card:active { cursor: grabbing; }
+.pj-flip { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,0,.2,1); }
+.pj-card.is-flip .pj-flip { transform: rotateY(180deg); }
+.pj-front, .pj-back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: #f4f1ea;
+  box-shadow: 0.55cqh 1.3cqh 2cqh rgba(40,20,5,.45), 0 .25cqh .3cqh rgba(40,20,5,.55); }
+.pj-card.is-hover .pj-front, .pj-card.is-hover .pj-back { box-shadow: 0.8cqh 2.4cqh 3.6cqh rgba(40,20,5,.5), 0 .25cqh .3cqh rgba(40,20,5,.55); }
+.pj-shot { position: absolute; object-fit: cover; display: block; background: #1b1b1b; }
+.pj-frame { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pj-front::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset .15cqh .15cqh 0 rgba(255,255,255,.7), inset -.15cqh -.15cqh 0 rgba(60,40,20,.45); }
+.pj-title { position: absolute; transform: translate(-50%, -50%); font-size: 1.95cqh; font-weight: 700; color: #3a2a1c; white-space: nowrap; }
+.pj-back { transform: rotateY(180deg); padding: 3cqh 2cqh 2.4cqh; box-sizing: border-box; display: flex; flex-direction: column; color: #3a2a1c; }
+.pj-back h3 { margin: 0 0 1.2cqh; font-size: 2.1cqh; }
+.pj-back p { margin: 0; font-size: 1.3cqh; line-height: 1.4; color: rgba(58,42,28,.88); flex: 1; }
+.pj-back a { font-size: 1.2cqh; color: #5a2d3e; text-decoration: underline; text-underline-offset: .3em; }
+
+/* the holders: tape across the top, two corner tapes, or a pin at the top centre */
+.pj-tape { position: absolute; width: 14cqh; height: auto; z-index: 2; pointer-events: none; filter: drop-shadow(0 .25cqh .4cqh rgba(0,0,0,.3)); opacity: .95; }
+.pj-tape.is-top { left: 50%; top: 0; transform: translate(-50%, -50%) rotate(.06rad); }
+.pj-tape.is-tl { left: 12%; top: 1%; transform: translate(-50%, -50%) rotate(-.55rad); }
+.pj-tape.is-br { left: 88%; top: 99%; transform: translate(-50%, -50%) rotate(-.55rad); }
+.pj-pin { position: absolute; left: 50%; top: 4%; height: 4.3cqh; width: auto; transform: translate(-50%, -85%); z-index: 2; pointer-events: none; filter: drop-shadow(.3cqh .6cqh .8cqh rgba(0,0,0,.45)); }
+
+/* portrait (phones): the box is the whole viewport; two columns, no walker */
+.pj.is-portrait .pj-box { width: 100vw; height: 100vh; height: 100dvh; }
+.pj.is-portrait .pj-word { top: 8vh; gap: .6vw; }
+.pj.is-portrait .pj-card { width: 30vw; }
+.pj.is-portrait .pj-title { font-size: 2.6vw; }
+.pj.is-portrait .pj-back { padding: 4vw 3vw 3vw; }
+.pj.is-portrait .pj-back h3 { font-size: 3.2vw; margin-bottom: 1.5vw; }
+.pj.is-portrait .pj-back p { font-size: 2.2vw; }
+.pj.is-portrait .pj-back a { font-size: 2vw; }
+.pj.is-portrait .pj-tape { width: 14vw; }
+.pj.is-portrait .pj-pin { height: 4.5vw; }
+.pj.is-portrait .pj-num { font-size: 2.4vw; top: 5.2vw; right: 9vw; }
