@@ -17,7 +17,7 @@ const PROJECTS = [
   { key: 'patchtst', title: 'PatchTST', img: '/pj-patchtst.jpg', desc: 'A deep-learning reimplementation of PatchTST, a transformer for long-term time-series forecasting, reproducing the paper within a 1–3% margin', link: 'https://github.com/khuhub', x: .77, y: .78, tilt: -.05, hold: ['tape-green', 'tape-cyan'], frame: 'frame-bluered' },
 ];
 // phones: two columns, smaller, the same holders
-const PROJECTS_P = PROJECTS.map((p, i) => ({ ...p, x: i % 2 ? .73 : .27, y: .24 + Math.floor(i / 2) * .205 }));
+const PROJECTS_P = PROJECTS.map((p, i) => ({ ...p, x: i % 2 ? .72 : .28, y: .235 + Math.floor(i / 2) * .19 }));
 PROJECTS_P[6].x = .5;
 // where the photo window sits in each frame (fractions of the frame), measured from the cut-outs
 const WIN = { 'frame-red': [.059, .066, .872, .728], 'frame-bluered': [.07, .061, .86, .729], 'frame-yellow': [.072, .061, .86, .724], 'frame-sun': [.068, .062, .866, .73] };

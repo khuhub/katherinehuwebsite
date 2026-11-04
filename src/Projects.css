@@ -17,10 +17,11 @@
 .pj-card { position: absolute; width: 25cqh; aspect-ratio: 304 / 364; transform: translate(-50%, -50%) translateY(-110vh) rotate(calc(var(--tilt) * 2)); z-index: 3; cursor: grab; user-select: none; touch-action: none; visibility: hidden;
   transition: transform .6s cubic-bezier(.2,.7,.2,1); transition-delay: var(--delay); }
 .pj-card.is-in { visibility: visible; transform: translate(-50%, -50%) rotate(var(--tilt)); }
-.pj.is-set .pj-card { transition-delay: 0s; transition-duration: .25s; }
+.pj.is-set .pj-card { transition: transform .25s cubic-bezier(.2,.7,.2,1), left .45s cubic-bezier(.2,.7,.2,1), top .45s cubic-bezier(.2,.7,.2,1); }
 .pj-card.is-placed { transition: none; }
 .pj-card.is-hover { transform: translate(-50%, -50%) translateY(-1cqh) rotate(calc(var(--tilt) * .5)) scale(1.04); z-index: 5; }
-.pj-card.is-flip { z-index: 5; }
+/* a flipped card opens: it comes to the middle of the board and grows, so the whole write-up fits */
+.pj-card.is-flip { left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) scale(1.5); z-index: 9; }
 .pj-card:active { cursor: grabbing; }
 .pj-flip { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,0,.2,1); }
 .pj-card.is-flip .pj-flip { transform: rotateY(180deg); }
@@ -31,10 +32,10 @@
 .pj-frame { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pj-front::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset .15cqh .15cqh 0 rgba(255,255,255,.7), inset -.15cqh -.15cqh 0 rgba(60,40,20,.45); }
 .pj-title { position: absolute; transform: translate(-50%, -50%); font-size: 1.7cqh; font-weight: 700; color: #3a2a1c; white-space: nowrap; }
-.pj-back { transform: rotateY(180deg); padding: 2.4cqh 1.9cqh 2cqh; box-sizing: border-box; display: flex; flex-direction: column; color: #3a2a1c; overflow: hidden; }
-.pj-back h3 { margin: 0 0 .9cqh; font-size: 1.9cqh; }
-.pj-back p { margin: 0; font-size: 1.15cqh; line-height: 1.35; color: rgba(58,42,28,.88); flex: 1; overflow: hidden; }
-.pj-back a { font-size: 1.05cqh; color: #5a2d3e; text-decoration: underline; text-underline-offset: .3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pj-back { transform: rotateY(180deg); padding: 2.2cqh 1.8cqh 1.8cqh; box-sizing: border-box; display: flex; flex-direction: column; color: #3a2a1c; overflow: hidden; }
+.pj-back h3 { margin: 0 0 .8cqh; font-size: 1.8cqh; flex: none; }
+.pj-back p { margin: 0; font-size: 1.1cqh; line-height: 1.4; color: rgba(58,42,28,.88); flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.pj-back a { flex: none; margin-top: .8cqh; font-size: 1.05cqh; color: #5a2d3e; text-decoration: underline; text-underline-offset: .3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* the holders: tape across the top, two corner tapes, or a pin at the top centre */
 .pj-tape { position: absolute; width: 12.5cqh; height: auto; z-index: 2; pointer-events: none; filter: drop-shadow(0 .25cqh .4cqh rgba(0,0,0,.3)); opacity: .95; }
@@ -46,13 +47,14 @@
 /* portrait (phones): the box is the whole viewport; two columns, no walker */
 .pj.is-portrait .pj-box { width: 100vw; height: 100vh; height: 100dvh; }
 .pj.is-portrait .pj-word { top: 8vh; gap: .6vw; }
-.pj.is-portrait .pj-card { width: 30vw; }
-.pj.is-portrait .pj-back { padding: 3.5vw 3vw 3vw; }
-.pj.is-portrait .pj-title { font-size: 2.6vw; }
+.pj.is-portrait .pj-card { width: 26vw; }
+.pj.is-portrait .pj-card.is-flip { transform: translate(-50%, -50%) scale(2.6); }
+.pj.is-portrait .pj-back { padding: 2.6vw 2.2vw 2.2vw; }
+.pj.is-portrait .pj-title { font-size: 2.3vw; }
 .pj.is-portrait .pj-back { padding: 4vw 3vw 3vw; }
-.pj.is-portrait .pj-back h3 { font-size: 3.2vw; margin-bottom: 1.5vw; }
-.pj.is-portrait .pj-back p { font-size: 2.2vw; }
-.pj.is-portrait .pj-back a { font-size: 2vw; }
-.pj.is-portrait .pj-tape { width: 14vw; }
-.pj.is-portrait .pj-pin { height: 4.5vw; }
+.pj.is-portrait .pj-back h3 { font-size: 2vw; margin-bottom: .7vw; }
+.pj.is-portrait .pj-back p { font-size: 1.3vw; line-height: 1.35; }
+.pj.is-portrait .pj-back a { font-size: 1.2vw; margin-top: .7vw; }
+.pj.is-portrait .pj-tape { width: 12vw; }
+.pj.is-portrait .pj-pin { height: 4vw; }
 .pj.is-portrait .pj-num { font-size: 2.4vw; top: 5.2vw; right: 9vw; }
