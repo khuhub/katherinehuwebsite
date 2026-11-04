@@ -62,7 +62,8 @@ function Walker({ on, portrait, onPinned }) {
     const tick = now => {
       raf = requestAnimationFrame(tick); if (!t0) t0 = now; const t = (now - t0) / 1000;
       const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
-      if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; layer.width = canvas.width; layer.height = canvas.height; }
+      if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
+      if (layer.width !== canvas.width || layer.height !== canvas.height) { layer.width = canvas.width; layer.height = canvas.height; }
       const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = (portrait ? .5 : .5) * w, stop = tx - 150 * s - 70 * s;
       const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6;
       let cx, pose = 'stand';
@@ -126,7 +127,7 @@ export default function Projects() {
           const m = moved[p.key] || { dx: 0, dy: 0 }, win = WIN[p.frame], show = p.last ? (pinned || portrait) : on, isFlip = flipped === p.key, isHover = hover === p.key && !isFlip;
           return (
             <div key={p.key} className={'pj-card' + (show ? ' is-in' : '') + (isFlip ? ' is-flip' : '') + (isHover ? ' is-hover' : '')}
-              style={{ left: `${(p.x + m.dx) * 100}%`, top: `${(p.y + m.dy) * 100}%`, '--tilt': `${p.tilt}rad`, '--delay': `${.2 + i * .28}s` }}
+              style={{ left: `${(p.x + m.dx) * 100}%`, top: `${(p.y + m.dy) * 100}%`, '--tilt': `${p.tilt}rad`, '--delay': p.last ? '0s' : `${.2 + i * .28}s` }}
               onPointerDown={e => onDown(e, p.key)} onPointerMove={onMove} onPointerUp={e => onUp(e, p.key)} onPointerEnter={() => setHover(p.key)} onPointerLeave={() => setHover(null)}>
               <div className="pj-flip">
                 <div className="pj-front">
