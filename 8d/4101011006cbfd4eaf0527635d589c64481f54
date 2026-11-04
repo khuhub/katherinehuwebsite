@@ -1,0 +1,30 @@
+src/Experience.css
+  s_8e076e4a9a5a45::t_29e4aa37203f4d 61
+src/Projects.js
+  s_8e076e4a9a5a45::t_3b7cdb419b2a55 11,72-73,78,80-82,94,157
+  s_8e076e4a9a5a45::t_29e4aa37203f4d 88-89,108,117-118,140
+src/About.js
+  s_8e076e4a9a5a45::t_3b7cdb419b2a55 135
+  s_8e076e4a9a5a45::t_135aaaec267036 96
+src/Projects.css
+  s_8e076e4a9a5a45::t_29e4aa37203f4d 15-23
+  s_8e076e4a9a5a45::t_3b7cdb419b2a55 33
+src/Experience.js
+  s_8e076e4a9a5a45::t_29e4aa37203f4d 71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8d4101011006cbfd4eaf0527635d589c64481f54",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
