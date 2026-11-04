@@ -1,6 +1,6 @@
 /* The hero panel. Landscape: a 16:9 box fitted to the viewport, children placed by % of it, the same
    positions as the film (hero-film/hero-text.html). Portrait: the box is the whole viewport and things stack. */
-.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #ffffff; position: relative; overflow: hidden; scroll-snap-align: start; }
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #fffaf4; position: relative; overflow: hidden; scroll-snap-align: start; }
 .hero-box { position: relative; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); container-type: size; overflow: hidden; }
 
 .hero .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; font-weight: 700; color: #2a1b1b; white-space: pre; line-height: 1; }
@@ -10,7 +10,8 @@
 .hero-hi { position: absolute; left: 5.2%; top: 7.4%; font-size: 3.7cqh; z-index: 4; }
 .hero-kat { position: absolute; left: 8.5%; top: 15.5%; width: 83%; z-index: 2; clip-path: inset(-2% 100% -2% -2%); transition: clip-path .7s cubic-bezier(.2,.7,.2,1) .3s; }
 .hero-kat img { width: 100%; display: block; }
-.hero-photo { position: absolute; left: 50%; top: 26%; height: 84%; transform: translateX(-50%); opacity: 0; z-index: 3; transition: opacity .6s ease .7s; }
+.hero-photo { position: absolute; left: 50%; top: 26%; height: 84%; transform: translate(-50%, 3%); opacity: 0; z-index: 3; transition: opacity .6s ease .7s, transform .7s cubic-bezier(.2,.7,.2,1) .7s; }
+.hero-photo.is-in { opacity: 1; transform: translate(-50%, 0); }
 .hero-hu { position: absolute; left: 55%; top: 48.5%; height: 19%; transform: translateY(14%); opacity: 0; z-index: 4; transition: opacity .6s ease 1s, transform .6s cubic-bezier(.2,.7,.2,1) 1s; }
 .hero-cs { position: absolute; left: 14%; top: 40.5%; font-size: 2.6cqh; font-weight: 500; color: #6b5a52; z-index: 4; }
 .hero-social { position: absolute; left: 17.7%; top: 86%; display: flex; gap: 1.7cqw; opacity: 0; transform: translateY(1.8cqh); z-index: 5; transition: opacity .5s ease 2.4s, transform .5s ease 2.4s; }
@@ -19,7 +20,6 @@
 .hero-social img { height: 100%; width: auto; display: block; }
 
 .hero.is-on .hero-kat { clip-path: inset(-2% -2% -2% -2%); }
-.hero.is-on .hero-photo { opacity: 1; }
 .hero.is-on .hero-hu { opacity: 1; transform: translateY(0); }
 .hero.is-on .hero-social { opacity: 1; transform: translateY(0); }
 
@@ -29,7 +29,8 @@
   .hero-hi { left: 8.9vw; top: 11vw; font-size: 4.1vw; }
   .hero-kat { left: 11vw; top: 24vw; width: 78vw; }
   .hero-cs { left: 14vw; top: 41.5vw; font-size: 2.8vw; }
-  .hero-photo { left: 50%; top: 48vw; height: 56vh; height: 56dvh; transform: translateX(-54%); }
+  .hero-photo { left: 50%; top: 48vw; height: 56vh; height: 56dvh; transform: translate(-54%, 3%); }
+  .hero-photo.is-in { transform: translate(-54%, 0); }
   .hero-hu { left: 57vw; top: 65vw; height: 16.5vw; }
   .hero-social { left: 10.7vw; top: auto; bottom: 11.9vw; gap: 2.8vw; }
   .hero-social a { height: 4.4vw; }

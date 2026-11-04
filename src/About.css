@@ -1,6 +1,6 @@
 /* Panel 2, about: a lawn with the bio in the middle and objects along the bottom. Landscape: a 16:9 box fitted
    to the viewport (positions are % of it, like the film). Portrait: the box is the whole viewport. */
-.about { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #ffffff; position: relative; overflow: hidden; scroll-snap-align: start; }
+.about { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #fffaf4; position: relative; overflow: hidden; scroll-snap-align: start; }
 .about-box { position: relative; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); container-type: size; overflow: hidden; touch-action: pan-y; }
 .about-lawn { position: absolute; inset: 0; width: 100%; height: 100%; }
 .about .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; }

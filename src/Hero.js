@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Frame from './Frame';
 import './Hero.css';
 
@@ -15,7 +15,7 @@ const INTRO_WILL_RUN = () => typeof window !== 'undefined' && !!window.HeroFace 
 function useTypewriter(text, started, delay, dur) {
   const [n, setN] = useState(started ? text.length : 0);
   useEffect(() => {
-    if (!started) return;
+    if (!started) { setN(0); return; }                             // reset, so it types again next time
     const t0 = performance.now() + delay * 1000; let raf = 0;
     const tick = () => { const k = (performance.now() - t0) / 1000 / dur; setN(Math.max(0, Math.min(text.length, Math.floor(Math.max(0, k) * (text.length + 1))))); if (k < 1) raf = requestAnimationFrame(tick); };
     raf = requestAnimationFrame(tick);
@@ -26,17 +26,27 @@ function useTypewriter(text, started, delay, dur) {
 
 export default function Hero() {
   const [started, setStarted] = useState(() => !INTRO_WILL_RUN());
+  const ref = useRef(null), everStarted = useRef(false), autoSlid = useRef(false);
   useEffect(() => {
-    if (started) return;
+    if (started) { everStarted.current = true; return; }
     const go = () => setStarted(true);
     window.addEventListener('hero:open', go);
     const fallback = setTimeout(go, 20000);                      // never stay blank
     return () => { window.removeEventListener('hero:open', go); clearTimeout(fallback); };
   }, [started]);
+  // the photo alone comes in again each time the hero scrolls back into view; the rest stays put
+  const [photoIn, setPhotoIn] = useState(false);
+  useEffect(() => { if (started) setPhotoIn(true); }, [started]);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (!everStarted.current) return; setPhotoIn(e.isIntersecting); }, { threshold: .35 });
+    obs.observe(el); return () => obs.disconnect();
+  }, []);
   // five seconds after the hero has finished typing in, the page slides on to the about panel by itself —
   // unless the visitor has already scrolled or touched the page
   useEffect(() => {
-    if (!started) return;
+    if (!started || autoSlid.current) return;
+    autoSlid.current = true;
     let moved = false; const mark = () => { moved = true; };
     const opts = { passive: true };
     window.addEventListener('wheel', mark, opts); window.addEventListener('touchstart', mark, opts); window.addEventListener('keydown', mark); window.addEventListener('pointerdown', mark, opts);
@@ -47,11 +57,11 @@ export default function Hero() {
   const csN = useTypewriter('cs @ cornell', started, 1.9, 1.0);
   const on = started ? ' is-on' : '';
   return (
-    <section className={'hero' + on} aria-label="Hi, I'm Katherine Hu">
+    <section ref={ref} className={'hero' + on} aria-label="Hi, I'm Katherine Hu">
       <div className="hero-box">
         <div className="hero-hi mono">{"hi, i'm".slice(0, hiN)}{started && hiN < 7 && <span className="hero-cursor" />}</div>
         <div className="hero-kat"><img src="/kat-pink.png" alt="Katherine" fetchPriority="high" decoding="async" /></div>
-        <img className="hero-photo" src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
+        <img className={'hero-photo' + (photoIn ? ' is-in' : '')} src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
         <img className="hero-hu" src="/hu-pink.png" alt="Hu" decoding="async" />
         <div className="hero-cs mono">{'cs @ cornell'.slice(0, csN)}{started && csN > 0 && csN < 12 && <span className="hero-cursor" />}</div>
         <div className="hero-social">
