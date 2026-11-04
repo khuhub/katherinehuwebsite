@@ -46,6 +46,29 @@ function Lawn() {
   return <canvas ref={ref} className="about-lawn" aria-hidden="true" />;
 }
 
+// which object is really under the pointer: of the images whose box contains the point (topmost first), the first whose
+// pixel there is opaque — so the transparent corner of one cut-out does not steal clicks from the one behind it
+const alphaCache = new Map();
+function alphaAt(img, u, v) {
+  let d = alphaCache.get(img.src);
+  if (!d) { if (!img.naturalWidth) return 255; const o = document.createElement('canvas'); const sw = 160, sh = Math.max(1, Math.round(160 * img.naturalHeight / img.naturalWidth)); o.width = sw; o.height = sh; const g = o.getContext('2d'); g.drawImage(img, 0, 0, sw, sh); d = { data: g.getImageData(0, 0, sw, sh).data, sw, sh }; alphaCache.set(img.src, d); }
+  const x = Math.max(0, Math.min(d.sw - 1, Math.floor(u * d.sw))), y = Math.max(0, Math.min(d.sh - 1, Math.floor(v * d.sh)));
+  return d.data[(y * d.sw + x) * 4 + 3];
+}
+function hitAt(box, clientX, clientY) {
+  const els = document.elementsFromPoint(clientX, clientY);
+  for (const el of els) {
+    if (!(el instanceof HTMLImageElement) || !el.closest('.about-obj')) continue;
+    const obj = el.closest('.about-obj'), b = box.getBoundingClientRect(), r = obj.getBoundingClientRect();
+    const w = el.offsetWidth, h = el.offsetHeight, m = new DOMMatrix(getComputedStyle(el).transform).inverse();
+    const ox = r.left - b.left + w / 2, oy = r.top - b.top + h / 2;                 // the transform origin, in box coords
+    const px = clientX - b.left - ox, py = clientY - b.top - oy, lx = m.a * px + m.c * py + m.e + w / 2, ly = m.b * px + m.d * py + m.f + h / 2;
+    if (lx < 0 || ly < 0 || lx > w || ly > h) continue;
+    if (alphaAt(el, lx / w, ly / h) > 24) return obj.dataset.name;
+  }
+  return null;
+}
+
 export default function About() {
   const ref = useRef(null);
   const [on, setOn] = useState(false);                       // the panel has scrolled into view: objects rise in

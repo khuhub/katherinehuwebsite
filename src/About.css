@@ -5,7 +5,7 @@
 .about-lawn { position: absolute; inset: 0; width: 100%; height: 100%; }
 .about .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; }
 .about-label, .about-num { position: absolute; top: 5.2cqh; font-size: 2.4cqh; color: #2b3d1c; z-index: 4; }
-.about-label { left: calc(5.2cqh + 2.1cqw); } .about-num { right: calc(5.2cqh + 2.1cqw); }
+.about-label { left: 5cqw; } .about-num { right: 5cqw; }
 
 /* the bead heading, then the bio */
 .about-head { position: absolute; left: 50%; top: 25cqh; transform: translate(-50%, -50%); display: flex; gap: .8cqh; align-items: center; z-index: 4; opacity: 0; transition: opacity .7s ease .5s, transform .7s cubic-bezier(.2,.7,.2,1) .5s; }

@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import './App.css';
-import SquigglyLine from './SquigglyLine';
 import HeroIntro from './HeroIntro';
 import Hero from './Hero';
 import About from './About';
