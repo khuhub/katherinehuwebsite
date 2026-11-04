@@ -68,7 +68,7 @@ export default function Experience() {
   const secRef = useRef(null), boxRef = useRef(null), rowRef = useRef(null), audioRef = useRef(null);
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
   const [xh, setXh] = useState(0);                                    // the stamp's x-height in px, from the box
-  useEffect(() => { const box = boxRef.current; if (!box) return; const m = () => { const r = box.getBoundingClientRect(); setXh(portrait ? r.width * .043 : r.height * .0407); }; m(); let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(m, 150); }; window.addEventListener('resize', onResize); return () => { window.removeEventListener('resize', onResize); clearTimeout(t); }; }, [portrait]);
+  useEffect(() => { const box = boxRef.current; if (!box) return; const m = () => { const r = box.getBoundingClientRect(); setXh(portrait ? r.width * .052 : r.height * .0407); }; m(); let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(m, 150); }; window.addEventListener('resize', onResize); return () => { window.removeEventListener('resize', onResize); clearTimeout(t); }; }, [portrait]);
   const [held, setHeld] = useState(null);                            // the popped card's index
   const [playing, setPlaying] = useState(null);                      // the card whose song is playing
   const [prog, setProg] = useState({});                              // key → { t, d }

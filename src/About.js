@@ -93,7 +93,7 @@ export default function About() {
     let moved = false; const mark = () => { moved = true; };
     const opts = { passive: true };
     window.addEventListener('wheel', mark, opts); window.addEventListener('touchstart', mark, opts); window.addEventListener('keydown', mark); window.addEventListener('pointerdown', mark, opts);
-    const t = setTimeout(() => { if (moved) return; const next = document.querySelector('.exp'); if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 5000);
+    const t = setTimeout(() => { const el = ref.current; if (moved || !el || Math.abs(el.getBoundingClientRect().top) > 3) return; const next = document.querySelector('.exp'); if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 5000);   // only while about is still the panel in view
     return () => { clearTimeout(t); window.removeEventListener('wheel', mark); window.removeEventListener('touchstart', mark); window.removeEventListener('keydown', mark); window.removeEventListener('pointerdown', mark); };
   }, [on]);
   useEffect(() => {
@@ -132,7 +132,7 @@ export default function About() {
     <section ref={ref} className={'about' + (on ? ' is-on' : '') + (portrait ? ' is-portrait' : '')} aria-label="About me">
       <div className="about-box" ref={boxRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => { if (!drag.current) setHover(null); }}>
         <Lawn />
-        <div className="about-label mono">about me</div><div className="about-num mono">02</div>
+        <div className="about-num mono">02</div>
         <div className="about-head" aria-label="About me">
           {'ABOUT ME'.split('').map((ch, i) => ch === ' ' ? <span key={i} className="about-sp" /> :
             <img key={i} src={`/bead-${ch}.png`} alt="" style={{ transform: `rotate(${Math.sin(i * 2.3) * 7}deg) translateY(${Math.sin(i * 1.7) * 4}px)` }} />)}

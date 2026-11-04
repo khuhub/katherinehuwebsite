@@ -58,6 +58,6 @@
 .exp.is-portrait .exp-ctrl button { width: 5vw; height: 5vw; }
 .exp.is-portrait .exp-ctrl .exp-play { width: 6vw; height: 6vw; }
 .exp.is-portrait .exp-num { font-size: 2.4vw; top: 5.2vw; right: 9vw; }
-.exp.is-portrait .exp-word { top: 9vh; }
+.exp.is-portrait .exp-word { top: 10vh; }
 .exp.is-portrait .exp-credit { left: 9vw; top: 5.5vw; font-size: 2.6vw; }
 .exp.is-portrait .exp-credit-text { font-size: 2.2vw; }

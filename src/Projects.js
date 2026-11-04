@@ -8,7 +8,7 @@ import './Projects.css';
 // Hover lifts a card; a click flips it over to the write-up and the link on its back; a click on the cork flips it
 // back. Drag a card anywhere on the board and it stays there. Same layout as the film (hero-film/hero-text.html).
 const PROJECTS = [
-  { key: 'brandr', title: 'Brandr', img: '/pj-brandr.jpg', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at the YC × Browser Use hackathon', link: 'https://github.com/khuhub/Brandr?tab=readme-ov-file', x: .17, y: .40, tilt: -.05, hold: ['tape-polka'], frame: 'frame-red' },
+  { key: 'brandr', title: 'Brandr', img: '/pj-brandr.jpg', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at the YC × Browser Use hackathon', link: 'https://github.com/khuhub/Brandr', x: .17, y: .40, tilt: -.05, hold: ['tape-polka'], frame: 'frame-red' },
   { key: 'momentum', title: 'Momentum', img: '/pj-momentum.jpg', desc: 'A Slack AI assistant that turns Slack into a command center — drafting emails, creating Notion docs and summarizing conversations without leaving the app', link: 'https://github.com/khuhub/Momentum', x: .385, y: .41, tilt: .04, hold: 'pin-teal', frame: 'frame-sun' },
   { key: 'greenzone', title: 'Greenzone', img: '/pj-greenzone.jpg', desc: 'Data visualization helping Mongolian herders combat overgrazing and climate change through rangeland carrying-capacity warnings', link: 'https://github.com/cornellh4i/greenzone', x: .6, y: .40, tilt: -.04, hold: ['tape-grid', 'tape-cream'], frame: 'frame-bluered' },
   { key: 'lockedin', title: 'LockedIn', img: '/pj-lockedin.jpg', desc: 'Tinder for networking — swipe right to connect with people who actually want to meet you. Award-winning app at the Cornell AppDev Hack Challenge', link: 'https://github.com/akh1lk/LockedIn', x: .82, y: .41, tilt: .05, hold: 'pin-red', frame: 'frame-yellow' },
@@ -69,27 +69,29 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
       const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
       if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
       const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = cardAt[0] * w, stop = tx - 150 * s - 70 * s;
-      const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6, T_WAVE = 6.3, T_WAVE_END = 8.1, HOP_EVERY = 5.5, HOP_DUR = .55;
-      let cx, pose = 'stand', hop = 0;
+      const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6, T_WAVE = 6.3, T_WAVE_END = 8.1, PACE_EVERY = 7, PACE_DUR = 2.4, WAVE_EVERY = 21, WAVE_DUR = 1.8;
+      let cx, pose = 'stand';
       if (t < T_IN) cx = -200 * s; else if (t < T_ARRIVE) { const u = easeIO(clamp((t - T_IN) / (T_ARRIVE - T_IN), 0, 1)); cx = lerp(-200 * s, stop, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
       else if (t < T_PIN) { cx = stop; pose = 'reach'; }
       else if (t < T_BACK) { cx = stop; }
       else if (t < T_HOME) { const u = easeIO(clamp((t - T_BACK) / (T_HOME - T_BACK), 0, 1)); cx = lerp(stop, w * .065, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
-      else { cx = w * .065;                                                                        // home: one wave, then a little hop every so often
+      else { cx = w * .065;                                                                        // home: one wave, then she paces a little now and then, and waves once in a while
         if (t >= T_WAVE && t < T_WAVE_END) pose = Math.floor((t - T_WAVE) * 4) % 2 ? 'wave2' : 'wave1';
-        else if (t >= T_WAVE_END) { const u = ((t - T_WAVE_END) % HOP_EVERY) / HOP_DUR; if (u < 1) hop = Math.sin(u * Math.PI) * 38 * s; } }
+        else if (t >= T_WAVE_END) { const ti = t - T_WAVE_END, wv = (ti % WAVE_EVERY), pc = (ti % PACE_EVERY);
+          if (wv < WAVE_DUR) pose = Math.floor(wv * 4) % 2 ? 'wave2' : 'wave1';
+          else if (pc < PACE_DUR) { const u = pc / PACE_DUR; cx = w * .065 + Math.sin(u * Math.PI) * 70 * s; pose = B.WALK[Math.floor(t * 8) % 6]; } } }
       // the card she carries: at her hands until she reaches up, then it glides to its spot and grows to full size
       const card = cardRef.current;
       if (card) {
         if (t >= T_IN && t < T_PIN) { const hx = cx + 6 * s, hy = floor - 70 * s, k = t < T_ARRIVE ? 0 : easeOut((t - T_ARRIVE) / (T_PIN - T_ARRIVE));
           card.style.visibility = 'visible'; card.style.left = `${lerp(hx, tx, k) / w * 100}%`; card.style.top = `${lerp(hy, cardAt[1] * h, k) / h * 100}%`;
-          card.style.transform = `translate(-50%, -50%) rotate(${lerp(-.1, cardAt[2], k)}rad) scale(${lerp(.5, 1, k)})`; card.style.zIndex = 7; card.style.animation = 'none'; }
-        else if (t >= T_PIN && !pinned.current) { pinned.current = true; card.style.visibility = ''; card.style.left = `${cardAt[0] * 100}%`; card.style.top = `${cardAt[1] * 100}%`; card.style.transform = ''; card.style.zIndex = ''; card.style.animation = ''; onPinned(); }
+          card.style.transform = `translate(-50%, -50%) rotate(${lerp(-.1, cardAt[2], k)}rad) scale(${lerp(.5, 1, k)})`; card.style.zIndex = 7; }
+        else if (t >= T_PIN && !pinned.current) { pinned.current = true; card.style.visibility = ''; card.style.left = `${cardAt[0] * 100}%`; card.style.top = `${cardAt[1] * 100}%`; card.style.transform = ''; card.style.zIndex = ''; onPinned(); }
       }
       // her shadow and herself, from a small layer around her
       const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc;
       if (layer.width !== Math.round(lw * dpr) || layer.height !== Math.round(lh * dpr)) { layer.width = Math.round(lw * dpr); layer.height = Math.round(lh * dpr); }
-      const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, -ox * dpr, -oy * dpr); g.clearRect(ox, oy, lw, lh); if (t >= T_IN) B.draw(g, pose, { x: cx, y: floor - hop, scale: sc });
+      const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, -ox * dpr, -oy * dpr); g.clearRect(ox, oy, lw, lh); if (t >= T_IN) B.draw(g, pose, { x: cx, y: floor, scale: sc });
       c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height); c.setTransform(dpr, 0, 0, dpr, 0, 0);
       c.save(); c.filter = 'brightness(0) blur(5px)'; c.globalAlpha = .3; c.drawImage(layer, ox + 10 * s, oy + 12 * s, lw, lh); c.restore(); c.drawImage(layer, ox, oy, lw, lh);
     };
@@ -103,7 +105,7 @@ export default function Projects() {
   const secRef = useRef(null), boxRef = useRef(null);
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
   const [on, setOn] = useState(false), [pinned, setPinned] = useState(false), [flipped, setFlipped] = useState(null), [moved, setMoved] = useState({});
-  const [seen, setSeen] = useState(false);                             // the entrance plays once
+  const [seen, setSeen] = useState(false), [isSet, setIsSet] = useState(false);   // the entrance plays once; then the board is set
   const [hover, setHover] = useState(null), drag = useRef(null), [unit, setUnit] = useState(0);
   useEffect(() => { const f = () => setPortrait(window.innerWidth < window.innerHeight); window.addEventListener('resize', f); return () => window.removeEventListener('resize', f); }, []);
   useEffect(() => {                                           // the word's letters are sized from the box (the minifier cannot do calc with container units)
@@ -112,8 +114,8 @@ export default function Projects() {
   }, [portrait]);
   useEffect(() => {
     const el = secRef.current; if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); setSeen(true); } else setFlipped(null); }, { threshold: .35 });
-    obs.observe(el); return () => obs.disconnect();
+    let t = 0; const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); setSeen(true); if (!t) t = setTimeout(() => setIsSet(true), 2800); } else setFlipped(null); }, { threshold: .35 });
+    obs.observe(el); return () => { obs.disconnect(); clearTimeout(t); };
   }, []);
   const onPinned = useCallback(() => setPinned(true), []);
   const lastRef = useRef(null), lastP = PROJECTS.find(p => p.last), cardAt = useRef([lastP.x, lastP.y, lastP.tilt]).current;
@@ -135,7 +137,7 @@ export default function Projects() {
   const onBoard = e => { if (!e.target.closest('.pj-card')) setFlipped(null); };
 
   return (
-    <section ref={secRef} className={'pj' + (portrait ? ' is-portrait' : '') + (on ? ' is-on' : '')}>
+    <section ref={secRef} className={'pj' + (portrait ? ' is-portrait' : '') + (on ? ' is-on' : '') + (isSet ? ' is-set' : '')}>
       <div ref={boxRef} className="pj-box" onPointerDown={onBoard}>
         <Cork />
         <div className="pj-word" aria-label="projects">
@@ -152,7 +154,7 @@ export default function Projects() {
                 <div className="pj-front">
                   <img className="pj-shot" src={p.img} alt={p.title} draggable="false" style={{ left: `${win[0] * 100}%`, top: `${win[1] * 100}%`, width: `${win[2] * 100}%`, height: `${win[3] * 100}%` }} />
                   <img className="pj-frame" src={`/${p.frame}.png`} alt="" draggable="false" />
-                  <span className="pj-title serif" style={{ left: `${50 + (TITLE_OFF[p.frame] || 0) * 100}%`, top: `${(win[1] + win[3] + (1 - win[1] - win[3]) / 2) * 100}%` }}>{p.title}</span>
+                  <span className="pj-title mono" style={{ left: `${50 + (TITLE_OFF[p.frame] || 0) * 100}%`, top: `${(win[1] + win[3] + (1 - win[1] - win[3]) / 2) * 100}%` }}>{p.title}</span>
                 </div>
                 <div className="pj-back">
                   <h3 className="serif">{p.title}</h3>

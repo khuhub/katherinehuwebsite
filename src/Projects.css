@@ -12,13 +12,15 @@
 .pj-word { position: absolute; left: 50%; top: 16cqh; transform: translate(-50%, -50%); display: flex; align-items: center; gap: .7cqh; z-index: 2; pointer-events: none; }
 .pj-word img { width: auto; display: block; filter: drop-shadow(0 .3cqh .6cqh rgba(40,20,5,.4)); }
 
-/* a card: centred on its anchor, tilted; drops in from a little above; hover lifts; click flips */
-.pj-card { position: absolute; width: 25cqh; aspect-ratio: 304 / 364; transform: translate(-50%, -50%) rotate(var(--tilt)); z-index: 3; cursor: grab; user-select: none; touch-action: none; visibility: hidden; }
-.pj-card.is-in { visibility: visible; animation: pj-pop .6s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--delay); }
-.pj-card.is-placed.is-in { animation: none; }                       /* the one she places: it is simply there */
-@keyframes pj-pop { from { transform: translate(-50%, -50%) translateY(-110vh) rotate(calc(var(--tilt) * 2)); } to { transform: translate(-50%, -50%) rotate(var(--tilt)); } }
-.pj-card.is-hover { transform: translate(-50%, -50%) translateY(-1cqh) rotate(calc(var(--tilt) * .5)) scale(1.04); z-index: 5; transition: transform .25s cubic-bezier(.2,.7,.2,1); animation: none; }
-.pj-card.is-flip { z-index: 5; transition-delay: 0s; }
+/* a card: centred on its anchor, tilted. It starts above the frame and slides down once (a transition, so a hover
+   never replays it); after the entrance the delays are dropped so hover and flip respond at once */
+.pj-card { position: absolute; width: 25cqh; aspect-ratio: 304 / 364; transform: translate(-50%, -50%) translateY(-110vh) rotate(calc(var(--tilt) * 2)); z-index: 3; cursor: grab; user-select: none; touch-action: none; visibility: hidden;
+  transition: transform .6s cubic-bezier(.2,.7,.2,1); transition-delay: var(--delay); }
+.pj-card.is-in { visibility: visible; transform: translate(-50%, -50%) rotate(var(--tilt)); }
+.pj.is-set .pj-card { transition-delay: 0s; transition-duration: .25s; }
+.pj-card.is-placed { transition: none; }
+.pj-card.is-hover { transform: translate(-50%, -50%) translateY(-1cqh) rotate(calc(var(--tilt) * .5)) scale(1.04); z-index: 5; }
+.pj-card.is-flip { z-index: 5; }
 .pj-card:active { cursor: grabbing; }
 .pj-flip { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,0,.2,1); }
 .pj-card.is-flip .pj-flip { transform: rotateY(180deg); }
@@ -28,7 +30,7 @@
 .pj-shot { position: absolute; object-fit: cover; display: block; background: #1b1b1b; }
 .pj-frame { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .pj-front::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset .15cqh .15cqh 0 rgba(255,255,255,.7), inset -.15cqh -.15cqh 0 rgba(60,40,20,.45); }
-.pj-title { position: absolute; transform: translate(-50%, -50%); font-size: 1.95cqh; font-weight: 700; color: #3a2a1c; white-space: nowrap; }
+.pj-title { position: absolute; transform: translate(-50%, -50%); font-size: 1.7cqh; font-weight: 700; color: #3a2a1c; white-space: nowrap; }
 .pj-back { transform: rotateY(180deg); padding: 2.4cqh 1.9cqh 2cqh; box-sizing: border-box; display: flex; flex-direction: column; color: #3a2a1c; overflow: hidden; }
 .pj-back h3 { margin: 0 0 .9cqh; font-size: 1.9cqh; }
 .pj-back p { margin: 0; font-size: 1.15cqh; line-height: 1.35; color: rgba(58,42,28,.88); flex: 1; overflow: hidden; }
