@@ -1,0 +1,21 @@
+src/Experience.css
+  s_8e076e4a9a5a45::t_743224a333d043 11-12,28-30
+src/Experience.js
+  s_8e076e4a9a5a45::t_743224a333d043 95-125,138,147,168-169,223-224,238,240-241,245,250,254,273
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "280f2478b31cfa0079a07d2bb22dd5780f3da1b6",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
