@@ -13,9 +13,9 @@ const OBJECTS_P = [   // portrait: two rows; height as a fraction of a 400px-at-
   ['guitar2', .13, .76, 1.0, -.30], ['boba', .33, .80, .62, .12], ['cheese', .52, .82, .55, -.2], ['toy', .70, .78, .72, .08], ['mic', .89, .80, .8, -.62],
   ['ipod', .13, .92, .62, -.1], ['celsius', .32, .91, .7, .15], ['violin', .52, .90, .9, .35], ['nugget', .71, .92, .62, -.25], ['pencil', .90, .91, .8, -.88]];
 const NOTES = {
-  guitar2: 'currently teaching myself how to play, one chord at a time', boba: "i'm always down for a boba run", cheese: 'my emotional support stress relievers',
-  toy: 'my hirono collection is getting out of hand', mic: 'will never say no to karaoke', ipod: 'a little bit of everything on my playlist',
-  celsius: 'atp celsius should sponsor me', violin: 'forced beginnings, but always fun to play', nugget: 'constantly finding new spots to add to my beli', pencil: 'love doodling whenever i get the chance' };
+  guitar2: 'current favorite song to play is: pyrite by frank ocean', boba: 'original milk tea on top', cheese: 'my emotional support stress relievers',
+  toy: 'my hirono collection is getting out of hand', mic: 'will never say no to karaoke', ipod: 'airpods in 24/7',
+  celsius: 'atp celsius should sponsor me', violin: 'tchaikovsky hates to see me coming', nugget: 'constantly finding new spots to add to my beli', pencil: 'love doodling whenever i get the chance' };
 const BIO = "hi! i'm katherine, a cs student at cornell interested in ai, complex systems, and solving hard problems. i love exploring new ideas, building cool things, and learning alongside curious people\u00a0:)";
 
 // the lawn, drawn once per size: patches of darker and lighter green, grain, little blades (same recipe as the film)

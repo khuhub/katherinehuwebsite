@@ -84,7 +84,7 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
         if (t >= T_IN && t < T_PIN) { const hx = cx + 6 * s, hy = floor - 70 * s, k = t < T_ARRIVE ? 0 : easeOut((t - T_ARRIVE) / (T_PIN - T_ARRIVE));
           card.style.visibility = 'visible'; card.style.left = `${lerp(hx, tx, k) / w * 100}%`; card.style.top = `${lerp(hy, cardAt[1] * h, k) / h * 100}%`;
           card.style.transform = `translate(-50%, -50%) rotate(${lerp(-.1, cardAt[2], k)}rad) scale(${lerp(.5, 1, k)})`; card.style.zIndex = 7; }
-        else if (t >= T_PIN && !pinned.current) { pinned.current = true; card.style.visibility = ''; card.style.left = `${cardAt[0] * 100}%`; card.style.top = `${cardAt[1] * 100}%`; card.style.transform = ''; card.style.zIndex = ''; onPinned(); }
+        else if (t >= T_PIN && !pinned.current) { pinned.current = true; card.style.visibility = 'visible'; card.style.left = `${cardAt[0] * 100}%`; card.style.top = `${cardAt[1] * 100}%`; card.style.transform = `translate(-50%, -50%) rotate(${cardAt[2]}rad)`; card.style.zIndex = ''; onPinned(); }   // it keeps its final look inline until the board has rendered it as placed, so it never blinks out between the two
       }
       // her shadow and herself, from a small layer around her
       const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc;
@@ -117,6 +117,7 @@ export default function Projects() {
   }, []);
   const onPinned = useCallback(() => setPinned(true), []);
   const lastRef = useRef(null), lastP = PROJECTS.find(p => p.last), cardAt = useRef([lastP.x, lastP.y, lastP.tilt]).current;
+  useEffect(() => { if (!pinned) return; const el = lastRef.current; if (el) { el.style.transform = ''; el.style.visibility = ''; } }, [pinned]);   // once it is placed by class, the inline copy of the same look goes, so hover and flip work
   const items = portrait ? PROJECTS_P : PROJECTS;
 
   // dragging: a card follows the pointer; a press without a move is a click, which flips
