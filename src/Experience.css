@@ -41,17 +41,19 @@
 
 /* portrait (phones): the box is the whole viewport; the cards are sized from the width */
 .exp.is-portrait .exp-box { width: 100vw; height: 100vh; height: 100dvh; }
-.exp.is-portrait .exp-row { --w: 62vw; --h: 88vw; --pitch: 74vw; }
-.exp.is-portrait .exp-card { padding: 4.4vw 4.4vw 0; border-radius: 4.2vw; }
-.exp.is-portrait .exp-name { font-size: 3.5vw; margin-top: 3.6vw; }
-.exp.is-portrait .exp-name img { height: 3.8vw; max-width: 7.6vw; }
-.exp.is-portrait .exp-role { font-size: 2.4vw; }
-.exp.is-portrait .exp-bar { height: .8vw; margin-top: 3.4vw; }
-.exp.is-portrait .exp-bar-dot { width: 2.4vw; height: 2.4vw; }
-.exp.is-portrait .exp-times { font-size: 2.2vw; }
+.exp.is-portrait .exp-row { --w: 54vw; --h: 77vw; --pitch: 100vw; }
+.exp-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 11vw; height: 11vw; border-radius: 50%; border: 0; background: #f7f0e3; color: #5a2d3e; font-size: 7vw; line-height: 1; display: grid; place-items: center; padding: 0 0 .6vw; cursor: pointer; z-index: 5; box-shadow: 0.3vw 1vw 2vw rgba(60,30,40,.3), inset 0 .15vw 0 rgba(255,255,255,.55); }
+.exp-arrow.is-left { left: 7vw; } .exp-arrow.is-right { right: 7vw; }
+.exp.is-portrait .exp-card { padding: 3.8vw 3.8vw 0; border-radius: 3.8vw; }
+.exp.is-portrait .exp-name { font-size: 3.1vw; margin-top: 3vw; }
+.exp.is-portrait .exp-name img { height: 3.3vw; max-width: 6.6vw; }
+.exp.is-portrait .exp-role { font-size: 2.1vw; }
+.exp.is-portrait .exp-bar { height: .7vw; margin-top: 3vw; }
+.exp.is-portrait .exp-bar-dot { width: 2.1vw; height: 2.1vw; }
+.exp.is-portrait .exp-times { font-size: 2vw; }
 .exp.is-portrait .exp-ctrl { margin-top: 2.2vw; }
-.exp.is-portrait .exp-ctrl button { width: 5.8vw; height: 5.8vw; }
-.exp.is-portrait .exp-ctrl .exp-play { width: 6.8vw; height: 6.8vw; }
+.exp.is-portrait .exp-ctrl button { width: 5vw; height: 5vw; }
+.exp.is-portrait .exp-ctrl .exp-play { width: 6vw; height: 6vw; }
 .exp.is-portrait .exp-label, .exp.is-portrait .exp-num { font-size: 2.4vw; top: 5.2vw; }
 .exp.is-portrait .exp-label { left: 9vw; } .exp.is-portrait .exp-num { right: 9vw; }
 .exp.is-portrait .exp-credit { left: 9vw; bottom: 4vw; font-size: 2vw; }

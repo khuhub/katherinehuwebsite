@@ -69,10 +69,11 @@ export default function Experience() {
   const [held, setHeld] = useState(null);                            // the popped card's index
   const [playing, setPlaying] = useState(null);                      // the card whose song is playing
   const [prog, setProg] = useState({});                              // key → { t, d }
-  const S = useRef({ off: 0, last: 0, near: false, raf: 0, held: null }).current;
+  const S = useRef({ off: 0, last: 0, near: false, raf: 0, held: null, idx: 0, portrait: false }).current;
 
   useEffect(() => { const on = () => setPortrait(window.innerWidth < window.innerHeight); window.addEventListener('resize', on); return () => window.removeEventListener('resize', on); }, []);
   useEffect(() => { S.held = held; }, [held, S]);
+  useEffect(() => { S.portrait = portrait; }, [portrait, S]);
 
   // the drift: the row moves left while nothing is held, looping over the six cards (laid out three times for the wrap)
   useEffect(() => {
@@ -82,8 +83,12 @@ export default function Experience() {
       S.raf = requestAnimationFrame(tick);
       const dt = Math.min(.05, (now - (S.last || now)) / 1000); S.last = now;
       if (!S.near) return;
-      const box = boxRef.current.getBoundingClientRect(), pitch = row.children.length > 1 ? row.children[1].offsetLeft - row.children[0].offsetLeft : 0, loop = N * pitch;
-      if (S.held == null && loop > 0) { S.off = (S.off + box.width * .055 * dt) % loop; }
+      const box = boxRef.current.getBoundingClientRect(), pitch = row.children.length > 1 ? row.children[1].getBoundingClientRect().left - row.children[0].getBoundingClientRect().left : 0, loop = N * pitch;
+      if (loop <= 0) return;
+      if (S.portrait) {                                               // phones: one card at a time, the arrows slide to the next
+        const target = S.idx * pitch, d = target - S.off; S.off += Math.abs(d) < .3 ? d : d * .16;
+        if (Math.abs(d) < .3) { if (S.idx >= N) { S.idx -= N; S.off -= loop; } else if (S.idx < 0) { S.idx += N; S.off += loop; } }
+      } else if (S.held == null) S.off = (S.off + box.width * .055 * dt) % loop;   // desktop: a steady drift, wrapping exactly one loop
       row.style.transform = `translateX(${-S.off}px)`;
     };
     S.raf = requestAnimationFrame(tick);
@@ -138,6 +143,10 @@ export default function Experience() {
             );
           }))}
         </div>
+        {portrait && <>
+          <button className="exp-arrow is-left" aria-label="previous" onPointerDown={e => e.stopPropagation()} onClick={() => { S.idx -= 1; setHeld(null); pause(); }}>‹</button>
+          <button className="exp-arrow is-right" aria-label="next" onPointerDown={e => e.stopPropagation()} onClick={() => { S.idx += 1; setHeld(null); pause(); }}>›</button>
+        </>}
         <span className="exp-label mono">experience</span><span className="exp-num mono">03</span>
         <span className="exp-credit mono">music by Kevin MacLeod (incompetech.com) · CC BY 4.0</span>
         <audio ref={audioRef} preload="none" />
