@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import Frame from './Frame';
-import Fish from './Fish';
 import './Hero.css';
 
 // The hero: what the lamp's light opens onto. A comic panel (white, with the intro's mat and ink edge)
@@ -50,7 +49,6 @@ export default function Hero() {
   return (
     <section className={'hero' + on} aria-label="Hi, I'm Katherine Hu">
       <div className="hero-box">
-        <Fish />
         <div className="hero-hi mono">{"hi, i'm".slice(0, hiN)}{started && hiN < 7 && <span className="hero-cursor" />}</div>
         <div className="hero-kat"><img src="/kat-pink.png" alt="Katherine" fetchPriority="high" decoding="async" /></div>
         <img className="hero-photo" src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
