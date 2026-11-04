@@ -69,17 +69,15 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
       const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
       if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
       const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = cardAt[0] * w, stop = tx - 150 * s - 70 * s;
-      const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6, T_WAVE = 6.3, T_WAVE_END = 8.1, PACE_EVERY = 7, PACE_DUR = 2.4, WAVE_EVERY = 21, WAVE_DUR = 1.8;
+      const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6, T_WAVE = 6.3, T_WAVE_END = 8.1, WAVE_EVERY = 14, WAVE_DUR = 1.8;
       let cx, pose = 'stand';
       if (t < T_IN) cx = -200 * s; else if (t < T_ARRIVE) { const u = easeIO(clamp((t - T_IN) / (T_ARRIVE - T_IN), 0, 1)); cx = lerp(-200 * s, stop, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
       else if (t < T_PIN) { cx = stop; pose = 'reach'; }
       else if (t < T_BACK) { cx = stop; }
       else if (t < T_HOME) { const u = easeIO(clamp((t - T_BACK) / (T_HOME - T_BACK), 0, 1)); cx = lerp(stop, w * .065, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
-      else { cx = w * .065;                                                                        // home: one wave, then she paces a little now and then, and waves once in a while
+      else { cx = w * .065;                                                                        // home: she stands, and waves every so often
         if (t >= T_WAVE && t < T_WAVE_END) pose = Math.floor((t - T_WAVE) * 4) % 2 ? 'wave2' : 'wave1';
-        else if (t >= T_WAVE_END) { const ti = t - T_WAVE_END, wv = (ti % WAVE_EVERY), pc = (ti % PACE_EVERY);
-          if (wv < WAVE_DUR) pose = Math.floor(wv * 4) % 2 ? 'wave2' : 'wave1';
-          else if (pc < PACE_DUR) { const u = pc / PACE_DUR; cx = w * .065 + Math.sin(u * Math.PI) * 70 * s; pose = B.WALK[Math.floor(t * 8) % 6]; } } }
+        else if (t >= T_WAVE_END) { const wv = (t - T_WAVE_END) % WAVE_EVERY; if (wv < WAVE_DUR) pose = Math.floor(wv * 4) % 2 ? 'wave2' : 'wave1'; } }
       // the card she carries: at her hands until she reaches up, then it glides to its spot and grows to full size
       const card = cardRef.current;
       if (card) {
