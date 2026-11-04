@@ -3,7 +3,7 @@ import Frame from './Frame';
 import './Experience.css';
 
 // Panel 3, experience: a row of little music players drifting left in a loop over watercolour stripes, with
-// buttons from a sewing tin scattered around. Each card is a company: the photo as the album art, the logo and
+// white doodles sketched around the edges. Each card is a company: the photo as the album art, the logo and
 // name (a link) with the role under it, a progress bar with times, and transport controls. Hover lifts a card;
 // a click pops it to the front and holds the row; the play button plays that card's song (the bar follows it);
 // a click on the stripes lets the row drift on and stops the music. Same drawing as the film (hero-text.html).
@@ -16,17 +16,19 @@ const EXPS = [
   { key: 'cs2112', name: 'Cornell CS 2112', role: 'teaching assistant', logo: '/lg-cornell.png', photo: '/exp-cornell.jpg', link: 'https://www.cs.cornell.edu/', song: '/songs/cs2112.mp3' },
 ];
 const N = EXPS.length;
-// the buttons: [file, x, y (fractions of the panel), height (fraction of the panel's height), tilt (rad)]; later ones sit over earlier ones
-const BUTTONS = [
-  ['btn-01', .08, .15, .139, .2], ['btn-00', .165, .25, .096, -.3], ['btn-09', .045, .37, .065, .6],
-  ['btn-03', .9, .14, .176, -.15], ['btn-11', .95, .26, .089, .4], ['btn-02', .84, .2, .057, 1.2],
-  ['btn-05', .085, .81, .18, .1], ['btn-15', .155, .9, .078, -.5],
-  ['btn-08', .905, .83, .126, -.2], ['btn-13', .955, .9, .085, .3], ['btn-04', .835, .9, .07, .8],
-  ['btn-10', .33, .89, .102, .3], ['btn-06', .265, .87, .059, -.2], ['btn-14', .68, .89, .111, -.4],
+// the doodles: white line sketches traced from the reference sheets (public/doodle-*.png), scattered along the top
+// and bottom: [file, x, y (fractions of the panel), height (fraction of the panel's height), tilt (rad)]
+const DOODLES = [
+  ['sun', .085, .15, .139, .1], ['stick', .19, .23, .065, 0], ['fish5L', .29, .09, .031, .3],
+  ['pastel1L', .55, .08, .033, 0], ['anchor', .68, .1, .043, .2],
+  ['rainbow', .9, .155, .13, -.12], ['ghost', .955, .29, .046, .1],
+  ['plantT', .08, .78, .231, 0], ['fish7LT', .19, .93, .037, .4], ['tulipT', .24, .88, .088, .1],
+  ['fish1LT', .4, .87, .139, .3], ['pastel2T', .55, .92, .044, 0], ['heartraysT', .66, .89, .162, .1], ['fish6LT', .78, .94, .037, .3],
+  ['raincloudsT', .9, .8, .199, 0], ['pigT', .95, .93, .067, .2],
 ];
-const BUTTONS_P = [                                                   // phones: fewer, around the edges
-  ['btn-01', .14, .1, .07, .2], ['btn-00', .3, .17, .05, -.3], ['btn-03', .84, .1, .08, -.15], ['btn-11', .93, .2, .05, .4],
-  ['btn-05', .15, .88, .085, .1], ['btn-08', .86, .87, .07, -.2], ['btn-10', .5, .92, .055, .3], ['btn-13', .93, .95, .045, .3],
+const DOODLES_P = [                                                   // phones: fewer, around the edges
+  ['sun', .14, .1, .07, .1], ['stick', .3, .17, .035, 0], ['rainbow', .84, .1, .06, -.12], ['ghost', .93, .2, .025, .1],
+  ['plantT', .13, .87, .11, 0], ['fish1LT', .4, .93, .06, .3], ['heartraysT', .66, .93, .07, .1], ['raincloudsT', .87, .87, .09, 0], ['pigT', .93, .96, .03, .2],
 ];
 const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
@@ -114,13 +116,13 @@ export default function Experience() {
   // a click on the stripes lets the row go and stops the music
   const onBackground = e => { if (e.target.closest('.exp-card')) return; if (held != null) { setHeld(null); pause(); } };
 
-  const buttons = portrait ? BUTTONS_P : BUTTONS;
+  const doodles = portrait ? DOODLES_P : DOODLES;
   return (
     <section ref={secRef} className={'exp' + (portrait ? ' is-portrait' : '')}>
       <div ref={boxRef} className="exp-box" onPointerDown={onBackground}>
         <Stripes />
-        {buttons.map(([f, x, y, h, tilt], k) => (
-          <img key={k} className="exp-btn" src={`/${f}.png`} alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, height: `${h * 100}%`, '--tilt': `${tilt}rad` }} />
+        {doodles.map(([f, x, y, h, tilt], k) => (
+          <img key={k} className="exp-doodle" src={`/doodle-${f}.png`} alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, height: `${h * 100}%`, '--tilt': `${tilt}rad` }} />
         ))}
         <div ref={rowRef} className="exp-row">
           {[-1, 0, 1].map(rep => EXPS.map((e, i) => {
