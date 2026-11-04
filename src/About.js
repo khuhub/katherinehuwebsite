@@ -48,7 +48,7 @@ function Lawn() {
 
 export default function About() {
   const ref = useRef(null);
-  const [on, setOn] = useState(false);                       // the panel has scrolled into view: objects rise in, corgi runs
+  const [on, setOn] = useState(false);                       // the panel has scrolled into view: objects rise in
   const [portrait, setPortrait] = useState(() => typeof window !== 'undefined' && window.innerHeight > window.innerWidth);
   const [hover, setHover] = useState(null);
   const [open, setOpen] = useState(null);                    // which object's note is showing
