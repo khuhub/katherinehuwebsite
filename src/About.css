@@ -9,14 +9,17 @@
 
 /* the bead heading, then the bio */
 .about-head { position: absolute; left: 50%; top: 25cqh; transform: translate(-50%, -50%); display: flex; gap: .8cqh; align-items: center; z-index: 4; opacity: 0; transition: opacity .7s ease .5s, transform .7s cubic-bezier(.2,.7,.2,1) .5s; }
-.about-head img { height: 8.5cqh; width: 8.5cqh; display: block; }
-.about-sp { width: 4.6cqh; }
+.about-head img { height: 7.2cqh; width: 7.2cqh; display: block; }
+.about-sp { width: 3.9cqh; }
 .about-bio { position: absolute; left: 50%; top: 33cqh; transform: translateX(-50%); width: 80%; margin: 0; text-align: center; color: #fff; font-size: 2.78cqh; line-height: 1.4; text-shadow: 0 2px 12px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease .6s; }
 .about.is-on .about-head { opacity: 1; }
-.about.is-on .about-bio { opacity: 1; }
+.about.is-on .about-bio, .about.is-on .about-hint { opacity: 1; }
+.about-hint { position: absolute; left: 50%; top: 47.5cqh; transform: translateX(-50%); margin: 0; color: rgba(255,255,255,.85); font-size: 2cqh; text-shadow: 0 1px 8px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease 1.4s; white-space: nowrap; }
 
 /* the objects: each sits at (left, top) with its own height, rotation and (when dragged) offset; rises in from below */
-.about-obj { position: absolute; width: 0; height: 0; cursor: grab; }
+.about-obj { position: absolute; width: 0; height: 0; }
+.about-box { cursor: default; }
+.about-obj.is-hover { cursor: grab; }
 .about-obj img { position: absolute; left: 0; top: 0; height: var(--h); width: auto; max-width: none; display: block; user-select: none; -webkit-user-drag: none; touch-action: none;   /* the image is the hit area */
   transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 45cqh)) rotate(var(--rot)); opacity: 0;
   filter: drop-shadow(10px 14px 6px rgba(40,70,25,.3)); transition: transform .8s cubic-bezier(.2,.7,.2,1), opacity .5s ease, filter .25s ease; }
@@ -38,9 +41,10 @@
 /* portrait (phones): the box is the whole viewport; heading and bio higher, objects in two rows, bigger type */
 .about.is-portrait .about-box { width: 100vw; height: 100vh; height: 100dvh; }
 .about.is-portrait .about-head { top: 17cqh; gap: .6vw; }
-.about.is-portrait .about-head img { height: 7.2vw; width: 7.2vw; }
+.about.is-portrait .about-head img { height: 6.2vw; width: 6.2vw; }
 .about.is-portrait .about-sp { width: 4vw; }
 .about.is-portrait .about-bio { top: 25cqh; width: 84%; font-size: 3.1vw; }
+.about.is-portrait .about-hint { top: 47cqh; font-size: 2.6vw; }
 .about.is-portrait .about-label, .about.is-portrait .about-num { font-size: 2.4vw; top: 5.2vw; }
 .about.is-portrait .about-label { left: 9vw; } .about.is-portrait .about-num { right: 9vw; }
 .about.is-portrait .about-note span { font-size: 2.5vw; }

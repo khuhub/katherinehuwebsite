@@ -17,7 +17,7 @@ const NOTES = {
   guitar2: 'currently teaching myself how to play, one chord at a time', boba: "i'm always down for a boba run", cheese: 'my emotional support stress relievers',
   toy: 'my hirono collection is getting out of hand', mic: 'will never say no to karaoke', ipod: 'a little bit of everything on my playlist',
   celsius: 'atp celsius should sponsor me', violin: 'forced beginnings, but always fun to play', nugget: 'constantly finding new spots to add to my beli', pencil: 'love doodling whenever i get the chance' };
-const BIO = "hi! i'm katherine, a computer science student at cornell university interested in ai, complex systems, and solving challenging technical problems. i love exploring new ideas, building meaningful technology, and collaborating with people who are curious and excited to push boundaries together :)";
+const BIO = "hi! i'm katherine, a cs student at cornell interested in ai, complex systems, and solving hard problems. i love exploring new ideas, building cool things, and learning alongside curious people :)";
 
 // the lawn, drawn once per size: patches of darker and lighter green, grain, little blades (same recipe as the film)
 function Lawn() {
@@ -52,7 +52,7 @@ function Corgi({ running, portrait }) {
   const ref = useRef(null);
   useEffect(() => {
     if (!running) return;
-    const el = ref.current, lanes = portrait ? [.58, .11] : [.56, .145];
+    const el = ref.current, lanes = portrait ? [.60, .11] : [.605, .145];
     let raf = 0; const t0 = performance.now();
     const tick = () => {
       const box = el.parentElement.getBoundingClientRect(), W = box.width, H = box.height;
@@ -68,6 +68,29 @@ function Corgi({ running, portrait }) {
     return () => cancelAnimationFrame(raf);
   }, [running, portrait]);
   return <div ref={ref} className="about-corgi" aria-hidden="true" style={{ backgroundImage: 'url(/corgi-run.png)' }} />;
+}
+
+// which object is really under the pointer: of the images whose box contains the point (topmost first), the first whose
+// pixel there is opaque — so the transparent corner of one cut-out does not steal clicks from the one behind it
+const alphaCache = new Map();
+function alphaAt(img, u, v) {
+  let d = alphaCache.get(img.src);
+  if (!d) { if (!img.naturalWidth) return 255; const o = document.createElement('canvas'); const sw = 160, sh = Math.max(1, Math.round(160 * img.naturalHeight / img.naturalWidth)); o.width = sw; o.height = sh; const g = o.getContext('2d'); g.drawImage(img, 0, 0, sw, sh); d = { data: g.getImageData(0, 0, sw, sh).data, sw, sh }; alphaCache.set(img.src, d); }
+  const x = Math.max(0, Math.min(d.sw - 1, Math.floor(u * d.sw))), y = Math.max(0, Math.min(d.sh - 1, Math.floor(v * d.sh)));
+  return d.data[(y * d.sw + x) * 4 + 3];
+}
+function hitAt(box, clientX, clientY) {
+  const els = document.elementsFromPoint(clientX, clientY);
+  for (const el of els) {
+    if (!(el instanceof HTMLImageElement) || !el.closest('.about-obj')) continue;
+    const obj = el.closest('.about-obj'), b = box.getBoundingClientRect(), r = obj.getBoundingClientRect();
+    const w = el.offsetWidth, h = el.offsetHeight, m = new DOMMatrix(getComputedStyle(el).transform).inverse();
+    const ox = r.left - b.left + w / 2, oy = r.top - b.top + h / 2;                 // the transform origin, in box coords
+    const px = clientX - b.left - ox, py = clientY - b.top - oy, lx = m.a * px + m.c * py + m.e + w / 2, ly = m.b * px + m.d * py + m.f + h / 2;
+    if (lx < 0 || ly < 0 || lx > w || ly > h) continue;
+    if (alphaAt(el, lx / w, ly / h) > 24) return obj.dataset.name;
+  }
+  return null;
 }
 
 export default function About() {
@@ -91,19 +114,21 @@ export default function About() {
   }, []);
   useEffect(() => {                                           // a click anywhere else closes the note
     if (!open) return;
-    const close = e => { if (!e.target.closest('.about-obj')) setOpen(null); };
+    const close = e => { if (!boxRef.current || !hitAt(boxRef.current, e.clientX, e.clientY)) setOpen(null); };
     window.addEventListener('pointerdown', close); return () => window.removeEventListener('pointerdown', close);
   }, [open]);
 
   // drag: pointer capture on the object; a short move counts as a click (pop + note), a longer one moves it
-  const onDown = useCallback((e, name) => {
-    const el = e.currentTarget; el.setPointerCapture(e.pointerId);
+  const onDown = useCallback(e => {
+    const name = hitAt(boxRef.current, e.clientX, e.clientY); if (!name) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
     const start = moved[name] || [0, 0];
     drag.current = { name, x0: e.clientX, y0: e.clientY, sx: start[0], sy: start[1], dist: 0 };
     setHover(name);
   }, [moved]);
   const onMove = useCallback(e => {
-    const d = drag.current; if (!d) return;
+    const d = drag.current;
+    if (!d) { if (e.pointerType === 'mouse') setHover(hitAt(boxRef.current, e.clientX, e.clientY)); return; }
     const dx = e.clientX - d.x0, dy = e.clientY - d.y0; d.dist = Math.max(d.dist, Math.hypot(dx, dy));
     if (d.dist > 6) setMoved(m => ({ ...m, [d.name]: [d.sx + dx, d.sy + dy] }));
   }, []);
@@ -117,7 +142,7 @@ export default function About() {
   const kAt = fx => (1 - Math.abs(fx - .5) * 2) * .35;      // edges first, the middle a beat later
   return (
     <section ref={ref} className={'about' + (on ? ' is-on' : '') + (portrait ? ' is-portrait' : '')} aria-label="About me">
-      <div className="about-box" ref={boxRef}>
+      <div className="about-box" ref={boxRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => { if (!drag.current) setHover(null); }}>
         <Lawn />
         <div className="about-label mono">about me</div><div className="about-num mono">02</div>
         <div className="about-head" aria-label="About me">
@@ -125,14 +150,13 @@ export default function About() {
             <img key={i} src={`/bead-${ch}.png`} alt="" style={{ transform: `rotate(${Math.sin(i * 2.3) * 7}deg) translateY(${Math.sin(i * 1.7) * 4}px)` }} />)}
         </div>
         <p className="about-bio mono">{BIO}</p>
+        <p className="about-hint mono">click on each item to learn more ↓</p>
         <Corgi running={on} portrait={portrait} />
         {objs.map(([name, fx, fy, h, rot], i) => {
           const m = moved[name] || [0, 0], isOpen = open === name, isHover = hover === name;
           return (
-            <div key={name} className={'about-obj' + (isHover || isOpen ? ' is-up' : '')}
-              style={{ left: `${fx * 100}%`, top: `${fy * 100}%`, '--h': portrait ? `${h * 37}vw` : `${h / 1080 * 100}cqh`, '--rot': `${rot}rad`, '--dx': `${m[0]}px`, '--dy': `${m[1]}px`, transitionDelay: on ? `${kAt(fx)}s` : '0s', zIndex: isHover || isOpen ? 15 : 3 + i }}
-              onPointerDown={e => onDown(e, name)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
-              onMouseEnter={() => setHover(name)} onMouseLeave={() => setHover(h => (h === name ? null : h))}>
+            <div key={name} data-name={name} className={'about-obj' + (isHover || isOpen ? ' is-up' : '') + (isHover ? ' is-hover' : '')}
+              style={{ left: `${fx * 100}%`, top: `${fy * 100}%`, '--h': portrait ? `${h * 37}vw` : `${h / 1080 * 100}cqh`, '--rot': `${rot}rad`, '--dx': `${m[0]}px`, '--dy': `${m[1]}px`, transitionDelay: on ? `${kAt(fx)}s` : '0s', zIndex: isHover || isOpen ? 15 : 3 + i }}>
               <img src={`/about-${name}.png`} alt={name} draggable="false" />
             </div>
           );
