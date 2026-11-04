@@ -1,0 +1,23 @@
+/* The sign-off panel: the lamp pulls its own string, the cone of light closes, and the note comes up out of
+   the black. Landscape: a 16:9 box fitted to the viewport, like the other panels. Portrait: the whole viewport. */
+.foot { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #fffaf4; position: relative; overflow: hidden; scroll-snap-align: start; }
+.foot-box { position: relative; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); container-type: size; overflow: hidden; background: #fffaf4; }
+.foot .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; }
+.foot-lamp { position: absolute; left: 0; top: 0; z-index: 1; pointer-events: none; }
+
+/* the note, centred, hidden until the light has gone; it rises a touch as it fades in */
+.foot-note { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateY(1.2cqh); display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 2; opacity: 0; pointer-events: none; transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
+.foot.is-note .foot-note { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
+.foot-thanks { margin: 0; font-size: 3.15cqh; font-weight: 700; color: #fffaf4; white-space: nowrap; }
+.foot-social { display: flex; align-items: center; gap: 3.3cqh; margin-top: 5.5cqh; }
+.foot-social a { display: block; height: 4.3cqh; transition: transform .18s cubic-bezier(.34,1.56,.64,1); }
+.foot-social a:hover { transform: scale(1.22); }
+.foot-social img { height: 100%; width: auto; display: block; filter: brightness(0) invert(1); }
+.foot-credit { margin: 6.2cqh 0 0; font-size: 1.65cqh; color: rgba(255,250,244,.6); white-space: nowrap; }
+
+/* portrait (phones): the box is the whole viewport, sizes from the width */
+.foot.is-portrait .foot-box { width: 100vw; height: 100vh; height: 100dvh; }
+.foot.is-portrait .foot-thanks { font-size: 5vw; }
+.foot.is-portrait .foot-social { gap: 6vw; margin-top: 8vw; }
+.foot.is-portrait .foot-social a { height: 6.5vw; }
+.foot.is-portrait .foot-credit { margin-top: 9vw; font-size: 2.8vw; }
