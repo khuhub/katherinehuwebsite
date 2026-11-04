@@ -12,8 +12,8 @@
 .exp-credit-text { position: absolute; left: 1.4em; top: 0; white-space: nowrap; font-size: 1.3cqh; line-height: 1.6; padding: 0 .5em; background: rgba(247,240,227,.92); border-radius: .4em; color: #6b5a52; opacity: 0; transform: translateX(-.4em); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
 .exp-credit:hover .exp-credit-text, .exp-credit:focus .exp-credit-text { opacity: 1; transform: none; }
 
-/* the doodles: white ink sketches, no shadow */
-.exp-doodle { position: absolute; transform: translate(-50%, -50%) rotate(var(--tilt)); width: auto; z-index: 1; pointer-events: none; user-select: none; opacity: .95; }
+/* the doodles: white brush sketches drawn over the stripes */
+.exp-doodles { position: absolute; left: 0; top: 0; z-index: 1; pointer-events: none; }
 
 /* the row: cards laid out three times so the loop wraps; the row itself is moved by the script */
 .exp-row { position: absolute; left: 50%; top: 50%; height: 0; z-index: 3; --w: 27.8cqh; --h: 39.4cqh; --pitch: 33cqh; will-change: transform; }
