@@ -15,6 +15,7 @@
 /* a card: centred on its anchor, tilted; drops in from a little above; hover lifts; click flips */
 .pj-card { position: absolute; width: 25cqh; aspect-ratio: 304 / 364; transform: translate(-50%, -50%) rotate(var(--tilt)); z-index: 3; cursor: grab; user-select: none; touch-action: none; visibility: hidden; }
 .pj-card.is-in { visibility: visible; animation: pj-pop .6s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--delay); }
+.pj-card.is-placed.is-in { animation: none; }                       /* the one she places: it is simply there */
 @keyframes pj-pop { from { transform: translate(-50%, -50%) translateY(-110vh) rotate(calc(var(--tilt) * 2)); } to { transform: translate(-50%, -50%) rotate(var(--tilt)); } }
 .pj-card.is-hover { transform: translate(-50%, -50%) translateY(-1cqh) rotate(calc(var(--tilt) * .5)) scale(1.04); z-index: 5; transition: transform .25s cubic-bezier(.2,.7,.2,1); animation: none; }
 .pj-card.is-flip { z-index: 5; transition-delay: 0s; }

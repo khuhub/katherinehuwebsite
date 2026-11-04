@@ -57,7 +57,7 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
     const canvas = ref.current; if (!canvas) return;
     const c = canvas.getContext('2d'); let raf = 0, t0 = 0;
     if (!on) { c.clearRect(0, 0, canvas.width, canvas.height); return; }
-    pinned.current = false;                                       // each visit she pins it again
+    if (pinned.current) return;                                   // she only comes in once
     const B = window.HeroBody && window.HeroBody.build({ paper: '#fffaf4' }); if (!B) { onPinned(); return; }
     const layer = document.createElement('canvas');
     const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2, easeOut = t => 1 - Math.pow(1 - t, 3);
@@ -98,6 +98,7 @@ export default function Projects() {
   const secRef = useRef(null), boxRef = useRef(null);
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
   const [on, setOn] = useState(false), [pinned, setPinned] = useState(false), [flipped, setFlipped] = useState(null), [moved, setMoved] = useState({});
+  const [seen, setSeen] = useState(false);                             // the entrance plays once
   const [hover, setHover] = useState(null), drag = useRef(null), [unit, setUnit] = useState(0);
   useEffect(() => { const f = () => setPortrait(window.innerWidth < window.innerHeight); window.addEventListener('resize', f); return () => window.removeEventListener('resize', f); }, []);
   useEffect(() => {                                           // the word's letters are sized from the box (the minifier cannot do calc with container units)
@@ -106,7 +107,7 @@ export default function Projects() {
   }, [portrait]);
   useEffect(() => {
     const el = secRef.current; if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { setOn(e.isIntersecting); if (!e.isIntersecting) { setFlipped(null); setPinned(false); } }, { threshold: .35 });
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); setSeen(true); } else setFlipped(null); }, { threshold: .35 });
     obs.observe(el); return () => obs.disconnect();
   }, []);
   const onPinned = useCallback(() => setPinned(true), []);
@@ -139,7 +140,7 @@ export default function Projects() {
           const m = moved[p.key] || { dx: 0, dy: 0 }, win = WIN[p.frame], isFlip = flipped === p.key, isHover = hover === p.key && !isFlip;
           const show = p.last ? (pinned || portrait) : on;
           return (
-            <div key={p.key} ref={p.last ? lastRef : null} className={'pj-card' + (show ? ' is-in' : '') + (isFlip ? ' is-flip' : '') + (isHover ? ' is-hover' : '')}
+            <div key={p.key} ref={p.last ? lastRef : null} className={'pj-card' + (show ? ' is-in' : '') + (isFlip ? ' is-flip' : '') + (isHover ? ' is-hover' : '') + (p.last && !portrait ? ' is-placed' : '')}
               style={{ left: `${(p.x + m.dx) * 100}%`, top: `${(p.y + m.dy) * 100}%`, '--tilt': `${p.tilt}rad`, '--delay': p.last ? '0s' : `${.2 + i * .28}s` }}
               onPointerDown={e => onDown(e, p.key)} onPointerMove={onMove} onPointerUp={e => onUp(e, p.key)} onPointerEnter={() => setHover(p.key)} onPointerLeave={() => setHover(null)}>
               <div className="pj-flip">
@@ -162,7 +163,7 @@ export default function Projects() {
             </div>
           );
         })}
-        {!portrait && <Walker on={on} portrait={portrait} onPinned={onPinned} cardRef={lastRef} cardAt={cardAt} />}
+        {!portrait && seen && <Walker on={on} portrait={portrait} onPinned={onPinned} cardRef={lastRef} cardAt={cardAt} />}
         <span className="pj-num mono">04</span>
         <Frame />
       </div>
