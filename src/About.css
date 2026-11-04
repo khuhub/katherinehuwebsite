@@ -1,0 +1,48 @@
+/* Panel 2, about: a lawn with the bio in the middle and objects along the bottom. Landscape: a 16:9 box fitted
+   to the viewport (positions are % of it, like the film). Portrait: the box is the whole viewport. */
+.about { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #ffffff; position: relative; overflow: hidden; scroll-snap-align: start; }
+.about-box { position: relative; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); container-type: size; overflow: hidden; touch-action: pan-y; }
+.about-lawn { position: absolute; inset: 0; width: 100%; height: 100%; }
+.about .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; }
+.about-label, .about-num { position: absolute; top: 5.2cqh; font-size: 2.4cqh; color: #2b3d1c; z-index: 4; }
+.about-label { left: calc(5.2cqh + 2.1cqw); } .about-num { right: calc(5.2cqh + 2.1cqw); }
+
+/* the bead heading, then the bio */
+.about-head { position: absolute; left: 50%; top: 25cqh; transform: translate(-50%, -50%); display: flex; gap: .8cqh; align-items: center; z-index: 4; opacity: 0; transition: opacity .7s ease .5s, transform .7s cubic-bezier(.2,.7,.2,1) .5s; }
+.about-head img { height: 8.5cqh; width: 8.5cqh; display: block; }
+.about-sp { width: 4.6cqh; }
+.about-bio { position: absolute; left: 50%; top: 33cqh; transform: translateX(-50%); width: 80%; margin: 0; text-align: center; color: #fff; font-size: 2.78cqh; line-height: 1.4; text-shadow: 0 2px 12px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease .6s; }
+.about.is-on .about-head { opacity: 1; }
+.about.is-on .about-bio { opacity: 1; }
+
+/* the objects: each sits at (left, top) with its own height, rotation and (when dragged) offset; rises in from below */
+.about-obj { position: absolute; width: 0; height: 0; cursor: grab; }
+.about-obj img { position: absolute; left: 0; top: 0; height: var(--h); width: auto; max-width: none; display: block; user-select: none; -webkit-user-drag: none; touch-action: none;   /* the image is the hit area */
+  transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 45cqh)) rotate(var(--rot)); opacity: 0;
+  filter: drop-shadow(10px 14px 6px rgba(40,70,25,.3)); transition: transform .8s cubic-bezier(.2,.7,.2,1), opacity .5s ease, filter .25s ease; }
+.about.is-on .about-obj img { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)); opacity: 1; }
+.about.is-on .about-obj.is-up img { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) - 2cqh)) rotate(var(--rot)) scale(1.18); filter: drop-shadow(16px 24px 10px rgba(40,70,25,.32)); transition-duration: .25s; }
+.about-obj:active { cursor: grabbing; }
+
+/* the paper note beside a clicked object */
+.about-note { position: absolute; left: calc(var(--dx) + 3cqw); bottom: calc(-1 * var(--dy) + 6cqh); width: 17cqw; aspect-ratio: 846 / 616; display: flex; overflow: hidden; align-items: center; justify-content: center; padding: 10% 14% 24% 14%; box-sizing: border-box; pointer-events: none; animation: note-in .3s cubic-bezier(.2,.7,.2,1) both; }
+.about-note.is-left { left: auto; right: calc(-1 * var(--dx) + 3cqw); }
+.about-note .paper { position: absolute; inset: 0; background-repeat: no-repeat; background-position: center; background-size: contain; }
+.about-note.is-left .paper { transform: scaleX(-1); }
+.about-note span { position: relative; display: block; width: 100%; text-align: center; color: #2a1b1b; font-size: 1.15cqw; line-height: 1.3; overflow-wrap: anywhere; }
+@keyframes note-in { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+
+/* the corgi sprite: 7 frames in a row */
+.about-corgi { position: absolute; left: 0; top: 0; width: 175px; height: 175px; background-repeat: no-repeat; background-size: 1225px 175px; filter: drop-shadow(8px 12px 6px rgba(40,70,25,.25)); pointer-events: none; z-index: 2; will-change: transform; }
+
+/* portrait (phones): the box is the whole viewport; heading and bio higher, objects in two rows, bigger type */
+.about.is-portrait .about-box { width: 100vw; height: 100vh; height: 100dvh; }
+.about.is-portrait .about-head { top: 17cqh; gap: .6vw; }
+.about.is-portrait .about-head img { height: 7.2vw; width: 7.2vw; }
+.about.is-portrait .about-sp { width: 4vw; }
+.about.is-portrait .about-bio { top: 25cqh; width: 84%; font-size: 3.1vw; }
+.about.is-portrait .about-label, .about.is-portrait .about-num { font-size: 2.4vw; top: 5.2vw; }
+.about.is-portrait .about-label { left: 9vw; } .about.is-portrait .about-num { right: 9vw; }
+.about.is-portrait .about-note { width: 44vw; left: calc(var(--dx) + 4vw); bottom: calc(-1 * var(--dy) + 6vw); }
+.about.is-portrait .about-note.is-left { right: calc(-1 * var(--dx) + 4vw); }
+.about.is-portrait .about-note span { font-size: 2.6vw; }

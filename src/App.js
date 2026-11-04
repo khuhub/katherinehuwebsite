@@ -2,10 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 import SquigglyLine from './SquigglyLine';
-import CorgiWalker from './CorgiWalker';
-import Dither from './Dither';
 import HeroIntro from './HeroIntro';
 import Hero from './Hero';
+import About from './About';
 
 const serif = 'Lora, Georgia, serif';
 
@@ -42,86 +41,16 @@ const projectRows = [
 ];
 
 
-const boxItems = [
-  { src: '/food.png',   width: '480px', openTransform: 'translateX(-460px) translateY(-280px)', delay: 0,
-    tooltip: 'If you see me, 9 times out of 10 I will be munching away at something...',
-    bubbleStyle: { top: '65%', left: '32%' },
-    tailStyle: { top: '-9px', left: '55%', transform: 'translateX(-50%)', borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderBottom: '10px solid white' },
-  },
-  { src: '/draw.png',   width: '460px', openTransform: 'translateX(-290px) translateY(-480px)', delay: 0.07,
-    tooltip: 'Doodling is one of my favorite stress relievers :)',
-    bubbleStyle: { top: '35%', left: '50%' },
-    tailStyle: { top: '65%', transform: 'translateY(-65%)', left: '-9px', borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderRight: '10px solid white' },
-  },
-  { src: '/guitar.png', width: '500px', openTransform: 'translateX(-180px) translateY(-180px)', delay: 0.13,
-    tooltip: 'I love self-learning guitar in my free time!',
-    bubbleStyle: { top: '45%', left: '55%' },
-    tailStyle: { top: '65%', transform: 'translateY(-65%)', left: '-9px', borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderRight: '10px solid white' },
-  },
-  { src: '/lucky.png',  width: '440px', openTransform: 'translateX(60px)   translateY(-320px)', delay: 0.19,
-    tooltip: "Fun fact: I was born on St. Patrick's day!",
-    bubbleStyle: { top: '12%', left: '25%' },
-    tailStyle: { bottom: '-9px', left: '40%', transform: 'translateX(-50%)', borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '10px solid white' },
-  },
-];
 
 function App() {
 
-  const [shaking, setShaking] = useState(false);
-  const [corgiStarted, setCorgiStarted] = useState(false);
-  const aboutRef = useRef(null);
-  const grassRef = useRef(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setCorgiStarted(true); observer.disconnect(); } },
-      { threshold: 0.2 }
-    );
-    if (aboutRef.current) observer.observe(aboutRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { setAboutVisible(entry.isIntersecting); },
-      { threshold: 0.15 }
-    );
-    if (aboutRef.current) observer.observe(aboutRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  const [boxOpen, setBoxOpen] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState(null);
   const [hoveredExp, setHoveredExp] = useState(null);
-  const [grassFade, setGrassFade] = useState(0);
-  const [aboutVisible, setAboutVisible] = useState(false);
   const [polaroidTilts, setPolaroidTilts] = useState({});
   const lastMouseX = useRef({});
   const [visibleExps, setVisibleExps] = useState({});
   const [seenExps, setSeenExps] = useState({});
   const [textVisible, setTextVisible] = useState({ young: false, old: false });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!boxOpen) {
-        setShaking(true);
-        setTimeout(() => setShaking(false), 600);
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [boxOpen]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const el = grassRef.current || aboutRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const fade = Math.max(0, Math.min(1, (-rect.bottom + 100) / 700));
-      setGrassFade(fade);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const textRef = (key) => (el) => {
     if (!el) return;
@@ -146,117 +75,12 @@ function App() {
     obs.observe(el);
   };
 
-  const handleCenterHover = () => {
-    if (!shaking) {
-      setShaking(true);
-      setTimeout(() => setShaking(false), 600);
-    }
-  };
-
   return (
     <div>
       <HeroIntro />
       <Hero />
 
-      {/* About Me */}
-      <section ref={aboutRef} className="about-section" style={{ minHeight: '100vh', padding: '120px 0 240px 10%', position: 'relative', overflow: 'hidden', scrollSnapAlign: 'start' }}>
-        <h2 className="about-heading" style={{ fontFamily: serif, fontSize: '36px', fontWeight: '700', letterSpacing: '4px', color: '#1a1a1a', margin: '0 0 60px 0', position: 'relative', zIndex: 5, opacity: aboutVisible ? 1 : 0, transform: aboutVisible ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.6s ease, transform 0.6s ease' }}>
-          ABOUT ME
-        </h2>
-        <p className="about-body" style={{ fontFamily: serif, fontSize: '18px', lineHeight: '2', color: '#1a1a1a', maxWidth: '680px', margin: 0, position: 'relative', zIndex: 5, opacity: aboutVisible ? 1 : 0, transform: aboutVisible ? 'translateY(0)' : 'translateY(12px)', transition: 'opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s' }}>
-          Hi! I'm <strong>Katherine</strong>, a computer science student at{' '}
-          <span style={{ fontWeight: '700' }}>Cornell University</span>{' '}
-          who enjoys building thoughtful user-focused technology &amp; exploring how software
-          can create meaningful impact. I love learning new things, solving challenging problems,
-          and working at the intersection of engineering, design, and creativity. Beyond coding,
-          I care a lot about collaboration, leadership, and creating spaces where people can
-          learn and grow together :)
-        </p>
-        <CorgiWalker started={corgiStarted} />
-        <div className="box-container" style={{ position: 'absolute', bottom: '30px', right: '150px', width: '600px', zIndex: 2 }}>
-          {/* Pop-up items */}
-          {boxItems.map(item => (
-            <div
-              key={item.src}
-              onMouseEnter={() => boxOpen && item.tooltip && setHoveredItem(item.src)}
-              onMouseLeave={() => setHoveredItem(null)}
-              style={{
-                position: 'absolute',
-                bottom: '30%',
-                left: '50%',
-                width: item.width,
-                transform: boxOpen
-                  ? (item.src === '/lucky.png'
-                      ? `translateX(${window.innerWidth <= 900 ? -45 : window.innerWidth <= 1100 ? -20 : window.innerWidth <= 1300 ? -60 : 60}px) translateY(-320px)`
-                      : item.openTransform)
-                  : 'translateX(-50%) translateY(10px)',
-                opacity: boxOpen ? 1 : 0,
-                transition: `transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) ${item.delay}s, opacity 0.25s ease ${item.delay}s`,
-                pointerEvents: boxOpen ? 'auto' : 'none',
-                zIndex: 3,
-              }}
-            >
-              <img src={item.src} alt="" className="w-full h-auto block" style={{ transform: hoveredItem === item.src ? 'scale(1.07)' : 'scale(1)', transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)' }} />
-              {/* Speech bubble */}
-              {item.tooltip && hoveredItem === item.src && (
-                <div className={`box-tooltip${item.src.includes('lucky') ? ' bubble-lucky' : ''}`} style={{
-                  position: 'absolute',
-                  ...item.bubbleStyle,
-                  backgroundColor: 'white',
-                  borderRadius: '18px',
-                  padding: '14px 18px',
-                  width: '180px',
-                  boxShadow: '0 3px 14px rgba(0,0,0,0.12)',
-                  zIndex: 10,
-                  boxSizing: 'border-box',
-                }}>
-                  <div className={item.src.includes('lucky') ? 'tail-lucky' : ''} style={{ position: 'absolute', width: 0, height: 0, ...item.tailStyle }} />
-                  <p style={{ fontFamily: serif, fontSize: '12px', color: '#333', textAlign: 'center', margin: 0, lineHeight: 1.6 }}>
-                    {item.tooltip}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
-          {/* Box image on top so items appear to emerge from it */}
-          <img
-            src={boxOpen ? '/openbox.png' : '/box.png'}
-            alt="box"
-            className={`w-full h-auto block${!boxOpen ? ` box-img${shaking ? ' shaking' : ''}` : ''}`}
-            style={{ position: 'relative', zIndex: 4 }}
-          />
-          <p style={{ fontFamily: serif, fontSize: '16px', color: '#1a1a1a', margin: 0, position: 'absolute', top: '65%', left: '360px', zIndex: 5, whiteSpace: 'nowrap' }}>{boxOpen ? 'click to close!' : 'click to open!'}</p>
-          {/* Center hover/click trigger */}
-          <div
-            onMouseEnter={handleCenterHover}
-            onClick={() => setBoxOpen(o => !o)}
-            style={{ position: 'absolute', top: '30%', left: '30%', width: '40%', height: '40%', cursor: 'pointer', zIndex: 5 }}
-          />
-        </div>
-        {/* Grass + Dither strip at bottom */}
-        <div ref={grassRef} className="grass-strip" style={{ position: 'absolute', bottom: '-20px', left: 0, width: '100%', zIndex: 1 }}>
-          <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
-            <img
-              src="/grass.png"
-              alt="grass"
-              className="w-full h-auto block"
-            />
-            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '55%', background: 'linear-gradient(to bottom, transparent 0%, #FFF9DC 80%)', pointerEvents: 'none', zIndex: 5, opacity: grassFade }} />
-            <div style={{ position: 'absolute', top: '70%', left: 0, width: '110%', height: '30%', zIndex: 2, mixBlendMode: 'overlay', opacity: 0.12, overflow: 'hidden', WebkitMaskImage: 'linear-gradient(to right, black 0%, black 50%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 40%)', WebkitMaskComposite: 'source-in', maskImage: 'linear-gradient(to right, black 0%, black 50%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 40%)', maskComposite: 'intersect' }}>
-              <Dither
-                waveColor={[0.5, 0.5, 0.5]}
-                disableAnimation={false}
-                enableMouseInteraction={false}
-                mouseRadius={0.3}
-                colorNum={8}
-                waveAmplitude={0.5}
-                waveFrequency={1.6}
-                waveSpeed={0.03}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <About />
 
       {/* Experience */}
       <section className="exp-section" style={{ minHeight: '100vh', padding: '100px 0 120px 0', position: 'relative', overflow: 'hidden', scrollSnapAlign: 'start' }}>
