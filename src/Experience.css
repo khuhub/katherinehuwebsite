@@ -8,8 +8,8 @@
 .exp-stripes { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; }
 .exp-label, .exp-num { position: absolute; top: 5.2cqh; font-size: 2.4cqh; color: #6b5a52; z-index: 4; }
 .exp-label { left: 5cqw; } .exp-num { right: 5cqw; }
-.exp-credit { position: absolute; left: 50%; bottom: 4.4cqh; transform: translateX(-50%); font-size: 2cqh; line-height: 1; color: rgba(107,90,82,.8); z-index: 4; cursor: default; }
-.exp-credit-text { position: absolute; left: 1.6em; bottom: 0; white-space: nowrap; font-size: 1.3cqh; line-height: 1.6; padding: 0 .5em; background: rgba(247,240,227,.92); border-radius: .4em; color: #6b5a52; opacity: 0; transform: translateX(-.4em); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
+.exp-credit { position: absolute; left: calc(5cqw + 11.2ch); top: 5.2cqh; font-size: 2.4cqh; line-height: 1; color: rgba(107,90,82,.8); z-index: 4; cursor: default; }
+.exp-credit-text { position: absolute; left: 1.4em; top: 0; white-space: nowrap; font-size: 1.3cqh; line-height: 1.6; padding: 0 .5em; background: rgba(247,240,227,.92); border-radius: .4em; color: #6b5a52; opacity: 0; transform: translateX(-.4em); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
 .exp-credit:hover .exp-credit-text, .exp-credit:focus .exp-credit-text { opacity: 1; transform: none; }
 
 /* the buttons from the tin: a cast shadow and a tight one under the rim */
@@ -58,5 +58,5 @@
 .exp.is-portrait .exp-ctrl .exp-play { width: 6vw; height: 6vw; }
 .exp.is-portrait .exp-label, .exp.is-portrait .exp-num { font-size: 2.4vw; top: 5.2vw; }
 .exp.is-portrait .exp-label { left: 9vw; } .exp.is-portrait .exp-num { right: 9vw; }
-.exp.is-portrait .exp-credit { left: 50%; bottom: 3.6vw; font-size: 3.4vw; }
+.exp.is-portrait .exp-credit { left: calc(9vw + 11.2ch); top: 5.2vw; font-size: 2.6vw; }
 .exp.is-portrait .exp-credit-text { font-size: 2.2vw; }
