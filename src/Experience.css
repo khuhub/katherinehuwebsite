@@ -8,6 +8,8 @@
 .exp-world { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 3; will-change: transform; pointer-events: none; }
 .exp-label, .exp-num { position: absolute; top: 5.2cqh; font-size: 2.4cqh; color: #6b5a52; z-index: 4; }
 .exp-label { left: 5cqw; } .exp-num { right: 5cqw; }
+.exp-sound { position: absolute; right: 5cqw; bottom: 4.6cqh; background: none; border: 0; padding: .2em .4em; font-size: 2cqh; color: #6b5a52; cursor: pointer; z-index: 5; opacity: .8; }
+.exp-sound:hover { opacity: 1; }
 .exp-back { position: absolute; left: 50%; bottom: 5.2cqh; transform: translate(-50%, 50%); width: 14cqh; height: 7cqh; background: none; border: 0; padding: 0; cursor: pointer; z-index: 5; }
 
 /* a card: the logo-and-name row is centred on its anchor; the role sits under it. Above the line the anchor is
@@ -23,4 +25,6 @@
 .exp.is-portrait .exp-box { width: 100vw; height: 100vh; height: 100dvh; }
 .exp.is-portrait .exp-label, .exp.is-portrait .exp-num { font-size: 2.4vw; top: 5.2vw; }
 .exp.is-portrait .exp-label { left: 9vw; } .exp.is-portrait .exp-num { right: 9vw; }
-.exp.is-portrait .exp-back { bottom: 5.2vw; width: 30vw; height: 12vw; }
+.exp.is-portrait .exp-sound { position: absolute; right: 5cqw; bottom: 4.6cqh; background: none; border: 0; padding: .2em .4em; font-size: 2cqh; color: #6b5a52; cursor: pointer; z-index: 5; opacity: .8; }
+.exp-sound:hover { opacity: 1; }
+.exp-back { bottom: 5.2vw; width: 30vw; height: 12vw; }
