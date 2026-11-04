@@ -5,7 +5,8 @@ import './Footer.css';
 // The page goes dark except for the cone of light, she stands in it waving goodbye, the cone slowly closes
 // to nothing (taking her and the lamp with it), and "thanks for stopping by :)" with the links comes up out
 // of the black. Drawn on a canvas with the engine (public/engine/core.js, body.js); the note is real DOM so
-// the links work. It plays once, when the panel first comes into view, and then holds on the note.
+// the links work. It is fixed behind the page (an empty slot keeps its place in the scroll), so the projects panel lifts
+// off to uncover it; it plays once, when more than half of it is showing, and then holds on the note.
 //
 // Timeline (seconds after the panel is seen): tug 1.3, dark 1.55, the cone closes 2.4–5.0, note 5.3.
 const T_TUG = 1.3, T_DARK = 1.55, T_CLOSE = 2.4, T_CLOSED = 5.0, T_NOTE = 5.3;
@@ -80,7 +81,8 @@ export default function Footer() {
     return () => window.removeEventListener('scroll', check);
   }, []);
   const onNote = useRef(() => setNote(true)).current;
-  return (
+  return (<>
+    <div className="foot-slot" aria-hidden="true" />
     <footer ref={secRef} className={'foot' + (portrait ? ' is-portrait' : '') + (on ? ' is-on' : '') + (note ? ' is-note' : '')}>
       <div className="foot-box">
         <Lamp on={on} portrait={portrait} onNote={onNote} />
@@ -95,5 +97,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  );
+  </>);
 }

@@ -1,6 +1,7 @@
 /* The sign-off panel: the lamp pulls its own string, the cone of light closes, and the note comes up out of
    the black. Landscape: a 16:9 box fitted to the viewport, like the other panels. Portrait: the whole viewport. */
-.foot { height: 100vh; height: 100dvh; display: flex; align-items: center; justify-content: center; background: #fffaf4; position: sticky; bottom: 0; z-index: 0; overflow: hidden; scroll-snap-align: start; }   /* pinned to the bottom of the viewport behind the page: the projects panel scrolls up and uncovers it, like a sheet lifted off a desk */
+.foot { position: fixed; left: 0; right: 0; bottom: 0; height: 100vh; height: 100dvh; z-index: 0; display: flex; align-items: center; justify-content: center; background: #fffaf4; overflow: hidden; }   /* pinned behind the page: the projects panel scrolls up and uncovers it, like a sheet lifted off a desk */
+.foot-slot { height: 100vh; height: 100dvh; scroll-snap-align: start; }   /* the footer's place in the page: an empty slot the same height, so the page scrolls (and snaps) on to it */
 .foot-box { position: relative; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); container-type: size; overflow: hidden; background: #fffaf4; }
 .foot .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; }
 .foot-lamp { position: absolute; left: 0; top: 0; z-index: 1; pointer-events: none; }
