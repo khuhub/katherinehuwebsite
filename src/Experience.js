@@ -16,12 +16,12 @@ const EXPS = [
   { key: 'cs2112', name: 'Cornell CS 2112', role: 'teaching assistant', logo: '/lg-cornell.png', photo: '/exp-cornell.jpg', link: 'https://www.cs.cornell.edu/', song: '/songs/cs2112.mp3' },
 ];
 const N = EXPS.length;
-// paper clouds (public/cloud.png): mostly along the bottom, big and small overlapping, a couple small ones up top
+// paper clouds (public/cloud2.png): mostly along the bottom, big and small overlapping, a couple small ones up top
 // [x, y (fractions of the panel), width (fraction of the panel's width), tilt (rad), flipped]
 const CLOUDS = [
   [.14, .1, .12, .04, true], [.9, .12, .135, -.03, false],
-  [.1, .9, .27, .02, false], [.3, .96, .19, -.04, true], [.5, .9, .3, .03, false], [.66, .84, .12, -.05, true],
-  [.86, .94, .23, .02, true], [.97, .8, .1, .06, false], [.4, .82, .078, -.02, true],
+  [.05, .78, .105, .05, false], [.09, .92, .28, .02, false], [.19, .8, .13, -.04, true], [.27, .96, .225, -.03, true], [.37, .9, .155, .03, false],
+  [.66, .94, .115, -.05, true], [.86, .93, .23, .02, true], [.97, .8, .1, .06, false],
 ];
 const CLOUDS_P = [
   [.15, .08, .3, .04, true], [.85, .13, .34, -.03, false],
@@ -118,7 +118,7 @@ export default function Experience() {
       <div ref={boxRef} className="exp-box" onPointerDown={onBackground}>
         <Stripes />
         {(portrait ? CLOUDS_P : CLOUDS).map(([x, y, w, tilt, flip], k) => (
-          <img key={k} className="exp-cloud" src="/cloud.png" alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${w * 100}%`, '--tilt': `${tilt}rad`, '--flip': flip ? -1 : 1 }} />
+          <img key={k} className="exp-cloud" src="/cloud2.png" alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${w * 100}%`, '--tilt': `${tilt}rad`, '--flip': flip ? -1 : 1 }} />
         ))}
         <div ref={rowRef} className="exp-row">
           {[-1, 0, 1].map(rep => EXPS.map((e, i) => {
