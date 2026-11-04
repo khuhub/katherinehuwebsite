@@ -8,8 +8,8 @@
 
 /* positions, as % of the 1920 x 1080 film frame */
 .hero-hi { position: absolute; left: 5.2%; top: 7.4%; font-size: 3.7cqh; z-index: 4; }
-.hero-kat { position: absolute; left: 8.5%; top: 15.5%; width: 83%; z-index: 2; clip-path: inset(-2% 100% -2% -2%); transition: clip-path .7s cubic-bezier(.2,.7,.2,1) .3s; }
-.hero-kat img { width: 100%; display: block; }
+.hero-kat { position: absolute; left: 8.5%; top: 15.5%; width: 83%; z-index: 2; overflow: hidden; transform: translateX(-101%); transition: transform .7s cubic-bezier(.2,.7,.2,1) .3s; will-change: transform; }   /* the wipe: the box slides in from the left while the image slides the other way, so it stays put and only the edge moves; two transforms, so phones composite it instead of repainting a clip-path each frame */
+.hero-kat img { width: 100%; display: block; transform: translateX(101%); transition: transform .7s cubic-bezier(.2,.7,.2,1) .3s; will-change: transform; }
 .hero-photo { position: absolute; left: 50%; top: 26%; height: 84%; transform: translate(-50%, 3%); opacity: 0; z-index: 3; transition: opacity .6s ease .7s, transform .7s cubic-bezier(.2,.7,.2,1) .7s; }
 .hero-photo.is-in { opacity: 1; transform: translate(-50%, 0); }
 .hero-photo.is-shake { animation: photo-shake .7s ease-in-out 1; transition: none; }
@@ -21,7 +21,7 @@
 .hero-social a:hover { transform: scale(1.22); }
 .hero-social img { height: 100%; width: auto; display: block; }
 
-.hero.is-on .hero-kat { clip-path: inset(-2% -2% -2% -2%); }
+.hero.is-on .hero-kat, .hero.is-on .hero-kat img { transform: none; }
 .hero.is-on .hero-hu { opacity: 1; transform: translateY(0); }
 .hero.is-on .hero-social { opacity: 1; transform: translateY(0); }
 

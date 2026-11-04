@@ -53,6 +53,8 @@ export default function Hero() {
     const t = setTimeout(() => { if (moved || window.scrollY > 10) return; const next = document.querySelector('.about'); if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, (2.9 + 5) * 1000);
     return () => { clearTimeout(t); window.removeEventListener('wheel', mark); window.removeEventListener('touchstart', mark); window.removeEventListener('keydown', mark); window.removeEventListener('pointerdown', mark); };
   }, [started]);
+  // the pictures are decoded while the intro plays, so the first frame they show costs nothing on a phone
+  useEffect(() => { const el = ref.current; if (!el) return; el.querySelectorAll('img').forEach(im => { if (im.decode) im.decode().catch(() => {}); }); }, []);
   const hiN = useTypewriter("hi, i'm", started, 1.2, .7);
   const csN = useTypewriter('cs @ cornell', started, 1.9, 1.0);
   const on = started ? ' is-on' : '';
@@ -60,9 +62,9 @@ export default function Hero() {
     <section ref={ref} className={'hero' + on} aria-label="Hi, I'm Katherine Hu">
       <div className="hero-box">
         <div className="hero-hi mono">{"hi, i'm".slice(0, hiN)}{started && hiN < 7 && <span className="hero-cursor" />}</div>
-        <div className="hero-kat"><img src="/kat-pink.png" alt="Katherine" fetchPriority="high" decoding="async" /></div>
-        <img key={shake} className={'hero-photo' + (photoIn ? ' is-in' : '') + (shake ? ' is-shake' : '')} src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
-        <img className="hero-hu" src="/hu-pink.png" alt="Hu" decoding="async" />
+        <div className="hero-kat"><img src="/kat-pink.webp" alt="Katherine" fetchPriority="high" decoding="async" /></div>
+        <img key={shake} className={'hero-photo' + (photoIn ? ' is-in' : '') + (shake ? ' is-shake' : '')} src="/me-cut.webp" alt="Katherine Hu" fetchPriority="high" decoding="async" />
+        <img className="hero-hu" src="/hu-pink.webp" alt="Hu" decoding="async" />
         <div className="hero-cs mono">{'cs @ cornell'.slice(0, csN)}{started && csN > 0 && csN < 12 && <span className="hero-cursor" />}</div>
         <div className="hero-social">
           <a href="https://github.com/khuhub" target="_blank" rel="noreferrer" aria-label="GitHub"><img src="/git-ink.png" alt="" /></a>
