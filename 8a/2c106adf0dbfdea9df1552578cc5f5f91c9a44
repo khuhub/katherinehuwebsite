@@ -1,0 +1,47 @@
+src/Hero.css
+  s_8e076e4a9a5a45::t_9b9ae0cfea5b45 5
+hero-film/hero-text.html
+  s_8e076e4a9a5a45::t_3a163a4a231ed9 113
+  s_8e076e4a9a5a45::t_79baaa63d39e0e 160-161,164,171,176,178
+  s_8e076e4a9a5a45::t_c960fe456d6cd9 201
+  s_8e076e4a9a5a45::t_972a0a69973dd5 129
+  s_8e076e4a9a5a45::t_37fa714b4750bc 185-193
+  s_8e076e4a9a5a45::t_cf87f035e70b76 156-157
+  s_8e076e4a9a5a45::t_d6235d4aa1ee7d 139-146,150,154,159,165-166,169,173-175,177,179-180
+  s_8e076e4a9a5a45::t_f525d9060dd8f0 114,168
+  s_8e076e4a9a5a45::t_49fc5aba04bb8b 111-112,119,132-136,147,167,172
+  s_8e076e4a9a5a45::t_c670736033313a 107-110,120-128,130,158,163,170
+  s_8e076e4a9a5a45::t_59b4b1d01de855 115-118,138
+  s_8e076e4a9a5a45::t_81c43bbd7d768a 131,137,162,181-184,194,200
+  s_8e076e4a9a5a45::t_d2802a1ca21533 148-149,151-153,155
+src/About.js
+  s_8e076e4a9a5a45::t_b569bc7a32d038 70,136
+  s_8e076e4a9a5a45::t_ea0dff6ec41245 1-69,71-135,137-144
+src/Hero.js
+  s_8e076e4a9a5a45::t_9b9ae0cfea5b45 1-2
+src/Frame.js
+  s_8e076e4a9a5a45::t_9a5bda5c827105 1-28
+src/About.css
+  s_8e076e4a9a5a45::t_163231b08763d3 1-19,21-27,33-35,37-48
+  s_8e076e4a9a5a45::t_ab00e10d3a32fe 20
+  s_8e076e4a9a5a45::t_b569bc7a32d038 29-31,36
+  s_8e076e4a9a5a45::t_5dd18040ebc669 28,32
+src/App.js
+  s_8e076e4a9a5a45::t_9b9ae0cfea5b45 7,83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8a2c106adf0dbfdea9df1552578cc5f5f91c9a44",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
