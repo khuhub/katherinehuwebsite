@@ -3,7 +3,7 @@ import Frame from './Frame';
 import './Experience.css';
 
 // Panel 3, experience: a row of little music players drifting left in a loop over watercolour stripes, with
-// white brush doodles sketched around the edges. Each card is a company: the photo as the album art, the logo and
+// paper clouds along the bottom and a couple at the top. Each card is a company: the photo as the album art, the logo and
 // name (a link) with the role under it, a progress bar with times, and transport controls. Hover lifts a card;
 // a click pops it to the front and holds the row; the play button plays that card's song (the bar follows it);
 // a click on the stripes lets the row drift on and stops the music. Same drawing as the film (hero-text.html).
@@ -16,52 +16,17 @@ const EXPS = [
   { key: 'cs2112', name: 'Cornell CS 2112', role: 'teaching assistant', logo: '/lg-cornell.png', photo: '/exp-cornell.jpg', link: 'https://www.cs.cornell.edu/', song: '/songs/cs2112.mp3' },
 ];
 const N = EXPS.length;
-// the doodles: white brush-line sketches (the same strokes as the film), each a list of strokes in a unit box
-const TAU = Math.PI * 2;
-const DOODLES = {
-  star: [[[0, -1], [.29, -.31], [1, -.31], [.45, .14], [.62, .95], [0, .5], [-.62, .95], [-.45, .14], [-1, -.31], [-.29, -.31], [0, -1]]],
-  heart: [[[0, .95], [-.9, .1], [-.95, -.35], [-.7, -.75], [-.35, -.78], [0, -.45], [.35, -.78], [.7, -.75], [.95, -.35], [.9, .1], [0, .95]]],
-  swirl: (() => { const o = []; for (let i = 0; i <= 40; i++) { const t = i / 40, a = t * Math.PI * 4.2, r = .1 + t * .9; o.push([Math.cos(a) * r, Math.sin(a) * r]); } return [o]; })(),
-  flower: (() => { const petals = []; for (let k = 0; k < 5; k++) { const a0 = k / 5 * TAU, o = []; for (let i = 0; i <= 14; i++) { const t = i / 14 * TAU; const u = (1 - Math.cos(t)) / 2 * .95, v = Math.sin(t) * .3; o.push([Math.cos(a0) * u - Math.sin(a0) * v, Math.sin(a0) * u + Math.cos(a0) * v]); } petals.push(o); } const c = []; for (let i = 0; i <= 16; i++) { const t = i / 16 * TAU; c.push([Math.cos(t) * .18, Math.sin(t) * .18]); } petals.push(c); return petals; })(),
-  note: [[[.1, -.95], [.1, .45]], [[.1, -.95], [.75, -.75], [.75, -.3]], (() => { const o = []; for (let i = 0; i <= 16; i++) { const t = i / 16 * TAU; o.push([-.25 + Math.cos(t) * .38, .6 + Math.sin(t) * .28]); } return o; })()],
-  cloud: [(() => { const o = [], bumps = [[-.62, .25, .36], [-.2, -.1, .5], [.3, -.02, .46], [.68, .3, .3]]; bumps.forEach(([cx, cy, r], j) => { const a0 = j === 0 ? Math.PI : Math.PI * 1.35, a1 = j === bumps.length - 1 ? TAU : Math.PI * 1.7; for (let i = 0; i <= 8; i++) { const t = a0 + (a1 - a0) * i / 8; o.push([cx + Math.cos(t) * r, cy + Math.sin(t) * r]); } }); o.push([.98, .55], [-.98, .55], [-.98, .25]); return o; })()],
-  sparkle: [[[0, -1], [0, 1]], [[-1, 0], [1, 0]], [[-.45, -.45], [.45, .45]], [[.45, -.45], [-.45, .45]]],
-  spiral3: [[[-1, .2], [-.6, -.3], [-.2, .2], [.2, -.3], [.6, .2], [1, -.3]]],
-};
-const DOODLE_SET = [                                                  // [kind, x, y (fractions of the panel), size (px at 1080 tall), tilt]
-  ['flower', .08, .15, 150, .2], ['sparkle', .165, .25, 70, 0], ['star', .045, .37, 60, .3],
-  ['cloud', .9, .14, 190, 0], ['heart', .95, .26, 70, .2], ['sparkle', .84, .2, 40, .4],
-  ['swirl', .085, .81, 150, .1], ['star', .155, .9, 60, -.5],
-  ['note', .905, .83, 120, -.1], ['heart', .955, .9, 60, .3], ['sparkle', .835, .9, 48, .2],
-  ['spiral3', .33, .89, 110, .1], ['star', .265, .87, 48, -.2], ['cloud', .68, .9, 130, 0],
+// paper clouds (public/cloud.png): mostly along the bottom, big and small overlapping, a couple small ones up top
+// [x, y (fractions of the panel), width (fraction of the panel's width), tilt (rad), flipped]
+const CLOUDS = [
+  [.14, .1, .12, .04, true], [.9, .12, .135, -.03, false],
+  [.1, .9, .27, .02, false], [.3, .96, .19, -.04, true], [.5, .9, .3, .03, false], [.66, .84, .12, -.05, true],
+  [.86, .94, .23, .02, true], [.97, .8, .1, .06, false], [.4, .82, .078, -.02, true],
 ];
-const DOODLE_SET_P = [                                                // phones: fewer, around the edges
-  ['flower', .14, .1, 130, .2], ['sparkle', .3, .17, 60, 0], ['cloud', .82, .1, 150, 0], ['heart', .93, .2, 56, .2],
-  ['swirl', .15, .87, 120, .1], ['star', .32, .94, 50, -.5], ['note', .85, .86, 110, -.1], ['sparkle', .62, .94, 44, .2], ['star', .93, .95, 44, .3],
+const CLOUDS_P = [
+  [.15, .08, .3, .04, true], [.85, .13, .34, -.03, false],
+  [.12, .9, .55, .02, false], [.42, .96, .4, -.04, true], [.78, .9, .6, .03, false], [.95, .8, .22, .06, true], [.3, .82, .18, -.02, true],
 ];
-// drawn once per size into a canvas over the stripes, with the engine's brush (public/engine/core.js)
-function Doodles({ portrait }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const canvas = ref.current, c = canvas.getContext('2d');
-    const draw = () => {
-      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
-      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
-      const k = Math.min(1, (portrait ? w * 1.1 : h) / 1080), set = portrait ? DOODLE_SET_P : DOODLE_SET;
-      set.forEach(([kind, x, y, size, tilt], n) => { const d = DOODLES[kind]; if (!d) return; const r = size * k / 2;
-        c.save(); c.translate(x * w, y * h); c.rotate(tilt);
-        d.forEach((st, j) => { const pts = st.map(([px, py]) => [px * r, py * r]);
-          if (window.brush) window.brush(c, pts, { w: 4.6 * k, color: 'rgba(255,255,255,.92)', al: .95, seed: 300 + n * 7 + j, amp: .25, taper: .05, smooth: st.length > 2 });
-          else { c.strokeStyle = 'rgba(255,255,255,.92)'; c.lineWidth = 4 * k; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); pts.forEach(([px, py], i) => i ? c.lineTo(px, py) : c.moveTo(px, py)); c.stroke(); } });
-        c.restore(); });
-    };
-    draw();
-    let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(draw, 150); };
-    window.addEventListener('resize', onResize);
-    return () => { window.removeEventListener('resize', onResize); clearTimeout(t); };
-  }, [portrait]);
-  return <canvas ref={ref} className="exp-doodles" aria-hidden="true" />;
-}
 const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
 // the stripes photo, fitted to the panel's height and tiled across with every other tile mirrored, so it stays
@@ -152,7 +117,9 @@ export default function Experience() {
     <section ref={secRef} className={'exp' + (portrait ? ' is-portrait' : '')}>
       <div ref={boxRef} className="exp-box" onPointerDown={onBackground}>
         <Stripes />
-        <Doodles portrait={portrait} />
+        {(portrait ? CLOUDS_P : CLOUDS).map(([x, y, w, tilt, flip], k) => (
+          <img key={k} className="exp-cloud" src="/cloud.png" alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${w * 100}%`, '--tilt': `${tilt}rad`, '--flip': flip ? -1 : 1 }} />
+        ))}
         <div ref={rowRef} className="exp-row">
           {[-1, 0, 1].map(rep => EXPS.map((e, i) => {
             const p = prog[e.key], played = p ? p.t / p.d : .22 + .11 * i, dur = p ? p.d : 45, isHeld = held === i, isPlaying = playing === i;
