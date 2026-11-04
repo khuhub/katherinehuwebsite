@@ -11,10 +11,12 @@
 .about-head { position: absolute; left: 50%; top: 25cqh; transform: translate(-50%, -50%); display: flex; gap: .8cqh; align-items: center; z-index: 4; opacity: 0; transition: opacity .7s ease .5s, transform .7s cubic-bezier(.2,.7,.2,1) .5s; }
 .about-head img { height: 7.2cqh; width: 7.2cqh; display: block; }
 .about-sp { width: 3.9cqh; }
-.about-bio { position: absolute; left: 50%; top: 33cqh; transform: translateX(-50%); width: 80%; margin: 0; text-align: center; color: #fff; font-size: 2.78cqh; line-height: 1.4; text-shadow: 0 2px 12px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease .6s; }
+.about-bio { position: absolute; left: 50%; top: 33cqh; transform: translateX(-50%); width: 66%; margin: 0; text-align: center; color: #fff; font-size: 2.78cqh; line-height: 1.4; text-shadow: 0 2px 12px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease .6s; }
 .about.is-on .about-head { opacity: 1; }
 .about.is-on .about-bio, .about.is-on .about-hint { opacity: 1; }
-.about-hint { position: absolute; left: 50%; top: 47.5cqh; transform: translateX(-50%); margin: 0; color: rgba(255,255,255,.85); font-size: 2cqh; text-shadow: 0 1px 8px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease 1.4s; white-space: nowrap; }
+.about.is-on .about-hint { animation: hint-bounce 1.6s ease-in-out 2s infinite; }
+@keyframes hint-bounce { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -0.9cqh); } }
+.about-hint { position: absolute; left: 50%; top: 50cqh; transform: translateX(-50%); margin: 0; color: rgba(255,255,255,.85); font-size: 2cqh; text-shadow: 0 1px 8px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease 1.4s; white-space: nowrap; }
 
 /* the objects: each sits at (left, top) with its own height, rotation and (when dragged) offset; rises in from below */
 .about-obj { position: absolute; width: 0; height: 0; }

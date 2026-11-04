@@ -17,7 +17,7 @@ const NOTES = {
   guitar2: 'currently teaching myself how to play, one chord at a time', boba: "i'm always down for a boba run", cheese: 'my emotional support stress relievers',
   toy: 'my hirono collection is getting out of hand', mic: 'will never say no to karaoke', ipod: 'a little bit of everything on my playlist',
   celsius: 'atp celsius should sponsor me', violin: 'forced beginnings, but always fun to play', nugget: 'constantly finding new spots to add to my beli', pencil: 'love doodling whenever i get the chance' };
-const BIO = "hi! i'm katherine, a cs student at cornell interested in ai, complex systems, and solving hard problems. i love exploring new ideas, building cool things, and learning alongside curious people :)";
+const BIO = "hi! i'm katherine, a cs student at cornell interested in ai, complex systems, and solving hard problems. i love exploring new ideas, building cool things, and learning alongside curious people\u00a0:)";
 
 // the lawn, drawn once per size: patches of darker and lighter green, grain, little blades (same recipe as the film)
 function Lawn() {
