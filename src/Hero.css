@@ -3,6 +3,7 @@
 .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #ffffff; position: relative; overflow: hidden; scroll-snap-align: start; }
 .hero-box { position: relative; width: min(100vw, calc(100vh * 16 / 9)); height: min(100vh, calc(100vw * 9 / 16)); container-type: size; overflow: hidden; }
 
+.hero-fish { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .hero .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; font-weight: 700; color: #2a1b1b; white-space: pre; line-height: 1; }
 .hero-cursor { display: inline-block; width: .5em; height: .8em; background: currentColor; vertical-align: -0.05em; margin-left: .08em; }
 

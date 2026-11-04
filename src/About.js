@@ -105,7 +105,7 @@ export default function About() {
 
   useEffect(() => {
     const el = ref.current; if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setOn(true); }, { threshold: .35 });
+    const obs = new IntersectionObserver(([e]) => { setOn(e.isIntersecting); if (!e.isIntersecting) setOpen(null); }, { threshold: .35 });   // leaves and comes back: the objects rise in again
     obs.observe(el); return () => obs.disconnect();
   }, []);
   useEffect(() => {
