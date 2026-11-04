@@ -1,0 +1,38 @@
+src/Projects.js
+  s_8e076e4a9a5a45::t_b4e6a8612f5b7f 1-19,21-56,59-88,90,95-122,124-125,127-157
+  s_8e076e4a9a5a45::t_98a2c94ff45af7 89,91-94,123
+  s_8e076e4a9a5a45::t_47f205790f6aa4 126
+  s_8e076e4a9a5a45::t_fe4163c1d99903 20
+  s_8e076e4a9a5a45::t_43a06da6db95bb 57
+  s_8e076e4a9a5a45::t_456c9db54dbfe9 58
+src/Experience.css
+  s_8e076e4a9a5a45::t_98a2c94ff45af7 11-12,61
+  s_8e076e4a9a5a45::t_5242c95cd299c9 9-10,13,60,62
+src/Experience.js
+  s_8e076e4a9a5a45::t_5242c95cd299c9 30-31,152,154-155
+  s_8e076e4a9a5a45::t_98a2c94ff45af7 70-71,153
+src/Projects.css
+  s_8e076e4a9a5a45::t_fe4163c1d99903 19-20,46-47,53-54
+  s_8e076e4a9a5a45::t_95480c7560f31e 1-12,14-18,21-45,48-52,55
+  s_8e076e4a9a5a45::t_98a2c94ff45af7 13
+src/App.js
+  s_8e076e4a9a5a45::t_5242c95cd299c9 7,24
+public/frames.json
+  s_8e076e4a9a5a45::t_a17ac13217a4b0 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "143e2efb19211318c9717ee561bb6353296c59c3",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
