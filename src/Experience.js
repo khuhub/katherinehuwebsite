@@ -148,7 +148,7 @@ export default function Experience() {
           <button className="exp-arrow is-right" aria-label="next" onPointerDown={e => e.stopPropagation()} onClick={() => { S.idx += 1; setHeld(null); pause(); }}>›</button>
         </>}
         <span className="exp-label mono">experience</span><span className="exp-num mono">03</span>
-        <span className="exp-credit mono">music by Kevin MacLeod (incompetech.com) · CC BY 4.0</span>
+        <span className="exp-credit mono" tabIndex="0" aria-label="music by Kevin MacLeod (incompetech.com), CC BY 4.0">♪<span className="exp-credit-text">music by Kevin MacLeod (incompetech.com) · CC BY 4.0</span></span>
         <audio ref={audioRef} preload="none" />
         <Frame />
       </div>
