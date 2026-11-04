@@ -156,7 +156,7 @@ export default function About() {
           const m = moved[name] || [0, 0], isOpen = open === name, isHover = hover === name;
           return (
             <div key={name} data-name={name} className={'about-obj' + (isHover || isOpen ? ' is-up' : '') + (isHover ? ' is-hover' : '')}
-              style={{ left: `${fx * 100}%`, top: `${fy * 100}%`, '--h': portrait ? `${h * 37}vw` : `${h / 1080 * 100}cqh`, '--rot': `${rot}rad`, '--dx': `${m[0]}px`, '--dy': `${m[1]}px`, transitionDelay: on ? `${kAt(fx)}s` : '0s', zIndex: isHover || isOpen ? 15 : 3 + i }}>
+              style={{ left: `${fx * 100}%`, top: `${fy * 100}%`, '--h': portrait ? `${h * 37}vw` : `${h / 1080 * 100}cqh`, '--rot': `${rot}rad`, '--dx': `${m[0]}px`, '--dy': `${m[1]}px`, '--delay': on ? `${kAt(fx)}s` : '0s', zIndex: isHover || isOpen ? 15 : 3 + i }}>
               <img src={`/about-${name}.png`} alt={name} draggable="false" />
             </div>
           );

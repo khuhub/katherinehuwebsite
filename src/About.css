@@ -24,9 +24,9 @@
 .about-obj.is-hover { cursor: grab; }
 .about-obj img { position: absolute; left: 0; top: 0; height: var(--h); width: auto; max-width: none; display: block; user-select: none; -webkit-user-drag: none; touch-action: none;   /* the image is the hit area */
   transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 45cqh)) rotate(var(--rot)); opacity: 0;
-  filter: drop-shadow(10px 14px 6px rgba(40,70,25,.3)); transition: transform .8s cubic-bezier(.2,.7,.2,1), opacity .5s ease, filter .25s ease; }
+  filter: drop-shadow(10px 14px 6px rgba(40,70,25,.3)); transition: transform .8s cubic-bezier(.2,.7,.2,1) var(--delay, 0s), opacity .5s ease var(--delay, 0s), filter .25s ease; }
 .about.is-on .about-obj img { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)); opacity: 1; }
-.about.is-on .about-obj.is-up img { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) - 2cqh)) rotate(var(--rot)) scale(1.18); filter: drop-shadow(16px 24px 10px rgba(40,70,25,.32)); transition-duration: .25s; }
+.about.is-on .about-obj.is-up img { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) - 2cqh)) rotate(var(--rot)) scale(1.18); filter: drop-shadow(16px 24px 10px rgba(40,70,25,.32)); transition-duration: .25s; transition-delay: 0s; }
 .about-obj:active { cursor: grabbing; }
 
 /* the paper note beside a clicked object */
