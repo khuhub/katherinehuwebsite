@@ -5,8 +5,7 @@ import './About.css';
 // Panel 2, about: a lawn seen from above (mottled greens drawn once into a canvas), "ABOUT ME" in letter beads,
 // a short bio, and ten cut-out objects along the bottom that rise in edge-first when the panel scrolls into view.
 // Hover an object and it pops forward; click it and a paper note appears beside it; drag it anywhere on the lawn.
-// On touch, a tap pops it and shows the note together. The corgi runs across low, exits right, and comes back in
-// high, for as long as the panel is on screen.  Same layout as the film (hero-film/hero-text.html).
+// On touch, a tap pops it and shows the note together.  Same layout as the film (hero-film/hero-text.html).
 const OBJECTS = [   // [name, x, y (fractions of the panel), height (px at 1080 tall), rotation (rad)]
   ['guitar2', .08, .83, 420, -.30], ['boba', .17, .86, 220, .12], ['cheese', .26, .88, 190, -.2], ['toy', .35, .83, 270, .08], ['mic', .45, .84, 300, -.62],
   ['ipod', .55, .88, 230, -.1], ['celsius', .65, .84, 260, .15], ['violin', .76, .82, 340, .35], ['nugget', .86, .87, 240, -.45], ['pencil', .94, .83, 300, -.88]];
@@ -45,52 +44,6 @@ function Lawn() {
     return () => { window.removeEventListener('resize', onResize); clearTimeout(t); };
   }, []);
   return <canvas ref={ref} className="about-lawn" aria-hidden="true" />;
-}
-
-// the running corgi: the 7-frame sprite (public/corgi-run.png), crossing left to right on alternating lanes
-function Corgi({ running, portrait }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!running) return;
-    const el = ref.current, lanes = portrait ? [.60, .11] : [.605, .145];
-    let raf = 0; const t0 = performance.now();
-    const tick = () => {
-      const box = el.parentElement.getBoundingClientRect(), W = box.width, H = box.height;
-      const speed = 230 * Math.min(1, W / 1920 * 1.6), cross = (W * 1.24) / speed, t = (performance.now() - t0) / 1000 + .2;
-      const n = Math.floor(t / cross), u = (t - n * cross) / cross, x = -.12 * W + u * 1.24 * W, y = lanes[n % 2] * H;
-      const frame = Math.floor(t * 14) % 7, size = 175 * Math.min(1, W / 1920 * 1.6);
-      el.style.transform = `translate(${x - size / 2}px, ${y - size / 2}px) scaleX(-1)`;
-      el.style.width = el.style.height = size + 'px';
-      el.style.backgroundPosition = `${-frame * size}px 0`; el.style.backgroundSize = `${size * 7}px ${size}px`;
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [running, portrait]);
-  return <div ref={ref} className="about-corgi" aria-hidden="true" style={{ backgroundImage: 'url(/corgi-run.png)' }} />;
-}
-
-// which object is really under the pointer: of the images whose box contains the point (topmost first), the first whose
-// pixel there is opaque — so the transparent corner of one cut-out does not steal clicks from the one behind it
-const alphaCache = new Map();
-function alphaAt(img, u, v) {
-  let d = alphaCache.get(img.src);
-  if (!d) { if (!img.naturalWidth) return 255; const o = document.createElement('canvas'); const sw = 160, sh = Math.max(1, Math.round(160 * img.naturalHeight / img.naturalWidth)); o.width = sw; o.height = sh; const g = o.getContext('2d'); g.drawImage(img, 0, 0, sw, sh); d = { data: g.getImageData(0, 0, sw, sh).data, sw, sh }; alphaCache.set(img.src, d); }
-  const x = Math.max(0, Math.min(d.sw - 1, Math.floor(u * d.sw))), y = Math.max(0, Math.min(d.sh - 1, Math.floor(v * d.sh)));
-  return d.data[(y * d.sw + x) * 4 + 3];
-}
-function hitAt(box, clientX, clientY) {
-  const els = document.elementsFromPoint(clientX, clientY);
-  for (const el of els) {
-    if (!(el instanceof HTMLImageElement) || !el.closest('.about-obj')) continue;
-    const obj = el.closest('.about-obj'), b = box.getBoundingClientRect(), r = obj.getBoundingClientRect();
-    const w = el.offsetWidth, h = el.offsetHeight, m = new DOMMatrix(getComputedStyle(el).transform).inverse();
-    const ox = r.left - b.left + w / 2, oy = r.top - b.top + h / 2;                 // the transform origin, in box coords
-    const px = clientX - b.left - ox, py = clientY - b.top - oy, lx = m.a * px + m.c * py + m.e + w / 2, ly = m.b * px + m.d * py + m.f + h / 2;
-    if (lx < 0 || ly < 0 || lx > w || ly > h) continue;
-    if (alphaAt(el, lx / w, ly / h) > 24) return obj.dataset.name;
-  }
-  return null;
 }
 
 export default function About() {
@@ -151,7 +104,6 @@ export default function About() {
         </div>
         <p className="about-bio mono">{BIO}</p>
         <p className="about-hint mono">click on each item to learn more ↓</p>
-        <Corgi running={on} portrait={portrait} />
         {objs.map(([name, fx, fy, h, rot], i) => {
           const m = moved[name] || [0, 0], isOpen = open === name, isHover = hover === name;
           return (
