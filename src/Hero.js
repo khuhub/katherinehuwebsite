@@ -34,12 +34,12 @@ export default function Hero() {
     const fallback = setTimeout(go, 20000);                      // never stay blank
     return () => { window.removeEventListener('hero:open', go); clearTimeout(fallback); };
   }, [started]);
-  // the photo alone comes in again each time the hero scrolls back into view; the rest stays put
-  const [photoIn, setPhotoIn] = useState(false);
+  // the photo gives a very soft shake each time the hero scrolls back into view; nothing else replays
+  const [photoIn, setPhotoIn] = useState(false), [shake, setShake] = useState(0);
   useEffect(() => { if (started) setPhotoIn(true); }, [started]);
   useEffect(() => {
-    const el = ref.current; if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (!everStarted.current) return; setPhotoIn(e.isIntersecting); }, { threshold: .35 });
+    const el = ref.current; if (!el) return; let away = false;
+    const obs = new IntersectionObserver(([e]) => { if (!everStarted.current) return; if (!e.isIntersecting) away = true; else if (away) { away = false; setShake(n => n + 1); } }, { threshold: .35 });
     obs.observe(el); return () => obs.disconnect();
   }, []);
   // five seconds after the hero has finished typing in, the page slides on to the about panel by itself —
@@ -61,7 +61,7 @@ export default function Hero() {
       <div className="hero-box">
         <div className="hero-hi mono">{"hi, i'm".slice(0, hiN)}{started && hiN < 7 && <span className="hero-cursor" />}</div>
         <div className="hero-kat"><img src="/kat-pink.png" alt="Katherine" fetchPriority="high" decoding="async" /></div>
-        <img className={'hero-photo' + (photoIn ? ' is-in' : '')} src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
+        <img key={shake} className={'hero-photo' + (photoIn ? ' is-in' : '') + (shake ? ' is-shake' : '')} src="/me-cut.png" alt="Katherine Hu" fetchPriority="high" decoding="async" />
         <img className="hero-hu" src="/hu-pink.png" alt="Hu" decoding="async" />
         <div className="hero-cs mono">{'cs @ cornell'.slice(0, csN)}{started && csN > 0 && csN < 12 && <span className="hero-cursor" />}</div>
         <div className="hero-social">
