@@ -19,7 +19,7 @@ const N = EXPS.length;
 // paper clouds (public/cloud-bright.png): mostly along the bottom, big and small overlapping, a couple small ones up top
 // [x, y (fractions of the panel), width (fraction of the panel's width), tilt (rad), flipped]
 const CLOUDS = [
-  [.14, .1, .12, .04, true], [.9, .12, .135, -.03, false],
+  [.09, .07, .156, .04, true], [.9, .12, .135, -.03, false],
   [.05, .78, .105, .05, false], [.09, .92, .28, .02, false], [.19, .8, .13, -.04, true], [.27, .96, .225, -.03, true], [.37, .9, .155, .03, false],
   [.66, .94, .115, -.05, true], [.86, .93, .23, .02, true], [.97, .8, .1, .06, false],
 ];
