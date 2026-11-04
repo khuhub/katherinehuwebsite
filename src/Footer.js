@@ -74,10 +74,10 @@ export default function Footer() {
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
   const [on, setOn] = useState(false), [note, setNote] = useState(false);
   useEffect(() => { const f = () => setPortrait(window.innerWidth < window.innerHeight); window.addEventListener('resize', f); return () => window.removeEventListener('resize', f); }, []);
-  useEffect(() => {                                             // it plays once, the first time the panel is in view
-    const el = secRef.current; if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); obs.disconnect(); } }, { threshold: .5 });
-    obs.observe(el); return () => obs.disconnect();
+  useEffect(() => {                                             // it plays once, when the page above has lifted off more than half of it
+    const check = () => { const page = document.querySelector('.page'); if (!page) return; if (page.getBoundingClientRect().bottom < window.innerHeight * .5) { setOn(true); window.removeEventListener('scroll', check); } };
+    window.addEventListener('scroll', check, { passive: true }); check();
+    return () => window.removeEventListener('scroll', check);
   }, []);
   const onNote = useRef(() => setNote(true)).current;
   return (

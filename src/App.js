@@ -14,14 +14,13 @@ function App() {
   return (
     <div>
       <HeroIntro />
-      <Hero />
-
-      <About />
-
-      <Experience />
-
-      <Projects />
-
+      {/* the panels sit above the footer, which is pinned behind them: the last one scrolls up to uncover it */}
+      <div className="page">
+        <Hero />
+        <About />
+        <Experience />
+        <Projects />
+      </div>
       <Footer />
 
       <Analytics />

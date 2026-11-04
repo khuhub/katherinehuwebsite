@@ -1,3 +1,6 @@
+/* the comic page: everything above the footer, in a stacking context of its own so it covers the pinned footer */
+.page { position: relative; z-index: 1; }
+
 /* Floating Z smoke variants */
 @keyframes floatZ-0 { 0% { opacity:0; transform:translate(0,0) scale(0.8); } 15% { opacity:0.85; } 100% { opacity:0; transform:translate(-28px,-90px) scale(1.1); } }
 @keyframes floatZ-1 { 0% { opacity:0; transform:translate(0,0) scale(0.8); } 15% { opacity:0.85; } 100% { opacity:0; transform:translate(-10px,-80px) scale(1.1); } }
