@@ -103,25 +103,15 @@ function drawCorgi(c, W, D, now) {
   c.drawImage(img, frame * 270, 0, 270, 270, -size / 2, -size * .71, size, size);
   c.restore();
 }
-// where the corgi goes this frame: chasing the pen while it moves, otherwise trotting around where it stopped
-function stepCorgi(D, W, head, speed, dt, now) {
-  const lag = W.w * .1, minX = W.M + W.w * .05, maxX = W.pts[W.pts.length - 1][0] - W.w * .04;
-  if (speed > 20) { D.restAt = 0; D.target = clamp(head - lag, minX, maxX); }
-  else { if (!D.restAt) { D.restAt = now; D.home = clamp(head - lag, minX, maxX); } const t = (now - D.restAt) / 1000; D.target = clamp(D.home + Math.sin(t * .9) * W.w * .16, minX, maxX); }
-  const dx = D.target - D.x, step = Math.min(Math.abs(dx), (W.w * .45) * dt);
-  D.moving = Math.abs(dx) > 2; if (D.moving) { D.x += Math.sign(dx) * step; D.face = dx > 0 ? -1 : 1; }
-}
-// the pen: filtered noise that scratches while the line is being drawn, louder the faster it goes
-function makePen() {
-  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-  const ctx = new AC(), buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), d = buf.getChannelData(0);
-  let b0 = 0, b1 = 0; for (let i = 0; i < d.length; i++) { const w = Math.random() * 2 - 1; b0 = .996 * b0 + w * .03; b1 = .96 * b1 + w * .2; d[i] = (b1 + w * .4 + b0) * .5; }
-  const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
-  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900;
-  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = .9;
-  const gain = ctx.createGain(); gain.gain.value = 0;
-  src.connect(hp); hp.connect(bp); bp.connect(gain); gain.connect(ctx.destination); src.start();
-  return { ctx, gain, bp, set(level, now) { const t = this.ctx.currentTime; this.gain.gain.setTargetAtTime(level * .22, t, .04); this.bp.frequency.setTargetAtTime(1900 + Math.sin(now / 90) * 500 + Math.random() * 300, t, .05); }, close() { try { this.ctx.close(); } catch (e) { /* already closed */ } } };
+// where the corgi goes this frame: just behind the pen, stopping when it stops; once she has walked in it sits beside her
+function stepCorgi(D, W, head, dt, chibiAt, now) {
+  const size = 150 * Math.min(1, W.PB / 1080), minX = W.M + W.w * .05;
+  const settled = chibiAt && now - chibiAt > WALK_T * 1000;
+  D.target = settled ? W.camMax + W.w * .72 - size * .85 : clamp(head - W.w * .1, minX, W.headEnd);
+  const dx = D.target - D.x;
+  if (Math.abs(dx) < 3) { D.moving = false; return; }
+  const step = Math.min(Math.abs(dx), (W.w * .45) * dt);
+  D.moving = true; D.x += Math.sign(dx) * step; if (Math.abs(dx) > 12) D.face = dx > 0 ? -1 : 1;
 }
 // the film's timing for the head: one pace between the stops, a short rest at each, eased in and out of every rest
 function headPlan(W) {
@@ -165,8 +155,7 @@ function drawFrame(c, W, cam, grown, now, chibiAt, arrowAt, D) {
 export default function Experience() {
   const secRef = useRef(null), boxRef = useRef(null), canvasRef = useRef(null), worldRef = useRef(null);
   const [world, setWorld] = useState(null);
-  const S = useRef({ prog: 0, head: 0, grown: 0, cam: 0, chibiAt: 0, arrowAt: 0, endHold: 0, near: false, dirty: true, userAt: -1e9, autoT: 0, ended: false, dog: null, pen: null }).current;
-  const [sound, setSound] = useState(false);
+  const S = useRef({ prog: 0, head: 0, grown: 0, cam: 0, chibiAt: 0, arrowAt: 0, endHold: 0, near: false, dirty: true, userAt: -1e9, autoT: 0, ended: false, dog: null }).current;
   const [arrowOn, setArrowOn] = useState(false);
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
 
@@ -220,7 +209,7 @@ export default function Experience() {
     const obs = new IntersectionObserver(([e]) => { S.near = e.isIntersecting; S.dirty = true; }, { threshold: 0 });
     obs.observe(sec);
     const plan = headPlan(world), span = world.headEnd - world.M;
-    if (!S.dog) S.dog = { x: world.M + world.w * .05, target: 0, face: -1, moving: false, restAt: 0, home: 0 };
+    if (!S.dog) S.dog = { x: world.M + world.w * .05, target: 0, face: -1, moving: false };
     S.dog.x = clamp(S.dog.x, world.M + world.w * .05, world.pts[world.pts.length - 1][0]);
     const active = () => Math.abs(sec.getBoundingClientRect().top) < 3;
     let raf = 0, last = 0;
@@ -235,10 +224,8 @@ export default function Experience() {
       if (S.prog >= 1) S.ended = true;
       const target = world.M + S.prog * span, d = target - S.head;
       if (Math.abs(d) > .3) { S.head += d * .14; S.dirty = true; } else if (S.head !== target) { S.head = target; S.dirty = true; }
-      const speed = Math.abs(d) * .14 / Math.max(dt, 1 / 120);                      // how fast the pen is moving, px per second
       S.grown = Math.max(S.grown, S.head);
-      stepCorgi(S.dog, world, S.head, speed, dt, now); if (S.dog.moving) S.dirty = true;
-      if (S.pen) S.pen.set(clamp(speed / (world.w * .35), 0, 1), now);
+      stepCorgi(S.dog, world, S.head, dt, S.chibiAt, now); if (S.dog.moving) S.dirty = true;
       const showArrow = S.head >= world.stopX(N - 1) - 1;                            // the arrow points back along the line, once the end is near
       if (showArrow && !S.arrowAt) { S.arrowAt = now; setArrowOn(true); } else if (!showArrow && S.arrowAt) { S.arrowAt = 0; setArrowOn(false); }
       if (!S.chibiAt && S.grown >= world.headEnd - 1) S.chibiAt = now;
@@ -251,7 +238,7 @@ export default function Experience() {
       if (worldRef.current) worldRef.current.style.transform = `translateX(${-S.cam}px)`;
     };
     raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); obs.disconnect(); if (S.pen) { S.pen.close(); S.pen = null; } };
+    return () => { cancelAnimationFrame(raf); obs.disconnect(); };
   }, [world, S]);
 
   return (
@@ -270,7 +257,6 @@ export default function Experience() {
           })}
         </div>
         <span className="exp-label mono">experience</span><span className="exp-num mono">03</span>
-        <button className="exp-sound mono" onClick={() => { if (S.pen) { S.pen.close(); S.pen = null; setSound(false); } else { S.pen = makePen(); setSound(!!S.pen); } }}>{sound ? '♪ pen on' : '♪ pen off'}</button>
         {arrowOn && <button className="exp-back" aria-label="back to the start" onClick={() => { S.prog = 0; S.ended = true; S.userAt = performance.now(); S.dirty = true; }} />}
         <Frame />
       </div>
