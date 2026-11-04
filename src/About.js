@@ -78,6 +78,7 @@ export default function About() {
   const [open, setOpen] = useState(null);                    // which object's note is showing
   const [moved, setMoved] = useState({});                    // dragged objects: name → [dx, dy] px
   const drag = useRef(null);
+  const boxRef = useRef(null);
 
   useEffect(() => {
     const el = ref.current; if (!el) return;
@@ -116,7 +117,7 @@ export default function About() {
   const kAt = fx => (1 - Math.abs(fx - .5) * 2) * .35;      // edges first, the middle a beat later
   return (
     <section ref={ref} className={'about' + (on ? ' is-on' : '') + (portrait ? ' is-portrait' : '')} aria-label="About me">
-      <div className="about-box">
+      <div className="about-box" ref={boxRef}>
         <Lawn />
         <div className="about-label mono">about me</div><div className="about-num mono">02</div>
         <div className="about-head" aria-label="About me">
@@ -129,14 +130,22 @@ export default function About() {
           const m = moved[name] || [0, 0], isOpen = open === name, isHover = hover === name;
           return (
             <div key={name} className={'about-obj' + (isHover || isOpen ? ' is-up' : '')}
-              style={{ left: `${fx * 100}%`, top: `${fy * 100}%`, '--h': portrait ? `${h * 37}vw` : `${h / 1080 * 100}cqh`, '--rot': `${rot}rad`, '--dx': `${m[0]}px`, '--dy': `${m[1]}px`, transitionDelay: on ? `${kAt(fx)}s` : '0s', zIndex: isHover || isOpen ? 8 : 3 + i }}
+              style={{ left: `${fx * 100}%`, top: `${fy * 100}%`, '--h': portrait ? `${h * 37}vw` : `${h / 1080 * 100}cqh`, '--rot': `${rot}rad`, '--dx': `${m[0]}px`, '--dy': `${m[1]}px`, transitionDelay: on ? `${kAt(fx)}s` : '0s', zIndex: isHover || isOpen ? 15 : 3 + i }}
               onPointerDown={e => onDown(e, name)} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
               onMouseEnter={() => setHover(name)} onMouseLeave={() => setHover(h => (h === name ? null : h))}>
               <img src={`/about-${name}.png`} alt={name} draggable="false" />
-              {isOpen && <div className={'about-note' + (fx > .6 ? ' is-left' : '')}><div className="paper" style={{ backgroundImage: 'url(/about-bubble.png)' }} /><span className="mono">{NOTES[name]}</span></div>}
             </div>
           );
         })}
+        {open && (() => {                                   // the note: above all the objects, beside the open one, kept inside the panel
+          const o = objs.find(x => x[0] === open); if (!o) return null; const [name, fx, fy, h] = o, m = moved[name] || [0, 0];
+          const box = boxRef.current ? boxRef.current.getBoundingClientRect() : { width: 1920, height: 1080 };
+          const M = Math.min(box.width, box.height) * .052 + 8, nw = portrait ? box.width * .46 : box.width * .19, nh = nw * 616 / 846;
+          const hpx = portrait ? h * box.width * .37 : h / 1080 * box.height;   // the object's height in px
+          const ox = fx * box.width + m[0], oy = fy * box.height + m[1] - hpx * .28, left = fx > .6 ? ox - 20 - nw : ox + 20;
+          const x = Math.max(M, Math.min(box.width - M - nw, left)), y = Math.max(M, Math.min(box.height - M - nh, oy - nh));
+          return <div className={'about-note' + (fx > .6 ? ' is-left' : '')} style={{ left: x, top: y, width: nw }}><div className="paper" style={{ backgroundImage: 'url(/about-bubble.png)' }} /><span className="mono">{NOTES[name]}</span></div>;
+        })()}
         <Frame />
       </div>
     </section>

@@ -24,5 +24,5 @@ export default function Frame({ mat = '#fffaf4' }) {
     window.addEventListener('resize', onResize);
     return () => { window.removeEventListener('resize', onResize); clearTimeout(t); };
   }, [mat]);
-  return <canvas ref={ref} className="panel-frame" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }} />;
+  return <canvas ref={ref} className="panel-frame" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 20 }} />;
 }

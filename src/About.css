@@ -25,11 +25,11 @@
 .about-obj:active { cursor: grabbing; }
 
 /* the paper note beside a clicked object */
-.about-note { position: absolute; left: calc(var(--dx) + 3cqw); bottom: calc(-1 * var(--dy) + 6cqh); width: 17cqw; aspect-ratio: 846 / 616; display: flex; overflow: hidden; align-items: center; justify-content: center; padding: 10% 14% 24% 14%; box-sizing: border-box; pointer-events: none; animation: note-in .3s cubic-bezier(.2,.7,.2,1) both; }
-.about-note.is-left { left: auto; right: calc(-1 * var(--dx) + 3cqw); }
+.about-note { position: absolute; aspect-ratio: 846 / 616; overflow: hidden; pointer-events: none; z-index: 18; animation: note-in .3s cubic-bezier(.2,.7,.2,1) both; }
 .about-note .paper { position: absolute; inset: 0; background-repeat: no-repeat; background-position: center; background-size: contain; }
 .about-note.is-left .paper { transform: scaleX(-1); }
-.about-note span { position: relative; display: block; width: 100%; text-align: center; color: #2a1b1b; font-size: 1.15cqw; line-height: 1.3; overflow-wrap: anywhere; }
+/* the text box: insets are % of the bubble itself (it is the positioned ancestor); the tail is the bottom quarter */
+.about-note span { position: absolute; left: 18%; right: 18%; top: 12%; bottom: 27%; display: flex; align-items: center; justify-content: center; text-align: center; color: #2a1b1b; font-size: 1.05cqw; line-height: 1.3; overflow-wrap: anywhere; }
 @keyframes note-in { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
 
 /* the corgi sprite: 7 frames in a row */
@@ -43,6 +43,4 @@
 .about.is-portrait .about-bio { top: 25cqh; width: 84%; font-size: 3.1vw; }
 .about.is-portrait .about-label, .about.is-portrait .about-num { font-size: 2.4vw; top: 5.2vw; }
 .about.is-portrait .about-label { left: 9vw; } .about.is-portrait .about-num { right: 9vw; }
-.about.is-portrait .about-note { width: 44vw; left: calc(var(--dx) + 4vw); bottom: calc(-1 * var(--dy) + 6vw); }
-.about.is-portrait .about-note.is-left { right: calc(-1 * var(--dx) + 4vw); }
-.about.is-portrait .about-note span { font-size: 2.6vw; }
+.about.is-portrait .about-note span { font-size: 2.5vw; }
