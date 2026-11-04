@@ -1,0 +1,27 @@
+src/Experience.css
+  s_8e076e4a9a5a45::t_22837d9b743d12 1-13,15-18,20-24
+  s_8e076e4a9a5a45::t_bd933c20eae0e3 19
+  s_8e076e4a9a5a45::t_62f9ed0814c199 14
+src/Experience.js
+  s_8e076e4a9a5a45::t_c29077ed58a560 206
+  s_8e076e4a9a5a45::t_73dc0a26de5332 159
+  s_8e076e4a9a5a45::t_07569da018acae 1-158,160-205,207-218
+src/App.js
+  s_8e076e4a9a5a45::t_b8267c01c1cf6e 7,58-59
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6cf8a2abb80459204dca3bcd790c5189e7ba5736",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "unknown"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
