@@ -1,0 +1,21 @@
+src/About.js
+  s_8e076e4a9a5a45::t_577dccbf0ea342 20
+src/About.css
+  s_8e076e4a9a5a45::t_577dccbf0ea342 14,17-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "736057c7ef4bcec063b190af3d939a499993d8de",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
