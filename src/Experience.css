@@ -8,7 +8,7 @@
 .exp-stripes { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; }
 .exp-num { position: absolute; top: 5.2cqh; right: 5cqw; font-size: 2.4cqh; color: #6b5a52; z-index: 4; }
 /* the stamped heading: letters on one baseline, each a touch off and turned */
-.exp-word { position: absolute; left: 50%; top: 15cqh; transform: translateX(-50%); display: flex; align-items: flex-end; gap: .5cqh; z-index: 4; pointer-events: none; }
+.exp-word { position: absolute; left: 50%; top: 13cqh; transform: translateX(-50%); display: flex; align-items: flex-end; gap: .5cqh; z-index: 4; pointer-events: none; }
 .exp-word img { width: auto; display: block; opacity: .9; }
 .exp-credit { position: absolute; left: 5cqw; top: 5.5cqh; font-size: 2.4cqh; line-height: normal; color: rgba(107,90,82,.8); z-index: 4; cursor: default; }
 .exp-credit-text { position: absolute; left: 1.4em; top: 0; white-space: nowrap; font-size: 1.3cqh; line-height: 1.6; padding: 0 .5em; background: rgba(247,240,227,.92); border-radius: .4em; color: #6b5a52; opacity: 0; transform: translateX(-.4em); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }

@@ -316,15 +316,18 @@ function makeRenderer(canvas) {
     F.scribble(ctx, t);
     ctx.restore();
   }
+  // the background: the pink paper photo (public/paper-pink.jpg) covering the frame; the flat pink until it loads
+  const PAPER_IMG = new Image(); PAPER_IMG.src = '/paper-pink.jpg';
+  const bg = () => { paper(c, F.BG, null, 31); if (PAPER_IMG.complete && PAPER_IMG.naturalWidth) { const k = Math.max(W / PAPER_IMG.naturalWidth, H / PAPER_IMG.naturalHeight), dw = PAPER_IMG.naturalWidth * k, dh = PAPER_IMG.naturalHeight * k; c.drawImage(PAPER_IMG, (W - dw) / 2, (H - dh) / 2, dw, dh); } };
   return {
     resize,
     get dims() { return F ? F.dims() : null; },
     // warm one more drawing into the cache; returns true when there is nothing left to warm
     warm() { const ids = ['open', 'half', 'closed', 'halfUp', 'openL', 'bl0.8', 'bl0.6', 'bl0.4', 'bl0.2']; for (const id of ids) if (!cache.has('face/' + id)) { faceLayer(id); return false; } hairLayer(); return true; },
     // idle: the exposure sheet loops; t in seconds
-    idle(t) { paper(c, F.BG, null, 31); drawScene(c, F.drawingAt(Math.floor(t * 24) % F.NFRAMES), t); F.frame(c); },
+    idle(t) { bg(); drawScene(c, F.drawingAt(Math.floor(t * 24) % F.NFRAMES), t); F.frame(c); },
     // blink out: k 0..1, her lids close as the camera pushes in, the screen's lids close with them
-    blink(t, k) { paper(c, F.BG, null, 31); drawScene(c, F.blinkId(k), t, { zoom: 1 + k * 1.3 }); F.frame(c); F.lids(c, 1 - easeIn(k)); },
+    blink(t, k) { bg(); drawScene(c, F.blinkId(k), t, { zoom: 1 + k * 1.3 }); F.frame(c); F.lids(c, 1 - easeIn(k)); },
     // open: k 0..1, only the lids are drawn; the page shows through the rest
     open(k) { resetT(c); c.clearRect(0, 0, W, H); F.lids(c, k); },
     clear() { resetT(c); c.clearRect(0, 0, W, H); },

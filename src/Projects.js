@@ -8,13 +8,13 @@ import './Projects.css';
 // Hover lifts a card; a click flips it over to the write-up and the link on its back; a click on the cork flips it
 // back. Drag a card anywhere on the board and it stays there. Same layout as the film (hero-film/hero-text.html).
 const PROJECTS = [
-  { key: 'brandr', title: 'Brandr', img: '/pj-brandr.jpg', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at the YC × Browser Use hackathon', link: 'https://github.com/khuhub/Brandr?tab=readme-ov-file', x: .17, y: .385, tilt: -.06, hold: ['tape-polka'], frame: 'frame-red' },
-  { key: 'momentum', title: 'Momentum', img: '/pj-momentum.jpg', desc: 'A Slack AI assistant that turns Slack into a command center — drafting emails, creating Notion docs and summarizing conversations without leaving the app', link: 'https://github.com/khuhub/Momentum', x: .385, y: .395, tilt: .04, hold: 'pin-teal', frame: 'frame-sun' },
-  { key: 'greenzone', title: 'Greenzone', img: '/pj-greenzone.jpg', desc: 'Data visualization helping Mongolian herders combat overgrazing and climate change through rangeland carrying-capacity warnings', link: 'https://github.com/cornellh4i/greenzone', x: .6, y: .415, tilt: -.04, hold: ['tape-grid', 'tape-cream'], frame: 'frame-bluered' },
-  { key: 'lockedin', title: 'LockedIn', img: '/pj-lockedin.jpg', desc: 'Tinder for networking — swipe right to connect with people who actually want to meet you. Award-winning app at the Cornell AppDev Hack Challenge', link: 'https://github.com/akh1lk/LockedIn', x: .82, y: .375, tilt: .06, hold: 'pin-red', frame: 'frame-yellow' },
-  { key: 'escalate', title: 'Escalate', img: '/pj-escalate.jpg', desc: 'An adaptive AI loop that runs engineering tasks through increasingly capable models, evaluates each attempt and carries learned feedback forward', link: 'https://github.com/khuhub/cursor-escalate', x: .27, y: .77, tilt: .05, hold: ['tape-blue'], frame: 'frame-sun' },
-  { key: 'traceback', title: 'Traceback', img: '/pj-traceback.jpg', desc: 'Award-winning at the YC RSI/RL hackathon: an adversarial evaluation loop that forks critical agent states, uncovers hidden reward hacks and turns each exploit into a regression test', link: 'https://github.com/ashtonchew/traceback', x: .5, y: .77, tilt: -.03, hold: 'pin-wood', frame: 'frame-red', last: true },
-  { key: 'patchtst', title: 'PatchTST', img: '/pj-patchtst.jpg', desc: 'A deep-learning reimplementation of PatchTST, a transformer for long-term time-series forecasting, reproducing the paper within a 1–3% margin', link: 'https://github.com/khuhub', x: .77, y: .76, tilt: -.06, hold: ['tape-green', 'tape-cyan'], frame: 'frame-bluered' },
+  { key: 'brandr', title: 'Brandr', img: '/pj-brandr.jpg', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at the YC × Browser Use hackathon', link: 'https://github.com/khuhub/Brandr?tab=readme-ov-file', x: .17, y: .40, tilt: -.05, hold: ['tape-polka'], frame: 'frame-red' },
+  { key: 'momentum', title: 'Momentum', img: '/pj-momentum.jpg', desc: 'A Slack AI assistant that turns Slack into a command center — drafting emails, creating Notion docs and summarizing conversations without leaving the app', link: 'https://github.com/khuhub/Momentum', x: .385, y: .41, tilt: .04, hold: 'pin-teal', frame: 'frame-sun' },
+  { key: 'greenzone', title: 'Greenzone', img: '/pj-greenzone.jpg', desc: 'Data visualization helping Mongolian herders combat overgrazing and climate change through rangeland carrying-capacity warnings', link: 'https://github.com/cornellh4i/greenzone', x: .6, y: .40, tilt: -.04, hold: ['tape-grid', 'tape-cream'], frame: 'frame-bluered' },
+  { key: 'lockedin', title: 'LockedIn', img: '/pj-lockedin.jpg', desc: 'Tinder for networking — swipe right to connect with people who actually want to meet you. Award-winning app at the Cornell AppDev Hack Challenge', link: 'https://github.com/akh1lk/LockedIn', x: .82, y: .41, tilt: .05, hold: 'pin-red', frame: 'frame-yellow' },
+  { key: 'escalate', title: 'Escalate', img: '/pj-escalate.jpg', desc: 'An adaptive AI loop that runs engineering tasks through increasingly capable models, evaluates each attempt and carries learned feedback forward', link: 'https://github.com/khuhub/cursor-escalate', x: .27, y: .78, tilt: .04, hold: ['tape-blue'], frame: 'frame-sun' },
+  { key: 'traceback', title: 'Traceback', img: '/pj-traceback.jpg', desc: 'Award-winning at the YC RSI/RL hackathon: an adversarial evaluation loop that forks critical agent states, uncovers hidden reward hacks and turns each exploit into a regression test', link: 'https://github.com/ashtonchew/traceback', x: .5, y: .78, tilt: -.03, hold: 'pin-wood', frame: 'frame-red', last: true },
+  { key: 'patchtst', title: 'PatchTST', img: '/pj-patchtst.jpg', desc: 'A deep-learning reimplementation of PatchTST, a transformer for long-term time-series forecasting, reproducing the paper within a 1–3% margin', link: 'https://github.com/khuhub', x: .77, y: .78, tilt: -.05, hold: ['tape-green', 'tape-cyan'], frame: 'frame-bluered' },
 ];
 // phones: two columns, smaller, the same holders
 const PROJECTS_P = PROJECTS.map((p, i) => ({ ...p, x: i % 2 ? .73 : .27, y: .24 + Math.floor(i / 2) * .205 }));
@@ -48,8 +48,10 @@ function Cork() {
   return <canvas ref={ref} className="pj-cork" aria-hidden="true" />;
 }
 
-// she walks in from the left carrying the last card, pins it, then stands at the bottom left; drawn on a canvas
-function Walker({ on, portrait, onPinned }) {
+// she walks in from the left carrying the last card, pins it, then stands at the bottom left; drawn on a canvas.
+// Her shadow is her own silhouette blurred, done on a small layer around her so it stays cheap. While she carries
+// the card its element is moved directly (no React state per frame).
+function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
   const ref = useRef(null), pinned = useRef(false);
   useEffect(() => {
     const canvas = ref.current; if (!canvas) return;
@@ -58,28 +60,37 @@ function Walker({ on, portrait, onPinned }) {
     pinned.current = false;                                       // each visit she pins it again
     const B = window.HeroBody && window.HeroBody.build({ paper: '#fffaf4' }); if (!B) { onPinned(); return; }
     const layer = document.createElement('canvas');
-    const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2, easeOut = t => 1 - Math.pow(1 - t, 3);
     const tick = now => {
       raf = requestAnimationFrame(tick); if (!t0) t0 = now; const t = (now - t0) / 1000;
       const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
       if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
-      if (layer.width !== canvas.width || layer.height !== canvas.height) { layer.width = canvas.width; layer.height = canvas.height; }
-      const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = (portrait ? .5 : .5) * w, stop = tx - 150 * s - 70 * s;
+      const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = cardAt[0] * w, stop = tx - 150 * s - 70 * s;
       const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6;
       let cx, pose = 'stand';
       if (t < T_IN) cx = -200 * s; else if (t < T_ARRIVE) { const u = easeIO(clamp((t - T_IN) / (T_ARRIVE - T_IN), 0, 1)); cx = lerp(-200 * s, stop, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
       else if (t < T_PIN) { cx = stop; pose = 'reach'; }
       else if (t < T_BACK) { cx = stop; }
       else { const u = easeIO(clamp((t - T_BACK) / (T_HOME - T_BACK), 0, 1)); cx = lerp(stop, w * .065, u); pose = u < 1 ? B.WALK[Math.floor(t * 8) % 6] : 'stand'; }
-      if (t >= T_PIN && !pinned.current) { pinned.current = true; onPinned(); }
-      const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h); if (t >= T_IN) B.draw(g, pose, { x: cx, y: floor, scale: sc });
+      // the card she carries: at her hands until she reaches up, then it glides to its spot and grows to full size
+      const card = cardRef.current;
+      if (card) {
+        if (t >= T_IN && t < T_PIN) { const hx = cx + 6 * s, hy = floor - 70 * s, k = t < T_ARRIVE ? 0 : easeOut((t - T_ARRIVE) / (T_PIN - T_ARRIVE));
+          card.style.visibility = 'visible'; card.style.left = `${lerp(hx, tx, k) / w * 100}%`; card.style.top = `${lerp(hy, cardAt[1] * h, k) / h * 100}%`;
+          card.style.transform = `translate(-50%, -50%) rotate(${lerp(-.1, cardAt[2], k)}rad) scale(${lerp(.5, 1, k)})`; card.style.zIndex = 7; card.style.animation = 'none'; }
+        else if (t >= T_PIN && !pinned.current) { pinned.current = true; card.style.visibility = ''; card.style.left = `${cardAt[0] * 100}%`; card.style.top = `${cardAt[1] * 100}%`; card.style.transform = ''; card.style.zIndex = ''; card.style.animation = ''; onPinned(); }
+      }
+      // her shadow and herself, from a small layer around her
+      const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc;
+      if (layer.width !== Math.round(lw * dpr) || layer.height !== Math.round(lh * dpr)) { layer.width = Math.round(lw * dpr); layer.height = Math.round(lh * dpr); }
+      const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, -ox * dpr, -oy * dpr); g.clearRect(ox, oy, lw, lh); if (t >= T_IN) B.draw(g, pose, { x: cx, y: floor, scale: sc });
       c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height); c.setTransform(dpr, 0, 0, dpr, 0, 0);
-      c.save(); c.filter = 'brightness(0) blur(5px)'; c.globalAlpha = .3; c.drawImage(layer, 10 * s, 12 * s, w, h); c.restore(); c.drawImage(layer, 0, 0, w, h);
+      c.save(); c.filter = 'brightness(0) blur(5px)'; c.globalAlpha = .3; c.drawImage(layer, ox + 10 * s, oy + 12 * s, lw, lh); c.restore(); c.drawImage(layer, ox, oy, lw, lh);
       if (t > T_HOME + .5) { cancelAnimationFrame(raf); }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [on, portrait, onPinned]);
+  }, [on, portrait, onPinned, cardRef, cardAt]);
   return <canvas ref={ref} className="pj-walker" aria-hidden="true" />;
 }
 
@@ -99,6 +110,7 @@ export default function Projects() {
     obs.observe(el); return () => obs.disconnect();
   }, []);
   const onPinned = useCallback(() => setPinned(true), []);
+  const lastRef = useRef(null), lastP = PROJECTS.find(p => p.last), cardAt = useRef([lastP.x, lastP.y, lastP.tilt]).current;
   const items = portrait ? PROJECTS_P : PROJECTS;
 
   // dragging: a card follows the pointer; a press without a move is a click, which flips
@@ -124,9 +136,10 @@ export default function Projects() {
           {WORD.map((ch, i) => <img key={i} src={`/cut-${ch}.png`} alt="" draggable="false" style={{ height: unit * WORD_H[i] + 'px', transform: `translate(${WORD_JIT[i][0] * unit}px, ${WORD_JIT[i][1] * unit}px) rotate(${WORD_JIT[i][2]}rad)` }} />)}
         </div>
         {items.map((p, i) => {
-          const m = moved[p.key] || { dx: 0, dy: 0 }, win = WIN[p.frame], show = p.last ? (pinned || portrait) : on, isFlip = flipped === p.key, isHover = hover === p.key && !isFlip;
+          const m = moved[p.key] || { dx: 0, dy: 0 }, win = WIN[p.frame], isFlip = flipped === p.key, isHover = hover === p.key && !isFlip;
+          const show = p.last ? (pinned || portrait) : on;
           return (
-            <div key={p.key} className={'pj-card' + (show ? ' is-in' : '') + (isFlip ? ' is-flip' : '') + (isHover ? ' is-hover' : '')}
+            <div key={p.key} ref={p.last ? lastRef : null} className={'pj-card' + (show ? ' is-in' : '') + (isFlip ? ' is-flip' : '') + (isHover ? ' is-hover' : '')}
               style={{ left: `${(p.x + m.dx) * 100}%`, top: `${(p.y + m.dy) * 100}%`, '--tilt': `${p.tilt}rad`, '--delay': p.last ? '0s' : `${.2 + i * .28}s` }}
               onPointerDown={e => onDown(e, p.key)} onPointerMove={onMove} onPointerUp={e => onUp(e, p.key)} onPointerEnter={() => setHover(p.key)} onPointerLeave={() => setHover(null)}>
               <div className="pj-flip">
@@ -149,7 +162,7 @@ export default function Projects() {
             </div>
           );
         })}
-        {!portrait && <Walker on={on} portrait={portrait} onPinned={onPinned} />}
+        {!portrait && <Walker on={on} portrait={portrait} onPinned={onPinned} cardRef={lastRef} cardAt={cardAt} />}
         <span className="pj-num mono">04</span>
         <Frame />
       </div>
