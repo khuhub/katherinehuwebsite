@@ -9,7 +9,7 @@
 
 /* the bead heading, then the bio */
 .about-head { position: absolute; left: 50%; top: 25cqh; transform: translate(-50%, -50%); display: flex; gap: .8cqh; align-items: center; z-index: 4; opacity: 0; transition: opacity .7s ease .5s, transform .7s cubic-bezier(.2,.7,.2,1) .5s; }
-.about-head img { height: 7.2cqh; width: 7.2cqh; display: block; }
+.about-head img { height: 5.8cqh; width: 5.8cqh; display: block; }
 .about-sp { width: 3.9cqh; }
 .about-bio { position: absolute; left: 50%; top: 33cqh; transform: translateX(-50%); width: 66%; margin: 0; text-align: center; color: #fff; font-size: 2.78cqh; line-height: 1.4; text-shadow: 0 2px 12px rgba(30,60,20,.35); z-index: 4; opacity: 0; transition: opacity .7s ease .6s; }
 .about.is-on .about-head { opacity: 1; }
@@ -41,7 +41,7 @@
 /* portrait (phones): the box is the whole viewport; heading and bio higher, objects in two rows, bigger type */
 .about.is-portrait .about-box { width: 100vw; height: 100vh; height: 100dvh; }
 .about.is-portrait .about-head { top: 17cqh; gap: .6vw; }
-.about.is-portrait .about-head img { height: 6.2vw; width: 6.2vw; }
+.about.is-portrait .about-head img { height: 5vw; width: 5vw; }
 .about.is-portrait .about-sp { width: 4vw; }
 .about.is-portrait .about-bio { top: 25cqh; width: 84%; font-size: 3.1vw; }
 .about.is-portrait .about-hint { top: 47cqh; font-size: 2.6vw; }
