@@ -16,7 +16,7 @@ const EXPS = [
   { key: 'cs2112', name: 'Cornell CS 2112', role: 'teaching assistant', logo: '/lg-cornell.png', photo: '/exp-cornell.jpg', link: 'https://www.cs.cornell.edu/', song: '/songs/cs2112.mp3' },
 ];
 const N = EXPS.length;
-// paper clouds (public/cloud2.png): mostly along the bottom, big and small overlapping, a couple small ones up top
+// paper clouds (public/cloud-bright.png): mostly along the bottom, big and small overlapping, a couple small ones up top
 // [x, y (fractions of the panel), width (fraction of the panel's width), tilt (rad), flipped]
 const CLOUDS = [
   [.14, .1, .12, .04, true], [.9, .12, .135, -.03, false],
@@ -118,7 +118,7 @@ export default function Experience() {
       <div ref={boxRef} className="exp-box" onPointerDown={onBackground}>
         <Stripes />
         {(portrait ? CLOUDS_P : CLOUDS).map(([x, y, w, tilt, flip], k) => (
-          <img key={k} className="exp-cloud" src="/cloud2.png" alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${w * 100}%`, '--tilt': `${tilt}rad`, '--flip': flip ? -1 : 1 }} />
+          <img key={k} className="exp-cloud" src="/cloud-bright.png" alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${w * 100}%`, '--tilt': `${tilt}rad`, '--flip': flip ? -1 : 1 }} />
         ))}
         <div ref={rowRef} className="exp-row">
           {[-1, 0, 1].map(rep => EXPS.map((e, i) => {
