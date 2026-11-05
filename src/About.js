@@ -123,7 +123,7 @@ export default function About() {
         <div className="about-num mono">02</div>
         <div className="about-head" aria-label="About me">
           {'ABOUT ME'.split('').map((ch, i) => ch === ' ' ? <span key={i} className="about-sp" /> :
-            <img key={i} src={`/bead-${ch}.png`} alt="" style={{ transform: `rotate(${Math.sin(i * 2.3) * 7}deg) translateY(${Math.sin(i * 1.7) * 4}px)` }} />)}
+            <img key={i} src={`/bead-${ch}.webp`} alt="" style={{ transform: `rotate(${Math.sin(i * 2.3) * 7}deg) translateY(${Math.sin(i * 1.7) * 4}px)` }} />)}
         </div>
         <p className="about-bio mono">{BIO}</p>
         <p className="about-hint mono">click on each item to learn more ↓</p>
@@ -132,7 +132,7 @@ export default function About() {
           return (
             <div key={name} data-name={name} className={'about-obj' + (isHover || isOpen ? ' is-up' : '') + (isHover ? ' is-hover' : '')}
               style={{ left: `${fx * 100}%`, top: `${fy * 100}%`, '--h': portrait ? `${h * 37}vw` : `${h / 1080 * 100}cqh`, '--rot': `${rot}rad`, '--dx': `${m[0]}px`, '--dy': `${m[1]}px`, '--delay': on ? `${kAt(fx)}s` : '0s', zIndex: isHover || isOpen ? 15 : 3 + i }}>
-              <img src={`/about-${name}.png`} alt={name} draggable="false" />
+              <img src={`/about-${name}.webp`} alt={name} draggable="false" />
             </div>
           );
         })}
@@ -143,7 +143,7 @@ export default function About() {
           const hpx = portrait ? h * box.width * .37 : h / 1080 * box.height;   // the object's height in px
           const ox = fx * box.width + m[0], oy = fy * box.height + m[1] - hpx * .28, left = fx > .6 ? ox - 20 - nw : ox + 20;
           const x = Math.max(M, Math.min(box.width - M - nw, left)), y = Math.max(M, Math.min(box.height - M - nh, oy - nh));
-          return <div className={'about-note' + (fx > .6 ? ' is-left' : '')} style={{ left: x, top: y, width: nw }}><div className="paper" style={{ backgroundImage: 'url(/about-bubble.png)' }} /><span className="mono">{NOTES[name]}</span></div>;
+          return <div className={'about-note' + (fx > .6 ? ' is-left' : '')} style={{ left: x, top: y, width: nw }}><div className="paper" style={{ backgroundImage: 'url(/about-bubble.webp)' }} /><span className="mono">{NOTES[name]}</span></div>;
         })()}
         <Frame />
       </div>

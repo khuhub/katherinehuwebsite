@@ -2,19 +2,19 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Frame from './Frame';
 import './Projects.css';
 
-// Panel 4, projects: a corkboard. The project screenshots sit in real polaroid frames (public/frame-*.png) held by
+// Panel 4, projects: a corkboard. The project screenshots sit in real polaroid frames (public/frame-*.webp) held by
 // washi tape or push pins, with "projects" spelled in ransom-note cut-outs across the top. The cards drop onto the
 // board one after another when the panel comes into view, and she walks in carrying the last one and pins it up.
 // Hover lifts a card; a click flips it over to the write-up and the link on its back; a click on the cork flips it
 // back. Drag a card anywhere on the board and it stays there. Same layout as the film (hero-film/hero-text.html).
 const PROJECTS = [
-  { key: 'brandr', title: 'Brandr', img: '/pj-brandr.jpg', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at the YC × Browser Use hackathon', link: 'https://github.com/khuhub/Brandr', x: .17, y: .40, tilt: -.05, hold: ['tape-polka'], frame: 'frame-red' },
-  { key: 'momentum', title: 'Momentum', img: '/pj-momentum.jpg', desc: 'A Slack AI assistant that turns Slack into a command center — drafting emails, creating Notion docs and summarizing conversations without leaving the app', link: 'https://github.com/khuhub/Momentum', x: .385, y: .41, tilt: .04, hold: 'pin-teal', frame: 'frame-sun' },
-  { key: 'greenzone', title: 'Greenzone', img: '/pj-greenzone.jpg', desc: 'Data visualization helping Mongolian herders combat overgrazing and climate change through rangeland carrying-capacity warnings', link: 'https://github.com/cornellh4i/greenzone', x: .6, y: .40, tilt: -.04, hold: ['tape-grid', 'tape-cream'], frame: 'frame-bluered' },
-  { key: 'lockedin', title: 'LockedIn', img: '/pj-lockedin.jpg', desc: 'Tinder for networking — swipe right to connect with people who actually want to meet you. Award-winning app at the Cornell AppDev Hack Challenge', link: 'https://github.com/akh1lk/LockedIn', x: .82, y: .41, tilt: .05, hold: 'pin-red', frame: 'frame-yellow' },
-  { key: 'escalate', title: 'Escalate', img: '/pj-escalate.jpg', desc: 'An adaptive AI loop that runs engineering tasks through increasingly capable models, evaluates each attempt and carries learned feedback forward', link: 'https://github.com/khuhub/cursor-escalate', x: .27, y: .78, tilt: .04, hold: ['tape-blue'], frame: 'frame-sun' },
-  { key: 'traceback', title: 'Traceback', img: '/pj-traceback.jpg', desc: 'Award-winning at the YC RSI/RL hackathon: an adversarial evaluation loop that forks critical agent states, uncovers hidden reward hacks and turns each exploit into a regression test', link: 'https://github.com/ashtonchew/traceback', x: .5, y: .78, tilt: -.03, hold: 'pin-wood', frame: 'frame-red', last: true },
-  { key: 'patchtst', title: 'PatchTST', img: '/pj-patchtst.jpg', desc: 'A deep-learning reimplementation of PatchTST, a transformer for long-term time-series forecasting, reproducing the paper within a 1–3% margin', link: 'https://github.com/mmichellezhou/patchtst', x: .77, y: .78, tilt: -.05, hold: ['tape-green', 'tape-cyan'], frame: 'frame-bluered' },
+  { key: 'brandr', title: 'Brandr', img: '/pj-brandr.webp', desc: 'AI agents that scrape TikTok to audit creator content for brand compliance — built at the YC × Browser Use hackathon', link: 'https://github.com/khuhub/Brandr', x: .17, y: .40, tilt: -.05, hold: ['tape-polka'], frame: 'frame-red' },
+  { key: 'momentum', title: 'Momentum', img: '/pj-momentum.webp', desc: 'A Slack AI assistant that turns Slack into a command center — drafting emails, creating Notion docs and summarizing conversations without leaving the app', link: 'https://github.com/khuhub/Momentum', x: .385, y: .41, tilt: .04, hold: 'pin-teal', frame: 'frame-sun' },
+  { key: 'greenzone', title: 'Greenzone', img: '/pj-greenzone.webp', desc: 'Data visualization helping Mongolian herders combat overgrazing and climate change through rangeland carrying-capacity warnings', link: 'https://github.com/cornellh4i/greenzone', x: .6, y: .40, tilt: -.04, hold: ['tape-grid', 'tape-cream'], frame: 'frame-bluered' },
+  { key: 'lockedin', title: 'LockedIn', img: '/pj-lockedin.webp', desc: 'Tinder for networking — swipe right to connect with people who actually want to meet you. Award-winning app at the Cornell AppDev Hack Challenge', link: 'https://github.com/akh1lk/LockedIn', x: .82, y: .41, tilt: .05, hold: 'pin-red', frame: 'frame-yellow' },
+  { key: 'escalate', title: 'Escalate', img: '/pj-escalate.webp', desc: 'An adaptive AI loop that runs engineering tasks through increasingly capable models, evaluates each attempt and carries learned feedback forward', link: 'https://github.com/khuhub/cursor-escalate', x: .27, y: .78, tilt: .04, hold: ['tape-blue'], frame: 'frame-sun' },
+  { key: 'traceback', title: 'Traceback', img: '/pj-traceback.webp', desc: 'Award-winning at the YC RSI/RL hackathon: an adversarial evaluation loop that forks critical agent states, uncovers hidden reward hacks and turns each exploit into a regression test', link: 'https://github.com/ashtonchew/traceback', x: .5, y: .78, tilt: -.03, hold: 'pin-wood', frame: 'frame-red', last: true },
+  { key: 'patchtst', title: 'PatchTST', img: '/pj-patchtst.webp', desc: 'A deep-learning reimplementation of PatchTST, a transformer for long-term time-series forecasting, reproducing the paper within a 1–3% margin', link: 'https://github.com/mmichellezhou/patchtst', x: .77, y: .78, tilt: -.05, hold: ['tape-green', 'tape-cyan'], frame: 'frame-bluered' },
 ];
 // phones: two columns, smaller, the same holders
 // portrait: two columns, four rows. The rows are spaced from the card's real height (the card is sized from the
@@ -142,7 +142,7 @@ export default function Projects() {
       <div ref={boxRef} className="pj-box" onPointerDown={onBoard}>
         <Cork />
         <div className="pj-word" aria-label="projects">
-          {WORD.map((ch, i) => <img key={i} src={`/cut-${ch}.png`} alt="" draggable="false" style={{ height: unit * WORD_H[i] + 'px', transform: `translate(${WORD_JIT[i][0] * unit}px, ${WORD_JIT[i][1] * unit}px) rotate(${WORD_JIT[i][2]}rad)` }} />)}
+          {WORD.map((ch, i) => <img key={i} src={`/cut-${ch}.webp`} alt="" draggable="false" style={{ height: unit * WORD_H[i] + 'px', transform: `translate(${WORD_JIT[i][0] * unit}px, ${WORD_JIT[i][1] * unit}px) rotate(${WORD_JIT[i][2]}rad)` }} />)}
         </div>
         {items.map((p, i) => {
           const m = moved[p.key] || { dx: 0, dy: 0 }, win = WIN[p.frame], isFlip = flipped === p.key, isHover = hover === p.key && !isFlip;
@@ -154,7 +154,7 @@ export default function Projects() {
               <div className="pj-flip">
                 <div className="pj-front">
                   <img className="pj-shot" src={p.img} alt={p.title} draggable="false" style={{ left: `${win[0] * 100}%`, top: `${win[1] * 100}%`, width: `${win[2] * 100}%`, height: `${win[3] * 100}%` }} />
-                  <img className="pj-frame" src={`/${p.frame}.png`} alt="" draggable="false" />
+                  <img className="pj-frame" src={`/${p.frame}.webp`} alt="" draggable="false" />
                   <span className="pj-title mono" style={{ left: `${50 + (TITLE_OFF[p.frame] || 0) * 100}%`, top: `${(win[1] + win[3] + (1 - win[1] - win[3]) / 2) * 100}%` }}>{p.title}</span>
                 </div>
                 <div className="pj-back">
@@ -165,9 +165,9 @@ export default function Projects() {
               </div>
               {Array.isArray(p.hold)
                 ? p.hold.length === 1
-                  ? <img className="pj-tape is-top" src={`/${p.hold[0]}.png`} alt="" draggable="false" />
-                  : <><img className="pj-tape is-tl" src={`/${p.hold[0]}.png`} alt="" draggable="false" /><img className="pj-tape is-br" src={`/${p.hold[1]}.png`} alt="" draggable="false" /></>
-                : <img className="pj-pin" src={`/${p.hold}.png`} alt="" draggable="false" />}
+                  ? <img className="pj-tape is-top" src={`/${p.hold[0]}.webp`} alt="" draggable="false" />
+                  : <><img className="pj-tape is-tl" src={`/${p.hold[0]}.webp`} alt="" draggable="false" /><img className="pj-tape is-br" src={`/${p.hold[1]}.webp`} alt="" draggable="false" /></>
+                : <img className="pj-pin" src={`/${p.hold}.webp`} alt="" draggable="false" />}
             </div>
           );
         })}

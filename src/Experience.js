@@ -8,15 +8,15 @@ import './Experience.css';
 // a click pops it to the front and holds the row; the play button plays that card's song (the bar follows it);
 // a click on the stripes lets the row drift on and stops the music. Same drawing as the film (hero-text.html).
 const EXPS = [
-  { key: 'meta', name: 'Meta', role: 'software engineer intern · ai infra', logo: '/lg-meta.png', photo: '/exp-meta.jpg', link: 'https://www.meta.com', song: '/songs/meta.mp3' },
-  { key: 'elevenlabs', name: 'ElevenLabs', role: 'campus ambassador', logo: '/eleven-logo.png', photo: '/exp-eleven.jpg', link: 'https://elevenlabs.io/', song: '/songs/elevenlabs.mp3' },
-  { key: 'myovara', name: 'Myovara', role: 'lead mobile engineer & team lead', logo: '/lg-myovara.png', photo: '/exp-myovara.jpg', link: 'https://tech.cornell.edu/built/myovara-labs/', song: '/songs/myovara.mp3' },
-  { key: 'hack4impact', name: 'Hack4Impact Cornell', role: 'technical lead & software developer', logo: '/lg-hack.png', photo: '/exp-hack.jpg', link: 'https://www.cornellh4i.org/', song: '/songs/hack4impact.mp3' },
-  { key: 'wicc', name: 'Women in Computing at Cornell', role: 'technical committee member', logo: '/lg-wicc.png', photo: '/exp-wicc.jpg', link: 'https://wicc.cornell.edu/#/', song: '/songs/wicc.mp3' },
-  { key: 'cs2112', name: 'Cornell CS 2112', role: 'teaching assistant', logo: '/lg-cornell.png', photo: '/exp-cornell.jpg', link: 'https://www.cs.cornell.edu/', song: '/songs/cs2112.mp3' },
+  { key: 'meta', name: 'Meta', role: 'software engineer intern · ai infra', logo: '/lg-meta.webp', photo: '/exp-meta.webp', link: 'https://www.meta.com', song: '/songs/meta.mp3' },
+  { key: 'elevenlabs', name: 'ElevenLabs', role: 'campus ambassador', logo: '/eleven-logo.webp', photo: '/exp-eleven.webp', link: 'https://elevenlabs.io/', song: '/songs/elevenlabs.mp3' },
+  { key: 'myovara', name: 'Myovara', role: 'lead mobile engineer & team lead', logo: '/lg-myovara.webp', photo: '/exp-myovara.webp', link: 'https://tech.cornell.edu/built/myovara-labs/', song: '/songs/myovara.mp3' },
+  { key: 'hack4impact', name: 'Hack4Impact Cornell', role: 'technical lead & software developer', logo: '/lg-hack.webp', photo: '/exp-hack.webp', link: 'https://www.cornellh4i.org/', song: '/songs/hack4impact.mp3' },
+  { key: 'wicc', name: 'Women in Computing at Cornell', role: 'technical committee member', logo: '/lg-wicc.webp', photo: '/exp-wicc.webp', link: 'https://wicc.cornell.edu/#/', song: '/songs/wicc.mp3' },
+  { key: 'cs2112', name: 'Cornell CS 2112', role: 'teaching assistant', logo: '/lg-cornell.webp', photo: '/exp-cornell.webp', link: 'https://www.cs.cornell.edu/', song: '/songs/cs2112.mp3' },
 ];
 const N = EXPS.length;
-// paper clouds (public/cloud-bright.png): mostly along the bottom, big and small overlapping, a couple small ones up top
+// paper clouds (public/cloud-bright.webp): mostly along the bottom, big and small overlapping, a couple small ones up top
 // [x, y (fractions of the panel), width (fraction of the panel's width), tilt (rad), flipped]
 const CLOUDS = [
   [.09, .07, .156, .04, true], [.9, .12, .135, -.03, false],
@@ -36,7 +36,7 @@ const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + '
 function Stripes() {
   const ref = useRef(null);
   useEffect(() => {
-    const canvas = ref.current, c = canvas.getContext('2d'), img = new Image(); img.src = '/paper.jpg';
+    const canvas = ref.current, c = canvas.getContext('2d'), img = new Image(); img.src = '/paper.webp';
     const draw = () => {
       if (!img.naturalWidth) return;
       const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
@@ -122,7 +122,7 @@ export default function Experience() {
       <div ref={boxRef} className="exp-box" onPointerDown={onBackground}>
         <Stripes />
         {(portrait ? CLOUDS_P : CLOUDS).map(([x, y, w, tilt, flip], k) => (
-          <img key={k} className="exp-cloud" src="/cloud-bright.png" alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${w * 100}%`, '--tilt': `${tilt}rad`, '--flip': flip ? -1 : 1 }} />
+          <img key={k} className="exp-cloud" src="/cloud-bright.webp" alt="" draggable="false" style={{ left: `${x * 100}%`, top: `${y * 100}%`, width: `${w * 100}%`, '--tilt': `${tilt}rad`, '--flip': flip ? -1 : 1 }} />
         ))}
         <div ref={rowRef} className="exp-row">
           {[-1, 0, 1].map(rep => EXPS.map((e, i) => {
@@ -150,7 +150,7 @@ export default function Experience() {
           <button className="exp-arrow is-right" aria-label="next" onPointerDown={e => e.stopPropagation()} onClick={() => { S.idx += 1; setHeld(null); pause(); }}>›</button>
         </>}
         <div className="exp-word" aria-label="experience">
-          {STAMP.map(([ch, h, desc, dx, dy, rot], i) => <img key={i} src={`/stamp-${ch}.png`} alt="" draggable="false" style={{ height: xh * h + 'px', marginBottom: -desc * xh + 'px', transform: `translate(${dx * xh}px, ${dy * xh}px) rotate(${rot}rad)` }} />)}
+          {STAMP.map(([ch, h, desc, dx, dy, rot], i) => <img key={i} src={`/stamp-${ch}.webp`} alt="" draggable="false" style={{ height: xh * h + 'px', marginBottom: -desc * xh + 'px', transform: `translate(${dx * xh}px, ${dy * xh}px) rotate(${rot}rad)` }} />)}
         </div>
         <span className="exp-num mono">03</span>
         <span className="exp-credit mono" tabIndex="0" aria-label="music by Kevin MacLeod (incompetech.com), CC BY 4.0">♪<span className="exp-credit-text">music by Kevin MacLeod (incompetech.com) · CC BY 4.0</span></span>

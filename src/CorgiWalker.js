@@ -51,7 +51,7 @@ function CorgiWalker({ started }) {
     }, 2500);
   };
 
-  const src = arrived ? '/corgi3.png' : frame === 1 ? '/corgi1.png' : '/corgi2.png';
+  const src = arrived ? '/corgi3.webp' : frame === 1 ? '/corgi1.webp' : '/corgi2.webp';
 
   return (
     <div

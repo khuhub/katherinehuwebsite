@@ -57,9 +57,9 @@ export default function Hero() {
         <img className="hero-hu" src="/hu-pink.webp" alt="Hu" decoding="async" />
         <div className="hero-cs mono">{'cs @ cornell'.slice(0, csN)}{started && csN > 0 && csN < 12 && <span className="hero-cursor" />}</div>
         <div className="hero-social">
-          <a href="https://github.com/khuhub" target="_blank" rel="noreferrer" aria-label="GitHub"><img src="/git-ink.png" alt="" /></a>
-          <a href="https://www.linkedin.com/in/katherine-hu317" target="_blank" rel="noreferrer" aria-label="LinkedIn"><img src="/linkedin-ink.png" alt="" /></a>
-          <a href="mailto:katherine.y.hu@gmail.com" aria-label="Email"><img src="/email-ink.png" alt="" /></a>
+          <a href="https://github.com/khuhub" target="_blank" rel="noreferrer" aria-label="GitHub"><img src="/git-ink.webp" alt="" /></a>
+          <a href="https://www.linkedin.com/in/katherine-hu317" target="_blank" rel="noreferrer" aria-label="LinkedIn"><img src="/linkedin-ink.webp" alt="" /></a>
+          <a href="mailto:katherine.y.hu@gmail.com" aria-label="Email"><img src="/email-ink.webp" alt="" /></a>
         </div>
         <Frame />
       </div>

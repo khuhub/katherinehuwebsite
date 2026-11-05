@@ -89,9 +89,9 @@ export default function Footer() {
         <div className="foot-note">
           <p className="foot-thanks mono">thanks for stopping by :)</p>
           <div className="foot-social">
-            <a href="https://github.com/khuhub" target="_blank" rel="noreferrer" aria-label="GitHub"><img src="/git-ink.png" alt="" /></a>
-            <a href="https://www.linkedin.com/in/katherine-hu317" target="_blank" rel="noreferrer" aria-label="LinkedIn"><img src="/linkedin-ink.png" alt="" /></a>
-            <a href="mailto:katherine.y.hu@gmail.com" aria-label="Email"><img src="/email-ink.png" alt="" /></a>
+            <a href="https://github.com/khuhub" target="_blank" rel="noreferrer" aria-label="GitHub"><img src="/git-ink.webp" alt="" /></a>
+            <a href="https://www.linkedin.com/in/katherine-hu317" target="_blank" rel="noreferrer" aria-label="LinkedIn"><img src="/linkedin-ink.webp" alt="" /></a>
+            <a href="mailto:katherine.y.hu@gmail.com" aria-label="Email"><img src="/email-ink.webp" alt="" /></a>
           </div>
           <p className="foot-credit mono">made by katherine hu · 2026</p>
         </div>
