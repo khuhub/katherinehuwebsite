@@ -27,7 +27,7 @@ function Lamp({ on, portrait, onNote }) {
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2, TAU = Math.PI * 2;
     const tick = now => {
       raf = requestAnimationFrame(tick); if (!t0) t0 = now; const t = (now - t0) / 1000;
-      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
+      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, navigator.maxTouchPoints > 0 ? 1.5 : 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
       if (t < T_TUG && drawn) return; drawn = true;                       // nothing moves before the tug: the first frame stands
       if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
       const s = (portrait ? w * 1.1 : h) / 1080, K = Math.min(h / 1080, w / 1920 * 1.9), M = Math.round(Math.min(w, h) * .052);

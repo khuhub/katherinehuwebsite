@@ -66,7 +66,7 @@ export default function HeroIntro() {
         const s = (performance.now() - start) / 1000 + lampSkip, ctx = canvas.getContext('2d');
         if (!opened && s >= window.HeroLamp.OPENING) { opened = true; window.dispatchEvent(new Event('hero:open')); }   // the hero starts its own timeline now
         // inside the cone the overlay is cleared, so the page itself is what the light reveals
-        if (L.draw(ctx, s, g => { g.clearRect(0, 0, canvas.width, canvas.height); })) { alive = false; R.dispose(); L.dispose(); canvas.width = 0; canvas.height = 0; setDone(true); return; }   // the cached drawings (tens of MB) go at once, not whenever the collector gets to them
+        if (L.draw(ctx, s, g => { g.clearRect(0, 0, canvas.width, canvas.height); })) { alive = false; const Ld = L; setTimeout(() => { R.dispose(); Ld.dispose(); canvas.width = 0; canvas.height = 0; }, 1500); setDone(true); window.dispatchEvent(new Event('hero:done')); return; }   // the cached drawings (tens of MB) go once the hero has finished coming in, not whenever the collector gets to them
       }
       raf = requestAnimationFrame(frame);
     };

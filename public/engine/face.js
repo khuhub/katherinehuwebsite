@@ -290,7 +290,7 @@ function makeRenderer(canvas) {
   let F = null, cache = new Map(), c = canvas.getContext('2d');
   function resize() {
     const vw = Math.max(1, window.innerWidth), vh = Math.max(1, window.innerHeight);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2), width = Math.min(Math.round(vw * dpr), 1600, Math.round(Math.sqrt(1.6e6 * vw / vh)));   // line art: 1600 px across is plenty, and each cached drawing is a full-frame bitmap, so a tall screen (an iPad) is held to 1.6 Mpx a drawing
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), touch = navigator.maxTouchPoints > 0, width = Math.min(Math.round(vw * dpr), 2200, touch ? Math.round(Math.sqrt(1.6e6 * vw / vh)) : 1e9);   // each cached drawing is a full-frame bitmap: on a phone or tablet, where canvas memory is tight, one is held to 1.6 Mpx
     setFormat({ ar: `${vw}:${vh}`, width });
     canvas.width = OUT_W; canvas.height = OUT_H;
     canvas.style.width = vw + 'px'; canvas.style.height = vh + 'px';

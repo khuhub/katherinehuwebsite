@@ -15,6 +15,7 @@ export default function Frame({ mat = '#fffaf4' }) {
       // the same dense path the intro uses (a point every 12px), so the wobble is smooth and the corners close cleanly
       const pts = [], corners = [[M, M], [w - M, M], [w - M, h - M], [M, h - M]]; let carry = 0;
       for (let i = 0; i < 4; i++) { const a = corners[i], b = corners[(i + 1) % 4], L = Math.hypot(b[0] - a[0], b[1] - a[1]); let d = carry; while (d < L) { const t = d / L; pts.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); d += 12; } carry = d - L; }
+      pts.push([M, M]);                                                                                   // back to the start: the corner closes
       const rects = [[0, 0, w, T], [0, h - T, w, T], [0, T, T, h - 2 * T], [w - T, T, T, h - 2 * T]];   // top, bottom, left, right: no overlap, so nothing is drawn twice
       strips.forEach((canvas, i) => {
         const [x, y, sw, sh] = rects[i]; if (sw <= 0 || sh <= 0) { canvas.width = 0; canvas.height = 0; return; }

@@ -72,7 +72,7 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
     const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2, easeOut = t => 1 - Math.pow(1 - t, 3);
     const tick = now => {
       raf = requestAnimationFrame(tick); if (!t0) t0 = now; const t = (now - t0) / 1000;
-      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
+      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, navigator.maxTouchPoints > 0 ? 1.5 : 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
       const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = cardAt[0] * w, stop = tx - 150 * s - 70 * s;
       const strip = Math.min(h, Math.round(560 * sc + 30 * s)), top = h - strip;                      // the canvas is only the band she walks in, not the whole panel
       if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(strip * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(strip * dpr); canvas.style.width = w + 'px'; canvas.style.height = strip + 'px'; canvas.style.top = top + 'px'; }
