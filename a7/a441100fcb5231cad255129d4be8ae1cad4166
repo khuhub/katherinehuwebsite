@@ -1,0 +1,32 @@
+src/Frame.js
+  s_8e076e4a9a5a45::t_c666cff96163d4 18
+src/freeze.js
+  s_8e076e4a9a5a45::t_597b3ab01ce37f 4-6,9,14-20
+public/engine/face.js
+  s_8e076e4a9a5a45::t_c666cff96163d4 293
+src/Hero.css
+  s_8e076e4a9a5a45::t_597b3ab01ce37f 4
+  s_8e076e4a9a5a45::t_1f345303a01293 11-12,24
+src/Footer.js
+  s_8e076e4a9a5a45::t_c666cff96163d4 30
+src/HeroIntro.js
+  s_8e076e4a9a5a45::t_597b3ab01ce37f 69
+src/Projects.js
+  s_8e076e4a9a5a45::t_c666cff96163d4 75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a7a441100fcb5231cad255129d4be8ae1cad4166",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
