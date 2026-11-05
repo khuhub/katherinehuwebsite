@@ -1,0 +1,41 @@
+src/Experience.js
+  s_8e076e4a9a5a45::t_b1f0a5da334ddc 4,47,49,53
+src/HeroIntro.js
+  s_8e076e4a9a5a45::t_4bfa2326239f65 51,69
+src/Frame.js
+  s_8e076e4a9a5a45::t_bc105363177da3 3-6,10,12-14,18-27,34-39
+src/About.js
+  s_8e076e4a9a5a45::t_b1f0a5da334ddc 4,41,43,47
+src/freeze.js
+  s_8e076e4a9a5a45::t_51fe0ef4be0241 1-14
+public/engine/lamp.js
+  s_8e076e4a9a5a45::t_4bfa2326239f65 96-97
+src/Footer.js
+  s_8e076e4a9a5a45::t_f6ad8fa0216e5d 3,26,30-31,60-61,63,66
+src/cel.js
+  s_8e076e4a9a5a45::t_f907b358774842 1-10
+public/engine/core.js
+  s_8e076e4a9a5a45::t_4bfa2326239f65 207
+src/Projects.js
+  s_8e076e4a9a5a45::t_b1f0a5da334ddc 4,46,48,52
+  s_8e076e4a9a5a45::t_f6ad8fa0216e5d 5,71,75,77-78,96-102
+public/engine/face.js
+  s_8e076e4a9a5a45::t_4bfa2326239f65 334-335
+  s_8e076e4a9a5a45::t_5b07ed8aa19ca1 293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a1b406d524d13c1da9ab3f7be316cd5a8c3b4cee",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
