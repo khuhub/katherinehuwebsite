@@ -45,9 +45,10 @@
 .pj-pin { position: absolute; left: 50%; top: 4%; height: 4cqh; width: auto; transform: translate(-50%, -85%); z-index: 2; pointer-events: none; filter: drop-shadow(.3cqh .6cqh .8cqh rgba(0,0,0,.45)); }
 
 /* portrait (phones): the box is the whole viewport; two columns, no walker */
-.pj.is-portrait .pj-box { width: 100vw; height: 100vh; height: 100dvh; }
+.pj.is-portrait { align-items: flex-start; }   /* the box sits at the top and is sized from the small viewport, so it never re-lays out as a phone's browser bar comes and goes */
+.pj.is-portrait .pj-box { width: 100vw; height: 100vh; height: 100svh; }
 .pj.is-portrait .pj-word { top: 8vh; gap: .6vw; }
-.pj.is-portrait .pj-card { width: 26vw; }
+.pj.is-portrait .pj-card { width: min(26vw, 16.7vh); }   /* from the width on a phone; capped by the height on a squarer tablet so four rows fit */
 .pj.is-portrait .pj-card.is-flip { transform: translate(-50%, -50%) scale(2.6); }
 .pj.is-portrait .pj-back { padding: 2.6vw 2.2vw 2.2vw; }
 .pj.is-portrait .pj-title { font-size: 2.3vw; }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Frame from './Frame';
 import './Projects.css';
 
@@ -17,8 +17,10 @@ const PROJECTS = [
   { key: 'patchtst', title: 'PatchTST', img: '/pj-patchtst.jpg', desc: 'A deep-learning reimplementation of PatchTST, a transformer for long-term time-series forecasting, reproducing the paper within a 1–3% margin', link: 'https://github.com/mmichellezhou/patchtst', x: .77, y: .78, tilt: -.05, hold: ['tape-green', 'tape-cyan'], frame: 'frame-bluered' },
 ];
 // phones: two columns, smaller, the same holders
-const PROJECTS_P = PROJECTS.map((p, i) => ({ ...p, x: i % 2 ? .72 : .28, y: .235 + Math.floor(i / 2) * .19 }));
-PROJECTS_P[6].x = .5;
+// portrait: two columns, four rows. The rows are spaced from the card's real height (the card is sized from the
+// width but capped by the height, see the css), so on a tablet, where the screen is squarer, nothing overlaps
+const portraitItems = (w, h) => { const cw = Math.min(.26 * w, .167 * h), pitch = Math.max(.19, cw * 364 / 304 * 1.06 / h);
+  const items = PROJECTS.map((p, i) => ({ ...p, x: i % 2 ? .72 : .28, y: .235 + Math.floor(i / 2) * pitch })); items[6].x = .5; return items; };
 // where the photo window sits in each frame (fractions of the frame), measured from the cut-outs
 const WIN = { 'frame-red': [.059, .066, .872, .728], 'frame-bluered': [.07, .061, .86, .729], 'frame-yellow': [.072, .061, .86, .724], 'frame-sun': [.068, .062, .866, .73] };
 const TITLE_OFF = { 'frame-red': -.1, 'frame-bluered': .03, 'frame-yellow': .06, 'frame-sun': 0 };
@@ -104,10 +106,10 @@ export default function Projects() {
   const [portrait, setPortrait] = useState(() => window.innerWidth < window.innerHeight);
   const [on, setOn] = useState(false), [pinned, setPinned] = useState(false), [flipped, setFlipped] = useState(null), [moved, setMoved] = useState({});
   const [seen, setSeen] = useState(false), [isSet, setIsSet] = useState(false);   // the entrance plays once; then the board is set
-  const [hover, setHover] = useState(null), drag = useRef(null), [unit, setUnit] = useState(0);
+  const [hover, setHover] = useState(null), drag = useRef(null), [unit, setUnit] = useState(0), [boxWH, setBoxWH] = useState([0, 0]);
   useEffect(() => { const f = () => setPortrait(window.innerWidth < window.innerHeight); window.addEventListener('resize', f); return () => window.removeEventListener('resize', f); }, []);
   useEffect(() => {                                           // the word's letters are sized from the box (the minifier cannot do calc with container units)
-    const box = boxRef.current; if (!box) return; const m = () => { const r = box.getBoundingClientRect(); setUnit(portrait ? r.width * .065 : r.height * .0685); }; m();
+    const box = boxRef.current; if (!box) return; const m = () => { const r = box.getBoundingClientRect(); setUnit(portrait ? r.width * .065 : r.height * .0685); setBoxWH([r.width, r.height]); }; m();
     let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(m, 150); }; window.addEventListener('resize', onResize); return () => { window.removeEventListener('resize', onResize); clearTimeout(t); };
   }, [portrait]);
   useEffect(() => {
@@ -118,7 +120,7 @@ export default function Projects() {
   const onPinned = useCallback(() => setPinned(true), []);
   const lastRef = useRef(null), lastP = PROJECTS.find(p => p.last), cardAt = useRef([lastP.x, lastP.y, lastP.tilt]).current;
   useEffect(() => { if (!pinned) return; const el = lastRef.current; if (el) { el.style.transform = ''; el.style.visibility = ''; } }, [pinned]);   // once it is placed by class, the inline copy of the same look goes, so hover and flip work
-  const items = portrait ? PROJECTS_P : PROJECTS;
+  const items = useMemo(() => portrait ? portraitItems(boxWH[0], boxWH[1]) : PROJECTS, [portrait, boxWH]);
 
   // dragging: a card follows the pointer; a press without a move is a click, which flips
   const onDown = (e, key) => {

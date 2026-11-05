@@ -39,7 +39,8 @@
 
 
 /* portrait (phones): the box is the whole viewport; heading and bio higher, objects in two rows, bigger type */
-.about.is-portrait .about-box { width: 100vw; height: 100vh; height: 100dvh; }
+.about.is-portrait { align-items: flex-start; }   /* the box sits at the top and is sized from the small viewport, so it never re-lays out as a phone's browser bar comes and goes */
+.about.is-portrait .about-box { width: 100vw; height: 100vh; height: 100svh; }
 .about.is-portrait .about-head { top: 17cqh; gap: .6vw; }
 .about.is-portrait .about-head img { height: 5vw; width: 5vw; }
 .about.is-portrait .about-sp { width: 4vw; }

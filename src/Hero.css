@@ -27,11 +27,12 @@
 
 /* portrait (phones): the box is the whole viewport; stacked like the 9:16 film */
 @media (orientation: portrait) {
-  .hero-box { width: 100vw; height: 100vh; height: 100dvh; }
+  .hero { align-items: flex-start; }   /* the box sits at the top and is sized from the small viewport, so it never re-lays out as a phone's browser bar comes and goes */
+  .hero-box { width: 100vw; height: 100vh; height: 100svh; }
   .hero-hi { left: 8.9vw; top: 11vw; font-size: 4.1vw; }
   .hero-kat { left: 11vw; top: 24vw; width: 78vw; }
   .hero-cs { left: 14vw; top: 41.5vw; font-size: 2.8vw; }
-  .hero-photo { left: 50%; top: 48vw; height: 56vh; height: 56dvh; transform: translate(-54%, 3%); }
+  .hero-photo { left: 50%; top: 48vw; height: 56vh; height: 56svh; transform: translate(-54%, 3%); }
   .hero-photo.is-in { transform: translate(-54%, 0); }
   .hero-photo.is-shake { animation-name: photo-shake-p; }
   @keyframes photo-shake-p { 0%, 100% { transform: translate(-54%, 0) rotate(0); } 20% { transform: translate(calc(-54% - 2px), 0) rotate(-.4deg); } 40% { transform: translate(calc(-54% + 2px), 0) rotate(.4deg); } 60% { transform: translate(calc(-54% - 1px), 0) rotate(-.25deg); } 80% { transform: translate(calc(-54% + 1px), 0) rotate(.2deg); } }

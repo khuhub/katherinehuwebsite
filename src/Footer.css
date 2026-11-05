@@ -17,7 +17,8 @@
 .foot-credit { margin: 6.2cqh 0 0; font-size: 1.65cqh; color: rgba(255,250,244,.6); white-space: nowrap; }
 
 /* portrait (phones): the box is the whole viewport, sizes from the width */
-.foot.is-portrait .foot-box { width: 100vw; height: 100vh; height: 100dvh; }
+.foot.is-portrait { align-items: flex-start; }   /* the box sits at the top and is sized from the small viewport, so it never re-lays out as a phone's browser bar comes and goes */
+.foot.is-portrait .foot-box { width: 100vw; height: 100vh; height: 100svh; }
 .foot.is-portrait .foot-thanks { font-size: 5vw; }
 .foot.is-portrait .foot-social { gap: 6vw; margin-top: 8vw; }
 .foot.is-portrait .foot-social a { height: 6.5vw; }
