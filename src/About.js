@@ -84,18 +84,6 @@ export default function About() {
     const obs = new IntersectionObserver(([e]) => { setOn(e.isIntersecting); if (!e.isIntersecting) setOpen(null); }, { threshold: .35 });   // leaves and comes back: the objects rise in again
     obs.observe(el); return () => obs.disconnect();
   }, []);
-  // five seconds after the about panel has come into view, the page slides on to experience by itself —
-  // unless the visitor has scrolled or touched the page since. Once only.
-  const autoSlid = useRef(false);
-  useEffect(() => {
-    if (!on || autoSlid.current) return;
-    autoSlid.current = true;
-    let moved = false; const mark = () => { moved = true; };
-    const opts = { passive: true };
-    window.addEventListener('wheel', mark, opts); window.addEventListener('touchstart', mark, opts); window.addEventListener('keydown', mark); window.addEventListener('pointerdown', mark, opts);
-    const t = setTimeout(() => { const el = ref.current; if (moved || !el || Math.abs(el.getBoundingClientRect().top) > 3) return; const next = document.querySelector('.exp'); if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 5000);   // only while about is still the panel in view
-    return () => { clearTimeout(t); window.removeEventListener('wheel', mark); window.removeEventListener('touchstart', mark); window.removeEventListener('keydown', mark); window.removeEventListener('pointerdown', mark); };
-  }, [on]);
   useEffect(() => {
     const onResize = () => setPortrait(window.innerHeight > window.innerWidth);
     window.addEventListener('resize', onResize); return () => window.removeEventListener('resize', onResize);

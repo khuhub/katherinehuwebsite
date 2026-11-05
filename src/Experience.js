@@ -98,20 +98,6 @@ export default function Experience() {
     return () => { cancelAnimationFrame(S.raf); obs.disconnect(); };
   }, [S]);
 
-  // five seconds after experience has come into view, the page slides on to projects by itself — unless the
-  // visitor has scrolled or touched the page since, or is no longer on this panel. Once only.
-  const autoSlid = useRef(false);
-  useEffect(() => {
-    const sec = secRef.current; if (!sec) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting || autoSlid.current) return; autoSlid.current = true;
-      let moved = false; const mark = () => { moved = true; }, opts = { passive: true };
-      window.addEventListener('wheel', mark, opts); window.addEventListener('touchstart', mark, opts); window.addEventListener('keydown', mark); window.addEventListener('pointerdown', mark, opts);
-      setTimeout(() => { window.removeEventListener('wheel', mark); window.removeEventListener('touchstart', mark); window.removeEventListener('keydown', mark); window.removeEventListener('pointerdown', mark);
-        if (moved || Math.abs(sec.getBoundingClientRect().top) > 3) return; const next = document.querySelector('.pj'); if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 5000);
-    }, { threshold: .35 });
-    obs.observe(sec); return () => obs.disconnect();
-  }, []);
   // the music: one audio element; the bar and times follow it
   const play = useCallback(i => {
     const a = audioRef.current, e = EXPS[i];

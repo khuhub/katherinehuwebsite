@@ -26,7 +26,7 @@ function useTypewriter(text, started, delay, dur) {
 
 export default function Hero() {
   const [started, setStarted] = useState(() => !INTRO_WILL_RUN());
-  const ref = useRef(null), everStarted = useRef(false), autoSlid = useRef(false);
+  const ref = useRef(null), everStarted = useRef(false);
   useEffect(() => {
     if (started) { everStarted.current = true; return; }
     const go = () => setStarted(true);
@@ -43,17 +43,6 @@ export default function Hero() {
     const obs = new IntersectionObserver(([e]) => { if (!everStarted.current) return; if (!e.isIntersecting) away = true; else if (away) { away = false; setShake(true); } }, { threshold: .35 });
     obs.observe(el); return () => obs.disconnect();
   }, []);
-  // five seconds after the hero has finished typing in, the page slides on to the about panel by itself —
-  // unless the visitor has already scrolled or touched the page
-  useEffect(() => {
-    if (!started || autoSlid.current) return;
-    autoSlid.current = true;
-    let moved = false; const mark = () => { moved = true; };
-    const opts = { passive: true };
-    window.addEventListener('wheel', mark, opts); window.addEventListener('touchstart', mark, opts); window.addEventListener('keydown', mark); window.addEventListener('pointerdown', mark, opts);
-    const t = setTimeout(() => { if (moved || window.scrollY > 10) return; const next = document.querySelector('.about'); if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, (2.9 + 5) * 1000);
-    return () => { clearTimeout(t); window.removeEventListener('wheel', mark); window.removeEventListener('touchstart', mark); window.removeEventListener('keydown', mark); window.removeEventListener('pointerdown', mark); };
-  }, [started]);
   // the pictures are decoded while the intro plays, so the first frame they show costs nothing on a phone
   useEffect(() => { const el = ref.current; if (!el) return; el.querySelectorAll('img').forEach(im => { if (im.decode) im.decode().catch(() => {}); }); }, []);
   const hiN = useTypewriter("hi, i'm", started, 1.2, .7);
