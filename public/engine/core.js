@@ -204,6 +204,7 @@ const rectPts = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]
 function pathLength(pts, close) { let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); if (close) L += Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]); return L; }
 function bez(p0, p1, p2, p3, t) { const u = 1 - t; return [u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0], u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1]]; }
 function layer(w, h) { const full = w === undefined; w = w ?? W; h = h ?? H; const o = document.createElement('canvas'); o.width = Math.round(w * S); o.height = Math.round(h * S); _layers.push({ ref: new WeakRef(o), w: full ? null : w, h: full ? null : h }); return o; }   // output pixels, logical size w x h
+function dropLayer(o) { o.width = 0; o.height = 0; for (let i = _layers.length - 1; i >= 0; i--) { const r = _layers[i].ref.deref(); if (!r || r === o) _layers.splice(i, 1); } }   // release a layer's bitmap at once (Safari counts canvas memory tightly) and forget it
 function cam(c, x, y, zoom, rot = 0) { c.setTransform(S, 0, 0, S, 0, 0); c.translate(W / 2, H / 2); c.scale(zoom, zoom); c.rotate(rot); c.translate(-x, -y); }
 const resetT = c => c.setTransform(S, 0, 0, S, 0, 0);   // identity in logical units
 // camKeys: a camera through keys [[t, x, y, zoom, rot?], ...] on a smooth curve, eased over the whole move, with an optional handheld drift (hand = px).

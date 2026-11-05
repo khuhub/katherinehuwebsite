@@ -93,7 +93,8 @@ window.HeroLamp = (() => {
     }
     // warm one more thresholded drawing into the cache; true when there is nothing left to warm
     function warm() { for (const id of ['pull', 'pullDown']) for (const open of [1, .75, .5, .25, 0]) { const key = [id, Math.round(open * 4), 1, -3].join(); if (!cache.has(key)) { silhouette(id, open, 1, -3); return false; } } return true; }
-    return { draw, warm, skipTo, DUR, OPENING };
+    function dispose() { for (const o of cache.values()) dropLayer(o); cache.clear(); }
+    return { draw, warm, skipTo, dispose, DUR, OPENING };
   }
   return { make, skipTo, DUR, OPENING };
 })();

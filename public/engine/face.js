@@ -290,7 +290,7 @@ function makeRenderer(canvas) {
   let F = null, cache = new Map(), c = canvas.getContext('2d');
   function resize() {
     const vw = Math.max(1, window.innerWidth), vh = Math.max(1, window.innerHeight);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2), width = Math.min(Math.round(vw * dpr), 2200);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), width = Math.min(Math.round(vw * dpr), 1600, Math.round(Math.sqrt(1.6e6 * vw / vh)));   // line art: 1600 px across is plenty, and each cached drawing is a full-frame bitmap, so a tall screen (an iPad) is held to 1.6 Mpx a drawing
     setFormat({ ar: `${vw}:${vh}`, width });
     canvas.width = OUT_W; canvas.height = OUT_H;
     canvas.style.width = vw + 'px'; canvas.style.height = vh + 'px';
@@ -331,6 +331,8 @@ function makeRenderer(canvas) {
     // open: k 0..1, only the lids are drawn; the page shows through the rest
     open(k) { resetT(c); c.clearRect(0, 0, W, H); F.lids(c, k); },
     clear() { resetT(c); c.clearRect(0, 0, W, H); },
+    // the intro is over: every cached drawing gives its bitmap back
+    dispose() { for (const L of cache.values()) dropLayer(L); cache = new Map(); },
   };
 }
 

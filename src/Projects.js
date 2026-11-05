@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Frame from './Frame';
 import './Projects.css';
+import freeze from './freeze';
+import cel from './cel';
 
 // Panel 4, projects: a corkboard. The project screenshots sit in real polaroid frames (public/frame-*.webp) held by
 // washi tape or push pins, with "projects" spelled in ransom-note cut-outs across the top. The cards drop onto the
@@ -41,11 +43,13 @@ function Cork() {
       const speck = (n, col, al, size) => { c.fillStyle = col; c.globalAlpha = al; for (let i = 0; i < n * k; i++) { const s = size * (.4 + r()); c.fillRect(r() * w, r() * h, s, s); } };
       speck(26000, '#8a5f36', .35, 2.2); speck(18000, '#e6c58f', .4, 2.0); speck(9000, '#6e4522', .3, 3.2); speck(40000, '#b98a55', .5, 1.4); c.globalAlpha = 1;
       const v = c.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .4, w / 2, h / 2, Math.max(w, h) * .8); v.addColorStop(0, 'rgba(60,35,15,0)'); v.addColorStop(1, 'rgba(60,35,15,.3)'); c.fillStyle = v; c.fillRect(0, 0, w, h);
+      thaw(); thaw = freeze(canvas);                                       // drawn: keep it as a picture, give the bitmap back
     };
+    let thaw = () => {};
     draw();
     let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(draw, 150); };
     window.addEventListener('resize', onResize);
-    return () => { window.removeEventListener('resize', onResize); clearTimeout(t); };
+    return () => { window.removeEventListener('resize', onResize); clearTimeout(t); thaw(); };
   }, []);
   return <canvas ref={ref} className="pj-cork" aria-hidden="true" />;
 }
@@ -64,13 +68,14 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
     if (!B.POSES.wave1) { const st = B.POSES.stand, CH = st.head[1];                          // a wave: the right arm up, the hand swinging
       B.POSES.wave1 = Object.assign({}, st, { head: [0, CH, -.03], armR: [[54, CH + 24], [92, CH - 30], [70, CH - 120]] });
       B.POSES.wave2 = Object.assign({}, st, { head: [0, CH, -.03], armR: [[54, CH + 24], [96, CH - 30], [118, CH - 110]] }); }
-    const layer = document.createElement('canvas');
+    const cels = new Map(); let lastKey = '', lastCx = NaN;            // her and her shadow, drawn once per pose; the frame is kept while she stands still
     const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2, easeOut = t => 1 - Math.pow(1 - t, 3);
     const tick = now => {
       raf = requestAnimationFrame(tick); if (!t0) t0 = now; const t = (now - t0) / 1000;
-      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
-      if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
+      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
       const s = (portrait ? w * 1.1 : h) / 1080, floor = h - Math.round(Math.min(w, h) * .052) - 10 * s, sc = s * .62, tx = cardAt[0] * w, stop = tx - 150 * s - 70 * s;
+      const strip = Math.min(h, Math.round(560 * sc + 30 * s)), top = h - strip;                      // the canvas is only the band she walks in, not the whole panel
+      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(strip * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(strip * dpr); canvas.style.width = w + 'px'; canvas.style.height = strip + 'px'; canvas.style.top = top + 'px'; }
       const T_IN = .8, T_ARRIVE = 3.4, T_PIN = 4.2, T_BACK = 4.8, T_HOME = 6, T_WAVE = 6.3, T_WAVE_END = 8.1, WAVE_EVERY = 14, WAVE_DUR = 1.8;
       let cx, pose = 'stand';
       if (t < T_IN) cx = -200 * s; else if (t < T_ARRIVE) { const u = easeIO(clamp((t - T_IN) / (T_ARRIVE - T_IN), 0, 1)); cx = lerp(-200 * s, stop, u); pose = B.WALK[Math.floor(t * 8) % 6]; }
@@ -88,12 +93,13 @@ function Walker({ on, portrait, onPinned, cardRef, cardAt }) {
           card.style.transform = `translate(-50%, -50%) rotate(${lerp(-.1, cardAt[2], k)}rad) scale(${lerp(.5, 1, k)})`; card.style.zIndex = 7; }
         else if (t >= T_PIN && !pinned.current) { pinned.current = true; card.style.visibility = 'visible'; card.style.left = `${cardAt[0] * 100}%`; card.style.top = `${cardAt[1] * 100}%`; card.style.transform = `translate(-50%, -50%) rotate(${cardAt[2]}rad)`; card.style.zIndex = ''; onPinned(); }   // it keeps its final look inline until the board has rendered it as placed, so it never blinks out between the two
       }
-      // her shadow and herself, from a small layer around her
-      const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc;
-      if (layer.width !== Math.round(lw * dpr) || layer.height !== Math.round(lh * dpr)) { layer.width = Math.round(lw * dpr); layer.height = Math.round(lh * dpr); }
-      const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, -ox * dpr, -oy * dpr); g.clearRect(ox, oy, lw, lh); if (t >= T_IN) B.draw(g, pose, { x: cx, y: floor, scale: sc });
-      c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height); c.setTransform(dpr, 0, 0, dpr, 0, 0);
-      c.save(); c.filter = 'brightness(0) blur(5px)'; c.globalAlpha = .3; c.drawImage(layer, ox + 10 * s, oy + 12 * s, lw, lh); c.restore(); c.drawImage(layer, ox, oy, lw, lh);
+      // her shadow and herself: two cached pictures per pose, placed where she is; nothing is redrawn while she stands
+      const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc, key = t < T_IN ? '' : pose + '|' + lw;
+      if (key === lastKey && cx === lastCx) return; lastKey = key; lastCx = cx;
+      c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, canvas.width, canvas.height); if (!key) return;
+      let cl = cels.get(key); if (!cl) { cl = cel(B, pose, lw, lh, sc, dpr); cels.set(key, cl); }
+      c.setTransform(dpr, 0, 0, dpr, 0, -top * dpr);
+      c.globalAlpha = .3; c.drawImage(cl.shadow, ox + 10 * s, oy + 12 * s, lw, lh); c.globalAlpha = 1; c.drawImage(cl.body, ox, oy, lw, lh);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);

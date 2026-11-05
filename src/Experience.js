@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Frame from './Frame';
 import './Experience.css';
+import freeze from './freeze';
 
 // Panel 3, experience: a row of little music players drifting left in a loop over watercolour stripes, with
 // paper clouds along the bottom and a couple at the top. Each card is a company: the photo as the album art, the logo and
@@ -43,11 +44,13 @@ function Stripes() {
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; c.setTransform(dpr, 0, 0, dpr, 0, 0);
       const k = h / img.naturalHeight, dw = img.naturalWidth * k; let n = 0;
       for (let x = 0; x < w; x += dw, n++) { c.save(); if (n % 2) { c.translate(x + dw, 0); c.scale(-1, 1); c.drawImage(img, 0, 0, dw, h); } else c.drawImage(img, x, 0, dw, h); c.restore(); }
+      thaw(); thaw = freeze(canvas);                                       // drawn: keep it as a picture, give the bitmap back
     };
+    let thaw = () => {};
     img.onload = draw; draw();
     let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(draw, 150); };
     window.addEventListener('resize', onResize);
-    return () => { window.removeEventListener('resize', onResize); clearTimeout(t); };
+    return () => { window.removeEventListener('resize', onResize); clearTimeout(t); thaw(); };
   }, []);
   return <canvas ref={ref} className="exp-stripes" aria-hidden="true" />;
 }

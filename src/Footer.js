@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './Footer.css';
+import cel from './cel';
 
 // The last panel, the sign-off: the lamp from the opening hangs on the cream page and pulls its own string.
 // The page goes dark except for the cone of light, she stands in it waving goodbye, the cone slowly closes
@@ -22,11 +23,12 @@ function Lamp({ on, portrait, onNote }) {
     if (!B.POSES.wave1) { const st = B.POSES.stand, CH = st.head[1];                          // a wave: the right arm up, the hand swinging
       B.POSES.wave1 = Object.assign({}, st, { head: [0, CH, -.03], armR: [[54, CH + 24], [92, CH - 30], [70, CH - 120]] });
       B.POSES.wave2 = Object.assign({}, st, { head: [0, CH, -.03], armR: [[54, CH + 24], [96, CH - 30], [118, CH - 110]] }); }
-    const layer = document.createElement('canvas');
+    const cels = new Map(); let drawn = false;                        // her and her shadow, drawn once per pose
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2, TAU = Math.PI * 2;
     const tick = now => {
       raf = requestAnimationFrame(tick); if (!t0) t0 = now; const t = (now - t0) / 1000;
-      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
+      const box = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 1.5), w = Math.round(box.width), h = Math.round(box.height); if (!w || !h) return;
+      if (t < T_TUG && drawn) return; drawn = true;                       // nothing moves before the tug: the first frame stands
       if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); canvas.style.width = w + 'px'; canvas.style.height = h + 'px'; }
       const s = (portrait ? w * 1.1 : h) / 1080, K = Math.min(h / 1080, w / 1920 * 1.9), M = Math.round(Math.min(w, h) * .052);
       const LX = w * .5, LY = M + 70 * K, floor = h - M - 10 * s, sc = s * .62, cx = LX - 170 * s;
@@ -55,14 +57,13 @@ function Lamp({ on, portrait, onNote }) {
         c.save(); c.globalAlpha = lampAl; c.fillStyle = ink; c.beginPath(); c.arc(LX + 1, hy + 4 * K, 7 * K, 0, TAU); c.fill(); c.restore(); }
       // her, waving goodbye in the cone while the light lasts: only what the cone lights is drawn
       if (closing < 1) {
-        const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc;
-        if (layer.width !== Math.round(lw * dpr) || layer.height !== Math.round(lh * dpr)) { layer.width = Math.round(lw * dpr); layer.height = Math.round(lh * dpr); }
-        const g = layer.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, -ox * dpr, -oy * dpr); g.clearRect(ox, oy, lw, lh); B.draw(g, pose, { x: cx, y: floor, scale: sc });
+        const lw = Math.round(460 * sc), lh = Math.round(520 * sc), ox = cx - lw / 2, oy = floor - lh + 20 * sc, key = pose + '|' + lw;
+        let cl = cels.get(key); if (!cl) { cl = cel(B, pose, lw, lh, sc, dpr); cels.set(key, cl); }
         c.save(); if (cone) c.clip(cone);
-        c.save(); c.filter = 'brightness(0) blur(5px)'; c.globalAlpha = .3; c.drawImage(layer, ox + 10 * s, oy + 12 * s, lw, lh); c.restore(); c.drawImage(layer, ox, oy, lw, lh); c.restore();
+        c.globalAlpha = .3; c.drawImage(cl.shadow, ox + 10 * s, oy + 12 * s, lw, lh); c.globalAlpha = 1; c.drawImage(cl.body, ox, oy, lw, lh); c.restore();
       }
       if (t >= T_NOTE && !noted) { noted = true; onNote(); }
-      if (t > T_CLOSED + .5) cancelAnimationFrame(raf);                 // the frame is black and stays that way: nothing more to draw
+      if (t > T_CLOSED + .5) { cancelAnimationFrame(raf); canvas.style.background = '#0e0c0c'; canvas.width = 0; canvas.height = 0; }   // the frame is black and stays that way: the bitmap goes, the element stays black
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);

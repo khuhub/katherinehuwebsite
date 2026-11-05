@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Frame from './Frame';
 import './About.css';
+import freeze from './freeze';
 
 // Panel 2, about: a lawn seen from above (mottled greens drawn once into a canvas), "ABOUT ME" in letter beads,
 // a short bio, and ten cut-out objects along the bottom that rise in edge-first when the panel scrolls into view.
@@ -37,11 +38,13 @@ function Lawn() {
       for (let i = 0; i < dots; i++) { const x = r() * w, y = r() * h; c.fillStyle = i % 5 < 3 ? 'rgba(63,107,42,.10)' : 'rgba(214,234,154,.12)'; c.fillRect(x, y, 2, 2); }
       c.strokeStyle = 'rgba(70,110,40,.45)'; c.lineWidth = 2; const blades = Math.round(700 * (w * h) / (1920 * 1080));
       for (let i = 0; i < blades; i++) { const x = r() * w, y = r() * h, L = 6 + r() * 10, a = -Math.PI / 2 + (r() - .5) * 1.2; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * L, y + Math.sin(a) * L); c.stroke(); }
+      thaw(); thaw = freeze(canvas);                                       // drawn: keep it as a picture, give the bitmap back
     };
+    let thaw = () => {};
     draw();
     let t = 0; const onResize = () => { clearTimeout(t); t = setTimeout(draw, 150); };
     window.addEventListener('resize', onResize);
-    return () => { window.removeEventListener('resize', onResize); clearTimeout(t); };
+    return () => { window.removeEventListener('resize', onResize); clearTimeout(t); thaw(); };
   }, []);
   return <canvas ref={ref} className="about-lawn" aria-hidden="true" />;
 }
