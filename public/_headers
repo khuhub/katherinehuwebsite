@@ -1,0 +1,19 @@
+# Cloudflare Pages caching rules. The build puts a hash in every JS/CSS file name, so those can be cached
+# forever; the pictures, songs and engine scripts change rarely, so a day with revalidation is fine.
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.png
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.jpg
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/songs/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/engine/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
