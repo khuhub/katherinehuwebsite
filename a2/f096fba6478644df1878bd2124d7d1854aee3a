@@ -1,0 +1,19 @@
+package-lock.json
+  s_8e076e4a9a5a45::t_2fd30f14fdb9c4 2396-2397,3660-3723,3881-3882,4249-4250,4689-4690,6833-6834,8470-8471,12090-12091,14802-14818,16688
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a2f096fba6478644df1878bd2124d7d1854aee3a",
+  "prompts": {},
+  "sessions": {
+    "s_8e076e4a9a5a45": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f3c4525-5cb3-4d13-bdad-4527538ade80",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Katherine Hu <katherine.y.hu@gmail.com>"
+    }
+  }
+}
