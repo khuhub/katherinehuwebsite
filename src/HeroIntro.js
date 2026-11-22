@@ -12,6 +12,14 @@ import { useEffect, useRef, useState } from 'react';
 //
 // Phases: idle → blink (0.9 s) → dark (the lamp beat, ~7.5 s, ending fully open) → done (unmounted).
 const BLINK_DUR = 0.9, AUTO_AFTER = 7;
+// Speed. A redraw at most every 12 ms: every frame on a 60 Hz screen, every other on a 120/144 Hz one (the
+// drawings change 24 times a second; a fast screen only doubled the work). The cached drawings are built one at
+// a time in idle moments, never two frames running. And if the browser still can't keep up (a PC drawing the
+// canvas without its GPU manages a few frames a second at full size), the intro is drawn smaller: the median gap
+// between frames over a second or so decides (not counting frames that built a drawing, a stutter every machine
+// has), so a machine that keeps up never changes.
+const MIN_GAP = 12, SLOW_GAP = 40, CAPS = [1e9, 1400, 960];
+const whenIdle = fn => (window.requestIdleCallback ? window.requestIdleCallback(fn, { timeout: 1000 }) : setTimeout(fn, 30));
 
 export default function HeroIntro() {
   const canvasRef = useRef(null);
@@ -47,17 +55,46 @@ export default function HeroIntro() {
     window.addEventListener('keydown', onKey);
     const auto = setTimeout(trigger, AUTO_AFTER * 1000);
 
+    let level = 0;                                                  // index into CAPS: how far the intro has been shrunk
+    const remake = () => { R.dispose(); L.dispose(); R.resize(CAPS[level]); L = window.HeroLamp.make(); warmed = false; lampWarm = false; };
     let resizeTimer = 0;
-    const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (!alive) return; R.dispose(); L.dispose(); R.resize(); L = window.HeroLamp.make(); warmed = false; lampWarm = false; }, 150); };
+    const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (!alive) return; remake(); }, 150); };
     window.addEventListener('resize', onResize);
 
+    // the cached drawings (blink, lamp) are built one per idle moment, so the blink never stutters
+    let warming = false;
+    let building = false;                                           // a drawing was built since the last frame
+    const warmStep = () => {
+      warming = false;
+      if (!alive || phase !== 'idle') return;
+      building = true;
+      if (!warmed) warmed = R.warm(); else if (!lampWarm) lampWarm = L.warm();
+    };
+    // is the browser keeping up? gaps between frames after a settling moment, leaving out any gap in which a
+    // drawing was built
+    let lastTick = 0, probeFrom = performance.now() + 600, gaps = [], probing = true;
+    const probe = ms => {
+      if (document.hidden) { lastTick = 0; return; }                 // a hidden tab gets no frames: that pause isn't slowness
+      const skip = building; building = false;
+      if (lastTick && ms > probeFrom && !skip) gaps.push(ms - lastTick);
+      lastTick = ms;
+      if (gaps.length < 4 || gaps.reduce((a, b) => a + b, 0) < 1200) return;
+      const median = [...gaps].sort((a, b) => a - b)[gaps.length >> 1];
+      if (median > SLOW_GAP && level < CAPS.length - 1) { level++; remake(); gaps = []; probeFrom = performance.now() + 600; }
+      else probing = false;                                          // keeping up (or as small as it goes): stop watching
+    };
+
+    let lastDraw = 0;
     const frame = () => {
       if (!alive) return;
+      const ms = performance.now();
+      if (probing && phase === 'idle') probe(ms);
+      if (ms - lastDraw < MIN_GAP) { raf = requestAnimationFrame(frame); return; }
+      lastDraw = ms;
       const t = now();
       if (phase === 'idle') {
-        R.idle(t);
-        if (!warmed) warmed = R.warm();            // one more cached drawing per frame, so the blink never stutters
-        else if (!lampWarm) lampWarm = L.warm();   // then the lamp beat's black-and-white drawings
+        const b = R.built; R.idle(t); if (R.built !== b) building = true;
+        if (!warming && !(warmed && lampWarm)) { warming = true; whenIdle(warmStep); }
       } else if (phase === 'blink') {
         const k = Math.min(1, (performance.now() - start) / 1000 / BLINK_DUR);
         R.blink(t, k * k * (3 - 2 * k));

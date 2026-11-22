@@ -288,16 +288,21 @@ function build(opt = {}) {
 // side 1080), caches the face drawings and one hair drawing, and draws frames.
 function makeRenderer(canvas) {
   let F = null, cache = new Map(), c = canvas.getContext('2d');
-  function resize() {
+  let bgL = null, panelL = null;                                   // the parts that never change, drawn once (below)
+  const dropStill = () => { if (bgL) dropLayer(bgL); if (panelL) dropLayer(panelL); bgL = panelL = null; };
+  // maxWidth: a lower ceiling for a machine that can't keep up at full size (src/HeroIntro.js decides)
+  function resize(maxWidth = 1e9) {
+    dropStill();
     const vw = Math.max(1, window.innerWidth), vh = Math.max(1, window.innerHeight);
-    const dpr = Math.min(window.devicePixelRatio || 1, 2), touch = navigator.maxTouchPoints > 0, width = Math.min(Math.round(vw * dpr), 2200, touch ? Math.round(Math.sqrt(1.6e6 * vw / vh)) : 1e9);   // each cached drawing is a full-frame bitmap: on a phone or tablet, where canvas memory is tight, one is held to 1.6 Mpx
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), touch = navigator.maxTouchPoints > 0, width = Math.min(Math.round(vw * dpr), 2200, maxWidth, touch ? Math.round(Math.sqrt(1.6e6 * vw / vh)) : 1e9);   // each cached drawing is a full-frame bitmap: on a phone or tablet, where canvas memory is tight, one is held to 1.6 Mpx
     setFormat({ ar: `${vw}:${vh}`, width });
     canvas.width = OUT_W; canvas.height = OUT_H;
     canvas.style.width = vw + 'px'; canvas.style.height = vh + 'px';
     cache = new Map(); F = build();
   }
+  let built = 0;                                                   // drawings made so far (src/HeroIntro.js skips those frames when it times the browser)
   function cached(key, draw) {
-    if (!cache.has(key)) { const L = layer(); const g = L.getContext('2d'); g.setTransform(S, 0, 0, S, 0, 0); draw(g); cache.set(key, L); }
+    if (!cache.has(key)) { built++; const L = layer(); const g = L.getContext('2d'); g.setTransform(S, 0, 0, S, 0, 0); draw(g); cache.set(key, L); }
     return cache.get(key);
   }
   const faceLayer = id => cached('face/' + id, g => F.face(g, F.DRAWINGS[id]));
@@ -318,21 +323,33 @@ function makeRenderer(canvas) {
   }
   // the background: the pink paper photo (public/paper-pink.jpg) covering the frame; the flat pink until it loads
   const PAPER_IMG = new Image(); PAPER_IMG.src = '/paper-pink.jpg';
-  const bg = () => { paper(c, F.BG, null, 31); if (PAPER_IMG.complete && PAPER_IMG.naturalWidth) { const k = Math.max(W / PAPER_IMG.naturalWidth, H / PAPER_IMG.naturalHeight), dw = PAPER_IMG.naturalWidth * k, dh = PAPER_IMG.naturalHeight * k; c.drawImage(PAPER_IMG, (W - dw) / 2, (H - dh) / 2, dw, dh); } };
+  const photoReady = () => PAPER_IMG.complete && PAPER_IMG.naturalWidth;
+  const paperOn = g => { paper(g, F.BG, null, 31); if (photoReady()) { const k = Math.max(W / PAPER_IMG.naturalWidth, H / PAPER_IMG.naturalHeight), dw = PAPER_IMG.naturalWidth * k, dh = PAPER_IMG.naturalHeight * k; g.drawImage(PAPER_IMG, (W - dw) / 2, (H - dh) / 2, dw, dh); } };
+  // The paper and the panel's mat and border are the same on every frame (seeded), so they are drawn once
+  // into layers and copied pixel for pixel each frame: redrawing them was 1,400 grain specks, a resampled
+  // photo and ~500 brush segments per frame, which a PC drawing the canvas without its GPU can't keep up with.
+  const blit = L => { c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(L, 0, 0); resetT(c); };
+  const bg = () => {
+    if (!photoReady()) { paperOn(c); return; }                     // the flat paper until the photo arrives; then the photo, kept
+    if (!bgL) { bgL = layer(); const g = bgL.getContext('2d'); paperOn(g); }
+    blit(bgL);
+  };
+  const panel = () => { if (!panelL) { panelL = layer(); F.frame(panelL.getContext('2d')); } blit(panelL); };
   return {
     resize,
     get dims() { return F ? F.dims() : null; },
+    get built() { return built; },
     // warm one more drawing into the cache; returns true when there is nothing left to warm
     warm() { const ids = ['open', 'half', 'closed', 'halfUp', 'openL', 'bl0.8', 'bl0.6', 'bl0.4', 'bl0.2']; for (const id of ids) if (!cache.has('face/' + id)) { faceLayer(id); return false; } hairLayer(); return true; },
     // idle: the exposure sheet loops; t in seconds
-    idle(t) { bg(); drawScene(c, F.drawingAt(Math.floor(t * 24) % F.NFRAMES), t); F.frame(c); },
+    idle(t) { bg(); drawScene(c, F.drawingAt(Math.floor(t * 24) % F.NFRAMES), t); panel(); },
     // blink out: k 0..1, her lids close as the camera pushes in, the screen's lids close with them
-    blink(t, k) { bg(); drawScene(c, F.blinkId(k), t, { zoom: 1 + k * 1.3 }); F.frame(c); F.lids(c, 1 - easeIn(k)); },
+    blink(t, k) { bg(); drawScene(c, F.blinkId(k), t, { zoom: 1 + k * 1.3 }); panel(); F.lids(c, 1 - easeIn(k)); },
     // open: k 0..1, only the lids are drawn; the page shows through the rest
     open(k) { resetT(c); c.clearRect(0, 0, W, H); F.lids(c, k); },
     clear() { resetT(c); c.clearRect(0, 0, W, H); },
     // the intro is over: every cached drawing gives its bitmap back
-    dispose() { for (const L of cache.values()) dropLayer(L); cache = new Map(); },
+    dispose() { for (const L of cache.values()) dropLayer(L); cache = new Map(); dropStill(); },
   };
 }
 
