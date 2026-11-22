@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import perfReport from './perfReport';
+
+// katherineyhu.com/?perf: a frame-timing box for finding out why a particular computer is slow (src/perfReport.js)
+if (/[?&]perf\b/.test(window.location.search)) perfReport();
 
 // every visit starts at the top: the browser would otherwise bring a reload back to wherever the page was,
 // and the snap would settle it on whichever panel that was
